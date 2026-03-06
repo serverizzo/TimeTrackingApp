@@ -1,9 +1,11 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { createContext, useContext, ReactNode } from 'react'
 
 interface StopwatchContextType {
   elapsedGlobalTime: number
   elapsedLapTime: number
+  isTimerRunning: boolean
+  start: () => void
 }
 
 interface StopWatchTime {
@@ -19,9 +21,26 @@ const StopwatchContext = createContext<StopwatchContextType | null>(null)
 export function StopwatchProvider({ children }: { children: ReactNode }) {
   const [elapsedGlobalTime, setElapsedGlobalTime] = useState(0)
   const [elapsedLapTime, setElapsedLapTime] = useState(0)
+  const [isTimerRunning, setIsTimerRunning] = useState(false)
+
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const startTimeRef = useRef<number>(0)
+
+  const start = () => {
+    if (isTimerRunning) {
+      console.log('startTimeRef.current', startTimeRef.current)
+      console.log('elapsedGlobalTime', elapsedGlobalTime)
+      return
+    }
+    startTimeRef.current = Date.now() - elapsedGlobalTime
+    intervalRef.current = setInterval(() => {
+      setElapsedGlobalTime(Date.now() - startTimeRef.current)
+    }, 100)
+    setIsTimerRunning(true)
+  }
 
   return (
-    <StopwatchContext.Provider value={{ elapsedLapTime, elapsedGlobalTime }}>
+    <StopwatchContext.Provider value={{ elapsedLapTime, elapsedGlobalTime, isTimerRunning, start }}>
       {children}
     </StopwatchContext.Provider>
   )

@@ -1,9 +1,17 @@
+import { useStopwatch } from '@renderer/context/stopwatchcontext'
 import React from 'react'
 
 export default function StartStopMenu() {
+  const { start } = useStopwatch()
+
+  const executeStart = () => {
+    console.log('start has been pressed')
+    start()
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
-      <button onClick={() => console.log('I have been pressed')} style={styles.buttonStyles}>
+      <button onClick={() => executeStart()} style={styles.buttonStyles}>
         Start
       </button>
       <button onClick={() => console.log('I have been pressed')} style={styles.buttonStyles}>
