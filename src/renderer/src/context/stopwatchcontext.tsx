@@ -7,9 +7,19 @@ interface StopwatchContextType {
   isTimerRunning: boolean
   start: () => void
   stop: () => void
+  clear: () => void
+  laps: LapRows[]
+  millisecondsToTime: (ms: number) => StopWatchTime
 }
 
-interface StopWatchTime {
+interface LapRows {
+  timestarted: number
+  lapTime: number
+  cumulativeTotal: number
+  note: string
+}
+
+export interface StopWatchTime {
   days: number
   hours: number
   minutes: number
@@ -45,9 +55,32 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
     setIsTimerRunning(false)
   }
 
+  const clear = () => {
+    if (isTimerRunning) return // do nothing if we are still running
+    setElapsedGlobalTime(0)
+  }
+
+  const millisecondsToTime = (ms: number): StopWatchTime => {
+    return {
+      days: Math.floor(ms / 86400000),
+      hours: Math.floor(ms / 3600000) % 24,
+      minutes: Math.floor(ms / 60000) % 60,
+      seconds: Math.floor(ms / 1000) % 60,
+      milliseconds: ms % 1000
+    }
+  }
+
   return (
     <StopwatchContext.Provider
-      value={{ elapsedLapTime, elapsedGlobalTime, isTimerRunning, start, stop }}
+      value={{
+        elapsedLapTime,
+        elapsedGlobalTime,
+        isTimerRunning,
+        start,
+        stop,
+        clear,
+        millisecondsToTime
+      }}
     >
       {children}
     </StopwatchContext.Provider>
