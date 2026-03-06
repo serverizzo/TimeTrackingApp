@@ -2,7 +2,7 @@ import { useStopwatch } from '@renderer/context/stopwatchcontext'
 import React from 'react'
 
 export default function StartStopMenu() {
-  const { start } = useStopwatch()
+  const { start, stop } = useStopwatch()
 
   const executeStart = () => {
     console.log('start has been pressed')
@@ -14,7 +14,7 @@ export default function StartStopMenu() {
       <button onClick={() => executeStart()} style={styles.buttonStyles}>
         Start
       </button>
-      <button onClick={() => console.log('I have been pressed')} style={styles.buttonStyles}>
+      <button onClick={() => stop()} style={styles.buttonStyles}>
         Stop
       </button>
       <button onClick={() => console.log('I have been pressed')} style={styles.buttonStyles}>

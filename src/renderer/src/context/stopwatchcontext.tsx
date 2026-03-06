@@ -6,6 +6,7 @@ interface StopwatchContextType {
   elapsedLapTime: number
   isTimerRunning: boolean
   start: () => void
+  stop: () => void
 }
 
 interface StopWatchTime {
@@ -39,8 +40,15 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
     setIsTimerRunning(true)
   }
 
+  const stop = () => {
+    if (intervalRef.current) clearInterval(intervalRef.current)
+    setIsTimerRunning(false)
+  }
+
   return (
-    <StopwatchContext.Provider value={{ elapsedLapTime, elapsedGlobalTime, isTimerRunning, start }}>
+    <StopwatchContext.Provider
+      value={{ elapsedLapTime, elapsedGlobalTime, isTimerRunning, start, stop }}
+    >
       {children}
     </StopwatchContext.Provider>
   )
