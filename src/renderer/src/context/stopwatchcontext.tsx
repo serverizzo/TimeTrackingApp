@@ -9,7 +9,9 @@ interface StopwatchContextType {
   stop: () => void
   clear: () => void
   laps: LapRows[]
+  lap: () => void
   millisecondsToTime: (ms: number) => StopWatchTime
+  convertToTime: (time: StopWatchTime) => React.JSX.Element
 }
 
 interface LapRows {
@@ -33,9 +35,11 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
   const [elapsedGlobalTime, setElapsedGlobalTime] = useState(0)
   const [elapsedLapTime, setElapsedLapTime] = useState(0)
   const [isTimerRunning, setIsTimerRunning] = useState(false)
+  const [laps, setLaps] = useState<LapRows[]>([])
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const startTimeRef = useRef<number>(0)
+  const lapStartTimeRef = useRef<number>(0)
 
   const start = () => {
     if (isTimerRunning) {
@@ -43,9 +47,13 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
       console.log('elapsedGlobalTime', elapsedGlobalTime)
       return
     }
+    // intialize our startTimeRefs
     startTimeRef.current = Date.now() - elapsedGlobalTime
+    lapStartTimeRef.current = Date.now() - elapsedLapTime
+
     intervalRef.current = setInterval(() => {
       setElapsedGlobalTime(Date.now() - startTimeRef.current)
+      setElapsedLapTime(Date.now() - lapStartTimeRef.current)
     }, 100)
     setIsTimerRunning(true)
   }
@@ -70,6 +78,33 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const lap = () => {
+    if (!isTimerRunning) return
+    setLaps((prev) => [
+      ...prev,
+      {
+        timestarted: Date.now(),
+        lapTime: elapsedLapTime,
+        cumulativeTotal: elapsedGlobalTime,
+        note: ''
+      }
+    ])
+    lapStartTimeRef.current = Date.now()
+    setElapsedLapTime(0)
+  }
+
+  const convertToTime = (time: StopWatchTime): React.JSX.Element => {
+    return (
+      <p>
+        {time.days < 10 ? 0 : ''}
+        {time.days}:{time.hours < 10 ? 0 : ''}
+        {time.hours}:{time.minutes < 10 ? 0 : ''}
+        {time.minutes}:{time.seconds < 10 ? 0 : ''}
+        {time.seconds}
+      </p>
+    )
+  }
+
   return (
     <StopwatchContext.Provider
       value={{
@@ -79,7 +114,10 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
         start,
         stop,
         clear,
-        millisecondsToTime
+        millisecondsToTime,
+        laps,
+        lap,
+        convertToTime
       }}
     >
       {children}

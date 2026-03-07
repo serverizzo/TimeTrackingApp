@@ -3,23 +3,18 @@ import React from 'react'
 import { StopWatchTime } from '@renderer/context/stopwatchcontext'
 
 export default function CollapseableTimeDisplay() {
-  const { elapsedGlobalTime, elapsedLapTime, millisecondsToTime } = useStopwatch()
+  const { elapsedGlobalTime, elapsedLapTime, millisecondsToTime, convertToTime } = useStopwatch()
 
   const time: StopWatchTime = millisecondsToTime(elapsedGlobalTime)
+  const lapTime: StopWatchTime = millisecondsToTime(elapsedLapTime)
 
   return (
     <div>
       <p>Total Time</p>
       <p>days: hr: min: sec: ms</p>
-      <p>
-        {time.days < 10 ? 0 : ''}
-        {time.days}:{time.hours < 10 ? 0 : ''}
-        {time.hours}:{time.minutes < 10 ? 0 : ''}
-        {time.minutes}:{time.seconds < 10 ? 0 : ''}
-        {time.seconds}
-      </p>
+      <p>{convertToTime(time)}</p>
       <p>Lap Time</p>
-      <p>{elapsedLapTime}</p>
+      <p>{convertToTime(lapTime)}</p>
     </div>
   )
 }
