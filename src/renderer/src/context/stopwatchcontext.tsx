@@ -15,7 +15,7 @@ interface StopwatchContextType {
 }
 
 interface LapRows {
-  timestarted: number
+  timestarted: string
   lapTime: number
   cumulativeTotal: number
   note: string
@@ -45,6 +45,7 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
     if (isTimerRunning) {
       console.log('startTimeRef.current', startTimeRef.current)
       console.log('elapsedGlobalTime', elapsedGlobalTime)
+      console.log()
       return
     }
     // intialize our startTimeRefs
@@ -83,7 +84,12 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
     setLaps((prev) => [
       ...prev,
       {
-        timestarted: Date.now(),
+        timestarted: new Date().toLocaleString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true
+        }),
         lapTime: elapsedLapTime,
         cumulativeTotal: elapsedGlobalTime,
         note: ''
