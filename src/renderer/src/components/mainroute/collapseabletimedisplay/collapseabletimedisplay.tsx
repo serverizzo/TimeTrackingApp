@@ -12,9 +12,9 @@ export default function CollapseableTimeDisplay() {
     <div>
       <p>Total Time</p>
       <p>days: hr: min: sec: ms</p>
-      <p>{convertToTime(time)}</p>
+      {convertToTime(time)}
       <p>Lap Time</p>
-      <p>{convertToTime(lapTime)}</p>
+      {convertToTime(lapTime)}
     </div>
   )
 }
