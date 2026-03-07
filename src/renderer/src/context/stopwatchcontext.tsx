@@ -12,6 +12,7 @@ interface StopwatchContextType {
   lap: () => void
   millisecondsToTime: (ms: number) => StopWatchTime
   convertToTime: (time: StopWatchTime) => React.JSX.Element
+  updateNote: (index: number, note: string) => void
 }
 
 interface LapRows {
@@ -45,7 +46,7 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
     if (isTimerRunning) {
       console.log('startTimeRef.current', startTimeRef.current)
       console.log('elapsedGlobalTime', elapsedGlobalTime)
-      console.log()
+      console.log(laps)
       return
     }
     // intialize our startTimeRefs
@@ -99,6 +100,10 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
     setElapsedLapTime(0)
   }
 
+  const updateNote = (index: number, note: string) => {
+    setLaps((prev) => prev.map((lap, i) => (i === index ? { ...lap, note } : lap)))
+  }
+
   const convertToTime = (time: StopWatchTime): React.JSX.Element => {
     return (
       <p>
@@ -120,7 +125,8 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
         millisecondsToTime,
         laps,
         lap,
-        convertToTime
+        convertToTime,
+        updateNote
       }}
     >
       {children}
