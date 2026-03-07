@@ -96,11 +96,8 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
   const convertToTime = (time: StopWatchTime): React.JSX.Element => {
     return (
       <p>
-        {time.days < 10 ? 0 : ''}
-        {time.days}:{time.hours < 10 ? 0 : ''}
-        {time.hours}:{time.minutes < 10 ? 0 : ''}
-        {time.minutes}:{time.seconds < 10 ? 0 : ''}
-        {time.seconds}
+        {String(time.days).padStart(2, '0')}:{String(time.hours).padStart(2, '0')}:
+        {String(time.minutes).padStart(2, '0')}:{String(time.seconds).padStart(2, '0')}
       </p>
     )
   }
