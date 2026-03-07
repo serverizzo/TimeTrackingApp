@@ -15,7 +15,7 @@ export default function LapDisplay() {
       </thead>
       <tbody>
         {laps.map((ele, index) => (
-          <tr key={index}>
+          <tr key={ele.id}>
             <td style={styles.cellStyle}>{ele.timestarted}</td>
             <td style={styles.cellStyle}>{convertToTime(millisecondsToTime(ele.lapTime))}</td>
             <td style={styles.cellStyle}>
