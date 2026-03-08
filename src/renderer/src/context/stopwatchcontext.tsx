@@ -71,6 +71,8 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
   const clear = () => {
     if (isTimerRunning) return // do nothing if we are still running
     setElapsedGlobalTime(0)
+    setElapsedLapTime(0)
+    setLaps([])
   }
 
   const millisecondsToTime = (ms: number): StopWatchTime => {
