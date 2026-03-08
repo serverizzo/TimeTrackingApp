@@ -73,6 +73,7 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
     setElapsedGlobalTime(0)
     setElapsedLapTime(0)
     setLaps([])
+    lapCountRef.current = 0
   }
 
   const millisecondsToTime = (ms: number): StopWatchTime => {
