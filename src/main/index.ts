@@ -1,7 +1,8 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import fs from 'fs'
 
 function createWindow(): void {
   // Create the browser window.
@@ -51,6 +52,18 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
+
+  // Save CSV
+  ipcMain.handle('save-csv', async (_, csvContent: string, dateStr: string) => {
+    const { filePath } = await dialog.showSaveDialog({
+      title: 'Save Time Tracker CSV',
+      defaultPath: `${dateStr}.csv`,
+      filters: [{ name: 'CSV Files', extensions: ['csv'] }]
+    })
+    if (filePath) {
+      fs.writeFileSync(filePath, csvContent)
+    }
+  })
 
   createWindow()
 

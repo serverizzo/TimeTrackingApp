@@ -13,6 +13,7 @@ interface StopwatchContextType {
   millisecondsToTime: (ms: number) => StopWatchTime
   convertToTime: (time: StopWatchTime) => React.JSX.Element
   updateNote: (index: number, note: string) => void
+  saveToCSV: () => Promise<void>
 }
 
 interface LapRows {
@@ -109,12 +110,25 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
   }
 
   const convertToTime = (time: StopWatchTime): React.JSX.Element => {
-    return (
-      <p>
-        {String(time.days).padStart(2, '0')}:{String(time.hours).padStart(2, '0')}:
-        {String(time.minutes).padStart(2, '0')}:{String(time.seconds).padStart(2, '0')}
-      </p>
-    )
+    return <p>{convertToTimeString(time)}</p>
+  }
+
+  const convertToTimeString = (time: StopWatchTime): string => {
+    return `${String(time.days).padStart(2, '0')}:${String(time.hours).padStart(2, '0')}:${String(time.minutes).padStart(2, '0')}:${String(time.seconds).padStart(2, '0')}`
+  }
+
+  const saveToCSV = async () => {
+    const now = new Date()
+    const dateStr = `${now.getMonth() + 1}_${now.getDate()}_${now.getFullYear()}`
+    const header = `#Exported from TimeTracker on ${dateStr}\n#ID,Time Started,Lap Time,Cumulative Total,Note\n`
+    const rows = laps
+      .map(
+        (lap) =>
+          `${lap.id},${lap.timestarted},${convertToTimeString(millisecondsToTime(lap.lapTime))},${convertToTimeString(millisecondsToTime(lap.cumulativeTotal))},${lap.note}`
+      )
+      .join('\n')
+
+    await window.api.saveCsv(header + rows, dateStr)
   }
 
   return (
@@ -130,7 +144,8 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
         laps,
         lap,
         convertToTime,
-        updateNote
+        updateNote,
+        saveToCSV
       }}
     >
       {children}
