@@ -9,7 +9,7 @@ interface StopwatchContextType {
   stop: () => void
   clear: () => void
   laps: LapRows[]
-  lap: () => void
+  lap: (defaultNote?: string) => void
   millisecondsToTime: (ms: number) => StopWatchTime
   convertToTime: (time: StopWatchTime) => React.JSX.Element
   updateNote: (index: number, note: string) => void
@@ -64,6 +64,8 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
   }
 
   const stop = () => {
+    if (!isTimerRunning) return
+    lap('Timer paused')
     if (intervalRef.current) clearInterval(intervalRef.current)
     setIsTimerRunning(false)
   }
@@ -86,7 +88,7 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const lap = () => {
+  const lap = (defaultNote: string = '') => {
     if (!isTimerRunning) return
 
     setLaps((prev) => [
@@ -101,7 +103,7 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
         }),
         lapTime: elapsedLapTime,
         cumulativeTotal: elapsedGlobalTime,
-        note: ''
+        note: defaultNote
       }
     ])
     lapCountRef.current = lapCountRef.current + 1

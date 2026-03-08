@@ -22,7 +22,7 @@ export default function LapDisplay() {
               {convertToTime(millisecondsToTime(ele.cumulativeTotal))}
             </td>
             <td style={styles.cellStyle}>
-              <input onChange={(e) => updateNote(index, e.target.value)} />
+              <input value={ele.note} onChange={(e) => updateNote(index, e.target.value)} />
             </td>
           </tr>
         ))}
