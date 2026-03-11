@@ -3,6 +3,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import fs from 'fs'
+import { initializeDatabase, getDb } from './database'
 
 function createWindow(): void {
   // Create the browser window.
@@ -40,6 +41,8 @@ function createWindow(): void {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+  initializeDatabase()
+
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
 
