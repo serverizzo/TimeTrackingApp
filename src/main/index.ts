@@ -4,6 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import fs from 'fs'
 import { initializeDatabase, getDb } from './database'
+import { LapRow } from '../shared/databasetypes/LapRow'
 
 function createWindow(): void {
   // Create the browser window.
@@ -66,6 +67,23 @@ app.whenReady().then(() => {
     if (filePath) {
       fs.writeFileSync(filePath, csvContent)
     }
+  })
+
+  ipcMain.handle('insert-laps', (_, laps: LapRow[]) => {
+    const db = getDb()
+
+    const insertCommand = db.prepare(`
+        INSERT OR IGNORE INTO laps (timestarted, date, lap_time, cumulative_total, note)
+        VALUES (@timestarted, @date, @lapTime, @cumulativeTotal, @note)
+      `)
+
+    const insertMany = db.transaction((laps) => {
+      for (const lap of laps) {
+        insertCommand.run(lap)
+      }
+    })
+
+    insertMany(laps)
   })
 
   createWindow()
