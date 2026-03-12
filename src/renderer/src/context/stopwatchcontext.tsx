@@ -17,14 +17,6 @@ interface StopwatchContextType {
   saveToCSV: () => Promise<void>
 }
 
-// interface LapRows {
-//   id: number
-//   timestarted: string
-//   lapTime: number
-//   cumulativeTotal: number
-//   note: string
-// }
-
 export interface StopWatchTime {
   days: number
   hours: number
@@ -102,14 +94,9 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
           second: '2-digit',
           hour12: true
         }),
-        date:
-          new Date().getFullYear().toString() +
-          '-' +
-          (new Date().getMonth() + 1).toString() +
-          '-' +
-          new Date().getDate().toString(),
-        lapTime: elapsedLapTime,
-        cumulativeTotal: elapsedGlobalTime,
+        date: new Date().toISOString().split('T')[0],
+        lapTime: convertToTimeString(millisecondsToTime(elapsedLapTime)),
+        cumulativeTotal: convertToTimeString(millisecondsToTime(elapsedGlobalTime)),
         note: defaultNote
       }
     ])
@@ -136,8 +123,7 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
     const header = `#Exported from TimeTracker on ${dateStr}\n#ID,Time Started,Lap Time,Cumulative Total,Note\n`
     const rows = laps
       .map(
-        (lap) =>
-          `${lap.id},${lap.timestarted},${convertToTimeString(millisecondsToTime(lap.lapTime))},${convertToTimeString(millisecondsToTime(lap.cumulativeTotal))},${lap.note}`
+        (lap) => `${lap.id},${lap.timestarted},${lap.lapTime},${lap.cumulativeTotal},${lap.note}`
       )
       .join('\n')
 
