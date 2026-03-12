@@ -70,20 +70,25 @@ app.whenReady().then(() => {
   })
 
   ipcMain.handle('insert-laps', (_, laps: LapRow[]) => {
-    const db = getDb()
+    try {
+      const db = getDb()
 
-    const insertCommand = db.prepare(`
+      const insertCommand = db.prepare(`
         INSERT OR IGNORE INTO laps (timestarted, date, lap_time, cumulative_total, note)
         VALUES (@timestarted, @date, @lapTime, @cumulativeTotal, @note)
-      `)
+        `)
 
-    const insertMany = db.transaction((laps) => {
-      for (const lap of laps) {
-        insertCommand.run(lap)
-      }
-    })
+      const insertMany = db.transaction((laps) => {
+        for (const lap of laps) {
+          insertCommand.run(lap)
+        }
+      })
 
-    insertMany(laps)
+      insertMany(laps)
+      return { success: true }
+    } catch {
+      throw new Error('failed to save laps')
+    }
   })
 
   createWindow()

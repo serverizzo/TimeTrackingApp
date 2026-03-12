@@ -1,5 +1,6 @@
 import { useStopwatch } from '@renderer/context/stopwatchcontext'
 import React from 'react'
+import toast from 'react-hot-toast'
 import { LapRow } from 'src/shared/databasetypes/LapRow'
 
 export default function Sidebar() {
@@ -8,7 +9,11 @@ export default function Sidebar() {
   const saveToDatabase = async (laps: LapRow[]) => {
     console.log('clicked save to database')
 
-    await window.api.insertLaps(laps)
+    await toast.promise(window.api.insertLaps(laps), {
+      loading: 'Saving...',
+      success: 'Saved!',
+      error: 'Error Saving'
+    })
   }
 
   return (

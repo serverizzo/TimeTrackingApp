@@ -6,7 +6,7 @@ declare global {
     electron: ElectronAPI
     api: {
       saveCsv: (csvContent: string, dateStr: string) => Promise<void>
-      insertLaps: (laps: LapRow[]) => Promise<void>
+      insertLaps: (laps: LapRow[]) => Promise<{ success: boolean }>
     }
   }
 }
