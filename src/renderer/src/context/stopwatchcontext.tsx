@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react'
 import { createContext, useContext, ReactNode } from 'react'
+import { LapRow } from 'src/shared/databasetypes/LapRow'
 
 interface StopwatchContextType {
   elapsedGlobalTime: number
@@ -8,7 +9,7 @@ interface StopwatchContextType {
   start: () => void
   stop: () => void
   clear: () => void
-  laps: LapRows[]
+  laps: LapRow[]
   lap: (defaultNote?: string) => void
   millisecondsToTime: (ms: number) => StopWatchTime
   convertToTime: (time: StopWatchTime) => React.JSX.Element
@@ -16,13 +17,13 @@ interface StopwatchContextType {
   saveToCSV: () => Promise<void>
 }
 
-interface LapRows {
-  id: number
-  timestarted: string
-  lapTime: number
-  cumulativeTotal: number
-  note: string
-}
+// interface LapRows {
+//   id: number
+//   timestarted: string
+//   lapTime: number
+//   cumulativeTotal: number
+//   note: string
+// }
 
 export interface StopWatchTime {
   days: number
@@ -38,7 +39,7 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
   const [elapsedGlobalTime, setElapsedGlobalTime] = useState(0)
   const [elapsedLapTime, setElapsedLapTime] = useState(0)
   const [isTimerRunning, setIsTimerRunning] = useState(false)
-  const [laps, setLaps] = useState<LapRows[]>([])
+  const [laps, setLaps] = useState<LapRow[]>([])
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const startTimeRef = useRef<number>(0)
@@ -101,6 +102,12 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
           second: '2-digit',
           hour12: true
         }),
+        date:
+          new Date().getFullYear().toString() +
+          '-' +
+          (new Date().getMonth() + 1).toString() +
+          '-' +
+          new Date().getDate().toString(),
         lapTime: elapsedLapTime,
         cumulativeTotal: elapsedGlobalTime,
         note: defaultNote

@@ -1,10 +1,12 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import { LapRow } from '../shared/databasetypes/LapRow'
 
 // Custom APIs for renderer
 const api = {
   saveCsv: (csvContent: string, dateStr: string) =>
-    ipcRenderer.invoke('save-csv', csvContent, dateStr)
+    ipcRenderer.invoke('save-csv', csvContent, dateStr),
+  insertLaps: (laps: LapRow[]) => ipcRenderer.invoke('insert-laps', laps)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
