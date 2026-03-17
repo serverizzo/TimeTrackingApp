@@ -2,7 +2,7 @@ import { useStopwatch } from '@renderer/context/stopwatchcontext'
 import React from 'react'
 
 export default function LapDisplay() {
-  const { laps, updateNote } = useStopwatch()
+  const { laps, convertToTime, millisecondsToTime, updateNote } = useStopwatch()
   return (
     <table>
       <thead>
@@ -17,8 +17,10 @@ export default function LapDisplay() {
         {laps.map((ele, index) => (
           <tr key={ele.id}>
             <td style={styles.cellStyle}>{ele.timestarted}</td>
-            <td style={styles.cellStyle}>{ele.lapTime}</td>
-            <td style={styles.cellStyle}>{ele.cumulativeTotal}</td>
+            <td style={styles.cellStyle}>{convertToTime(millisecondsToTime(ele.lapTime))}</td>
+            <td style={styles.cellStyle}>
+              {convertToTime(millisecondsToTime(ele.cumulativeTotal))}
+            </td>
             <td style={styles.cellStyle}>
               <input value={ele.note} onChange={(e) => updateNote(index, e.target.value)} />
             </td>
