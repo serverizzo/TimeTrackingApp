@@ -74,8 +74,8 @@ app.whenReady().then(() => {
       const db = getDb()
 
       const insertCommand = db.prepare(`
-        INSERT OR IGNORE INTO laps (timestarted, date, lap_time, cumulative_total, note)
-        VALUES (@timestarted, @date, @lapTime, @cumulativeTotal, @note)
+        INSERT OR IGNORE INTO laps (timestarted, date, lap_time, note)
+        VALUES (@timestarted, @date, @lapTime, @note)
         `)
 
       const insertMany = db.transaction((laps) => {
