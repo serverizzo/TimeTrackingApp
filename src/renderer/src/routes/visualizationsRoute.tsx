@@ -1,16 +1,8 @@
+import GanttChart from '@renderer/components/visualizations/GanttChart'
+import Heatmap from '@renderer/components/visualizations/Heatmap'
+import SummaryPanel from '@renderer/components/visualizations/summaryPannel'
+import { HeatmapEntry, LapEntry } from '@renderer/components/visualizations/types'
 import { useEffect, useState } from 'react'
-
-interface HeatmapEntry {
-  date: string
-  total: number
-}
-
-interface LapEntry {
-  timestarted: string
-  date: string
-  lap_time: number
-  note: string
-}
 
 export default function VisualizationsRoute() {
   const [heatmapData, setHeatmapData] = useState<HeatmapEntry[]>([])
@@ -37,8 +29,27 @@ export default function VisualizationsRoute() {
   return (
     <div>
       <p>VisualizationsRoute</p>
-      <p>{heatmapData.length} days of data loaded</p>
-      <p>{laps.length} laps in current window</p>
+      <Heatmap data={heatmapData} />
+      <GanttChart
+        laps={laps}
+        windowStart={windowStart}
+        windowEnd={windowEnd}
+        onPrev={() =>
+          setWindowStart((prev) => {
+            const d = new Date(prev)
+            d.setDate(d.getDate() - 7)
+            return d
+          })
+        }
+        onNext={() =>
+          setWindowStart((prev) => {
+            const d = new Date(prev)
+            d.setDate(d.getDate() + 7)
+            return d
+          })
+        }
+      />
+      <SummaryPanel laps={laps} />
     </div>
   )
 }
