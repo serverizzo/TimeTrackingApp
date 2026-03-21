@@ -2,7 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import Dashboard from './routes/Dashboard'
 import { StopwatchProvider } from './context/stopwatchcontext'
 import { Toaster } from 'react-hot-toast'
-import VisualizationsRoute from './components/visualizations/visualizationsRoute'
+import VisualizationsRoute from './routes/visualizationsRoute'
 import Sidebar from './components/general/Sidebar'
 
 function App(): React.JSX.Element {

@@ -6,7 +6,10 @@ import { LapRow } from '../shared/databasetypes/LapRow'
 const api = {
   saveCsv: (csvContent: string, dateStr: string) =>
     ipcRenderer.invoke('save-csv', csvContent, dateStr),
-  insertLaps: (laps: LapRow[]) => ipcRenderer.invoke('insert-laps', laps)
+  insertLaps: (laps: LapRow[]) => ipcRenderer.invoke('insert-laps', laps),
+  getHeatmapData: () => ipcRenderer.invoke('get-heatmap-data'),
+  getLapsByRange: (startDate: string, endDate: string) =>
+    ipcRenderer.invoke('get-laps-by-range', startDate, endDate)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
