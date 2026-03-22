@@ -22,8 +22,11 @@ export default function SummaryPanel({ laps }: Props) {
   const totalHours = (totalMs / 3600000).toFixed(1)
 
   const dayTotals = new Map<string, number>()
-  filteredLaps.forEach((lap) => {
-    dayTotals.set(lap.date, (dayTotals.get(lap.date) ?? 0) + lap.lap_time)
+  filteredLaps.forEach((lap: LapEntry) => {
+    let dateArray = lap.date.split('-').map(Number)
+    let date = new Date(dateArray[0], dateArray[1] - 1, dateArray[2])
+    let dateString = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    dayTotals.set(dateString, (dayTotals.get(lap.date) ?? 0) + lap.lap_time)
   })
 
   const avgHours =
@@ -40,13 +43,7 @@ export default function SummaryPanel({ laps }: Props) {
     { date: '-', ms: 0 }
   )
 
-  const maxMs = Math.max(...Array.from(dayTotals.values()), 1)
-
-  const activityTotals = new Map<string, number>()
-  filteredLaps.forEach((lap) => {
-    activityTotals.set(lap.note, (activityTotals.get(lap.note) ?? 0) + lap.lap_time)
-  })
-  const maxActivityMs = Math.max(...Array.from(activityTotals.values()), 1)
+  const maxDayMs = Math.max(...Array.from(dayTotals.values()), 1)
 
   return (
     <div>
@@ -76,7 +73,10 @@ export default function SummaryPanel({ laps }: Props) {
         {[
           { label: 'Total hours', value: `${totalHours}h` },
           { label: 'Daily average', value: `${avgHours}h` },
-          { label: 'Best day', value: `${bestDay.date} (${(bestDay.ms / 3600000).toFixed(1)}h)` }
+          {
+            label: 'Best day',
+            value: `${bestDay.date} (${(bestDay.ms / 3600000).toFixed(1)}h)`
+          }
         ].map((m) => (
           <div
             key={m.label}
@@ -94,13 +94,19 @@ export default function SummaryPanel({ laps }: Props) {
         ))}
       </div>
 
-      <p style={{ fontSize: 13, color: 'grey', margin: '0 0 8px' }}>Hours per activity</p>
-      {Array.from(activityTotals.entries()).map(([note, ms]) => (
-        <div key={note} style={{ display: 'flex', alignItems: 'center', marginBottom: 6, gap: 8 }}>
+      <p style={{ fontSize: 13, color: 'grey', margin: '0 0 8px' }}>Hours per day</p>
+      {Array.from(dayTotals.entries()).map(([date, ms]) => (
+        <div key={date} style={{ display: 'flex', alignItems: 'center', marginBottom: 6, gap: 8 }}>
           <span
-            style={{ fontSize: 11, color: 'grey', width: 80, flexShrink: 0, textAlign: 'right' }}
+            style={{
+              fontSize: 11,
+              color: 'grey',
+              width: 52,
+              flexShrink: 0,
+              textAlign: 'right'
+            }}
           >
-            {note}
+            {date}
           </span>
           <div
             style={{
@@ -113,7 +119,7 @@ export default function SummaryPanel({ laps }: Props) {
           >
             <div
               style={{
-                width: `${(ms / maxActivityMs) * 100}%`,
+                width: `${(ms / maxDayMs) * 100}%`,
                 height: '100%',
                 background: '#7F77DD',
                 borderRadius: 3,
