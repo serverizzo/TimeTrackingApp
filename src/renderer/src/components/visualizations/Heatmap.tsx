@@ -27,7 +27,7 @@ export default function Heatmap({ data }: Props) {
     const colorScale = d3
       .scaleSequential()
       .domain([0, maxTotal])
-      .interpolator(d3.interpolate('#e8e8e8', '#1D9E75'))
+      .interpolator(d3.interpolate('rgba(128, 128, 128, 0.1)', '#1D9E75'))
 
     const today = new Date()
     const startDate = new Date(today)
@@ -47,7 +47,7 @@ export default function Heatmap({ data }: Props) {
           .attr('width', CELL_SIZE)
           .attr('height', CELL_SIZE)
           .attr('rx', 2)
-          .attr('fill', total > 0 ? colorScale(total) : '#e8e8e8')
+          .attr('fill', total > 0 ? colorScale(total) : 'rgba(128, 128, 128, 0.1)')
           .append('title')
           .text(total > 0 ? `${dateStr}: ${Math.round(total / 60000)}m` : dateStr)
       }
