@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { LapEntry } from './types'
+import { format } from 'path'
 
 interface Props {
   laps: LapEntry[]
@@ -19,7 +20,6 @@ export default function SummaryPanel({ laps }: Props) {
       : laps.filter((l) => l.note === selectedActivity)
 
   const totalMs = filteredLaps.reduce((sum, l) => sum + l.lap_time, 0)
-  const totalHours = (totalMs / 3600000).toFixed(1)
 
   const dayTotals = new Map<string, number>()
   filteredLaps.forEach((lap: LapEntry) => {
@@ -29,21 +29,26 @@ export default function SummaryPanel({ laps }: Props) {
     dayTotals.set(dateString, (dayTotals.get(lap.date) ?? 0) + lap.lap_time)
   })
 
-  const avgHours =
-    dayTotals.size > 0
-      ? (
-          Array.from(dayTotals.values()).reduce((s, v) => s + v, 0) /
-          dayTotals.size /
-          3600000
-        ).toFixed(1)
-      : '0.0'
-
   const bestDay = Array.from(dayTotals.entries()).reduce(
     (best, [date, ms]) => (ms > best.ms ? { date, ms } : best),
     { date: '-', ms: 0 }
   )
 
   const maxDayMs = Math.max(...Array.from(dayTotals.values()), 1)
+
+  const formatDuration = (ms: number): string => {
+    const totalMinutes = Math.floor(ms / 60000)
+    const hours = Math.floor(totalMinutes / 60)
+    const minutes = totalMinutes % 60
+    if (hours === 0) return `${minutes}m`
+    if (minutes === 0) return `${hours}h`
+    return `${hours}h ${minutes}m`
+  }
+
+  const avgHours =
+    dayTotals.size > 0
+      ? formatDuration(Array.from(dayTotals.values()).reduce((s, v) => s + v, 0) / dayTotals.size)
+      : '0m'
 
   return (
     <div>
@@ -71,8 +76,8 @@ export default function SummaryPanel({ laps }: Props) {
 
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 16 }}>
         {[
-          { label: 'Total hours', value: `${totalHours}h` },
-          { label: 'Daily average', value: `${avgHours}h` },
+          { label: 'Total Time', value: `${formatDuration(totalMs)}` },
+          { label: 'Daily average', value: `${avgHours}` },
           {
             label: 'Best day',
             value: `${bestDay.date} (${(bestDay.ms / 3600000).toFixed(1)}h)`
@@ -94,7 +99,9 @@ export default function SummaryPanel({ laps }: Props) {
         ))}
       </div>
 
-      <p style={{ fontSize: 13, color: 'grey', margin: '0 0 8px' }}>Hours per day</p>
+      <p style={{ fontSize: 13, color: 'grey', margin: '0 0 8px' }}>
+        Hours per day ({selectedActivity})
+      </p>
       {Array.from(dayTotals.entries()).map(([date, ms]) => (
         <div key={date} style={{ display: 'flex', alignItems: 'center', marginBottom: 6, gap: 8 }}>
           <span
@@ -131,7 +138,7 @@ export default function SummaryPanel({ laps }: Props) {
                 boxSizing: 'border-box'
               }}
             >
-              {(ms / 3600000).toFixed(1)}h
+              {formatDuration(ms)}
             </div>
           </div>
         </div>
