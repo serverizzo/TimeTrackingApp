@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { HeatmapEntry } from './types'
 import { DebugStyles } from '@renderer/styles.ts/debugStyle'
+import { runningIcon, walkingIcon } from '@renderer/assets/icons'
 
 interface Props {
   data: HeatmapEntry[]
@@ -96,6 +97,8 @@ export default function Calendar({ data }: Props) {
               }}
             >
               {day}
+              <img src={runningIcon} alt="running" width={24} height={24} />
+              <img src={walkingIcon} alt="running" width={24} height={24} />
             </div>
           )
         })}
