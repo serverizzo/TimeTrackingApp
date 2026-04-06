@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { HeatmapEntry } from './types'
 import { DebugStyles } from '@renderer/styles.ts/debugStyle'
 import { runningIcon, walkingIcon } from '@renderer/assets/icons'
+import Modal from '../general/checkinModal'
+import CheckinCheckBoxes from '../general/checkinCheckBoxes'
 
 interface Props {
   data: HeatmapEntry[]
@@ -20,6 +22,10 @@ function getColor(total: number, max: number): string {
 
 export default function Calendar({ data }: Props) {
   const [viewDate, setViewDate] = useState(new Date())
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; date: string } | null>(
+    null
+  )
+  const [openModal, setOpenModal] = useState(false)
 
   const year = viewDate.getFullYear()
   const month = viewDate.getMonth()
@@ -41,6 +47,17 @@ export default function Calendar({ data }: Props) {
 
   const shiftMonth = (delta: number) => {
     setViewDate((prev) => new Date(prev.getFullYear(), prev.getMonth() + delta, 1))
+  }
+
+  const handleRightClick = (e: React.MouseEvent, date: string) => {
+    // e.preventDefault() // prevents the browser's default right click menu
+    setContextMenu({ x: e.clientX, y: e.clientY, date })
+  }
+
+  const closeMenu = () => setContextMenu(null)
+
+  const openCheckInModal = () => {
+    setOpenModal(true)
   }
 
   return (
@@ -95,6 +112,8 @@ export default function Calendar({ data }: Props) {
                 cursor: 'default',
                 boxSizing: 'border-box'
               }}
+              onContextMenu={(e) => handleRightClick(e, dateStr)}
+              onClick={closeMenu}
             >
               {day}
               <img src={runningIcon} alt="running" width={24} height={24} />
@@ -102,7 +121,45 @@ export default function Calendar({ data }: Props) {
             </div>
           )
         })}
+        {contextMenu && (
+          <div
+            style={{
+              position: 'fixed',
+              top: contextMenu.y,
+              left: contextMenu.x,
+              background: 'white',
+              border: '0.5px solid grey',
+              borderRadius: 4,
+              padding: '4px 0',
+              zIndex: 1000,
+              minWidth: 160
+            }}
+            onMouseLeave={closeMenu}
+          >
+            <div
+              style={{ padding: '8px 12px', fontSize: 12, color: 'grey', cursor: 'pointer' }}
+              onClick={openCheckInModal}
+            >
+              Update checkins
+            </div>
+            <hr style={{ margin: '4px 0', borderColor: 'rgba(128,128,128,0.2)' }} />
+            <div
+              style={{ padding: '8px 12px', fontSize: 13, cursor: 'pointer' }}
+              onClick={() => {
+                console.log('Jump to', contextMenu.date)
+              }}
+            >
+              Jump to this week
+            </div>
+          </div>
+        )}
       </div>
+
+      {openModal && (
+        <Modal onClose={() => setOpenModal(false)}>
+          <CheckinCheckBoxes />
+        </Modal>
+      )}
 
       <div
         style={{
