@@ -9,7 +9,8 @@ const api = {
   insertLaps: (laps: LapRow[]) => ipcRenderer.invoke('insert-laps', laps),
   getHeatmapData: () => ipcRenderer.invoke('get-heatmap-data'),
   getLapsByRange: (startDate: string, endDate: string) =>
-    ipcRenderer.invoke('get-laps-by-range', startDate, endDate)
+    ipcRenderer.invoke('get-laps-by-range', startDate, endDate),
+  getActivities: () => ipcRenderer.invoke('get-activities')
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

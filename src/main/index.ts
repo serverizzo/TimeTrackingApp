@@ -122,6 +122,19 @@ app.whenReady().then(() => {
       .all(startDate, endDate)
   })
 
+  ipcMain.handle('get-activities', (_) => {
+    const db = getDb()
+    return db
+      .prepare(
+        `
+    SELECT id, name
+    FROM activities
+    ORDER BY name
+  `
+      )
+      .all()
+  })
+
   createWindow()
 
   app.on('activate', function () {

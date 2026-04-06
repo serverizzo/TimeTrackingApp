@@ -26,6 +26,24 @@ export function initializeDatabase(): void {
             PRIMARY KEY (timestarted, date)
             )
             `)
+
+  db.exec(`
+        CREATE TABLE IF NOT EXISTS daily_activity (
+            date              TEXT NOT NULL,
+            activity_id       INTERGER NOT NULL,
+            PRIMARY KEY (date, activity_id),
+            FOREIGN KEY (activity_id) REFERENCES activies(id)
+            )
+            `)
+
+  // Create the laps table if it doesn't exist
+  db.exec(`
+        CREATE TABLE IF NOT EXISTS activities (
+            id        INTEGER PRIMARY KEY AUTOINCREMENT,
+            name      TEXT NOT NULL UNIQUE,
+            iconLocation      TEXT
+            )
+            `)
 }
 
 export function getDb(): BetterSqlite3.Database {
