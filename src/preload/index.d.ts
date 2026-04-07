@@ -13,6 +13,7 @@ declare global {
         endDate: string
       ) => Promise<{ timestarted: string; date: string; lap_time: number; note: string }[]>
       getActivities: () => Promise<{ id: number; name: string }[]>
+      insertDailyCheckin: (date: string, activityIds: Array<number>) => Promise<void>
     }
   }
 }

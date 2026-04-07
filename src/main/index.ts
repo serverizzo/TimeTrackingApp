@@ -135,6 +135,18 @@ app.whenReady().then(() => {
       .all()
   })
 
+  ipcMain.handle('insert-daily-checkins', (_, date: string, activityIds: number[]) => {
+    const db = getDb()
+    const insert = db.prepare(`
+    INSERT OR IGNORE INTO daily_activities (date, activity_id)
+    VALUES (?, ?)
+  `)
+    const insertMany = db.transaction((ids: number[]) => {
+      for (const id of ids) insert.run(date, id)
+    })
+    insertMany(activityIds)
+  })
+
   createWindow()
 
   app.on('activate', function () {
