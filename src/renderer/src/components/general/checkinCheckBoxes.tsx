@@ -1,6 +1,6 @@
 import React, { Activity, useEffect, useState } from 'react'
 
-export default function CheckinCheckBoxes() {
+export default function CheckinCheckBoxes({ date }: { date: string }) {
   const [activities, setActivities] = useState<{ id: number; name: string }[]>([])
   const [checkedActivities, setCheckedActivities] = useState<{ id: number; isChecked: boolean }[]>(
     []
@@ -21,12 +21,13 @@ export default function CheckinCheckBoxes() {
   }
 
   const saveCheckinCheckBoxes = async () => {
-    const today = new Date().toISOString().split('T')[0]
-    await window.api.updateCheckin(today, Array.from(checkedActivities))
+    console.log('todays date', date)
+    await window.api.updateCheckin(date, Array.from(checkedActivities))
   }
 
   return (
     <div>
+      <p>Activities for {date}</p>
       {activities &&
         activities.map((activity) => (
           <label

@@ -26,6 +26,7 @@ export default function Calendar({ data }: Props) {
     null
   )
   const [openModal, setOpenModal] = useState(false)
+  const [selectedDate, setSelectedDate] = useState<string>('')
 
   const year = viewDate.getFullYear()
   const month = viewDate.getMonth()
@@ -56,7 +57,8 @@ export default function Calendar({ data }: Props) {
 
   const closeMenu = () => setContextMenu(null)
 
-  const openCheckInModal = () => {
+  const openCheckInModal = (date: string) => {
+    setSelectedDate(date)
     setOpenModal(true)
   }
 
@@ -137,14 +139,22 @@ export default function Calendar({ data }: Props) {
             onMouseLeave={closeMenu}
           >
             <div
+              style={{ padding: '8px 12px', fontSize: 13, color: 'gray', cursor: 'pointer' }}
+              onClick={() => {
+                console.log('Jump to', contextMenu.date)
+              }}
+            >
+              {contextMenu.date}
+            </div>
+            <div
               style={{ padding: '8px 12px', fontSize: 12, color: 'grey', cursor: 'pointer' }}
-              onClick={openCheckInModal}
+              onClick={() => openCheckInModal(contextMenu.date)}
             >
               Update checkins
             </div>
             <hr style={{ margin: '4px 0', borderColor: 'rgba(128,128,128,0.2)' }} />
             <div
-              style={{ padding: '8px 12px', fontSize: 13, cursor: 'pointer' }}
+              style={{ padding: '8px 12px', fontSize: 13, color: 'gray', cursor: 'pointer' }}
               onClick={() => {
                 console.log('Jump to', contextMenu.date)
               }}
@@ -157,7 +167,7 @@ export default function Calendar({ data }: Props) {
 
       {openModal && (
         <Modal onClose={() => setOpenModal(false)}>
-          <CheckinCheckBoxes />
+          <CheckinCheckBoxes date={selectedDate} />
         </Modal>
       )}
 
