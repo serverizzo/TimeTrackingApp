@@ -2,24 +2,27 @@ import React, { Activity, useEffect, useState } from 'react'
 
 export default function CheckinCheckBoxes() {
   const [activities, setActivities] = useState<{ id: number; name: string }[]>([])
-  const [checkedActivities, setCheckedActivities] = useState<Set<number>>(new Set())
+  const [checkedActivities, setCheckedActivities] = useState<{ id: number; isChecked: boolean }[]>(
+    []
+  )
   useEffect(() => {
-    window.api.getActivities().then(setActivities)
+    window.api.getActivities().then((passedActivities) => {
+      setActivities(passedActivities)
+      setCheckedActivities(passedActivities.map((ele) => ({ id: ele.id, isChecked: false })))
+    })
   }, [])
 
   const handleToggle = (id: number) => {
-    console.log(id)
-    setCheckedActivities((prev) => {
-      const tempSet = new Set(prev)
-      tempSet.has(id) ? tempSet.delete(id) : tempSet.add(id)
-
-      return tempSet
-    })
+    setCheckedActivities((prev) =>
+      prev.map((ele: { id: number; isChecked: boolean }) =>
+        ele.id == id ? { ...ele, isChecked: !ele.isChecked } : ele
+      )
+    )
   }
 
   const saveCheckinCheckBoxes = async () => {
     const today = new Date().toISOString().split('T')[0]
-    await window.api.insertDailyCheckin(today, Array.from(checkedActivities))
+    await window.api.updateCheckin(today, Array.from(checkedActivities))
   }
 
   return (
@@ -31,7 +34,7 @@ export default function CheckinCheckBoxes() {
             style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}
           >
             <input
-              checked={checkedActivities.has(activity.id)}
+              checked={checkedActivities.find((a) => a.id === activity.id)?.isChecked ?? false}
               type="checkbox"
               onChange={() => handleToggle(activity.id)}
             />

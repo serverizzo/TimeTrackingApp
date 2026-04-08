@@ -135,17 +135,33 @@ app.whenReady().then(() => {
       .all()
   })
 
-  ipcMain.handle('insert-daily-checkins', (_, date: string, activityIds: number[]) => {
-    const db = getDb()
-    const insert = db.prepare(`
-    INSERT OR IGNORE INTO daily_activities (date, activity_id)
-    VALUES (?, ?)
-  `)
-    const insertMany = db.transaction((ids: number[]) => {
-      for (const id of ids) insert.run(date, id)
-    })
-    insertMany(activityIds)
-  })
+  ipcMain.handle(
+    'update-checkins',
+    (_, date: string, checkList: { id: number; isChecked: boolean }[]) => {
+      const db = getDb()
+
+      const insert = db.prepare(`
+        INSERT OR IGNORE INTO daily_activities (date, activity_id)
+        VALUES (?, ?)
+      `)
+
+      const deleteFunc = db.prepare(`
+        DELETE FROM daily_activities 
+        WHERE date = ? AND activity_id = ?
+      `)
+
+      const insertOrDelete = db.transaction((listToRun: { id: number; isChecked: boolean }[]) => {
+        for (const ele of listToRun) {
+          // if checked, add to db
+          if (ele.isChecked) insert.run(date, ele.id)
+          // otherwise remove from db
+          else deleteFunc.run(date, ele.id)
+        }
+      })
+
+      insertOrDelete(checkList)
+    }
+  )
 
   createWindow()
 
