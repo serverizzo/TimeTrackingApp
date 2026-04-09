@@ -135,6 +135,23 @@ app.whenReady().then(() => {
       .all()
   })
 
+  ipcMain.handle('get-checked-activities', (_, date) => {
+    const db = getDb()
+    return db
+      .prepare(
+        `
+      SELECT a.name, a.id,
+        CASE WHEN da.activity_id IS NOT NULL then 1 ELSE 0 END as isChecked
+      FROM activities a
+      LEFT JOIN daily_activities da
+        ON a.id = da.activity_id
+        AND da.date = ?
+      ORDER BY a.name
+    `
+      )
+      .all(date)
+  })
+
   ipcMain.handle(
     'update-checkins',
     (_, date: string, checkList: { id: number; isChecked: boolean }[]) => {

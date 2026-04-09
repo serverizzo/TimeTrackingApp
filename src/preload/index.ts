@@ -12,7 +12,8 @@ const api = {
     ipcRenderer.invoke('get-laps-by-range', startDate, endDate),
   getActivities: () => ipcRenderer.invoke('get-activities'),
   updateCheckin: (date: string, checkedList: { id: number; isChecked: boolean }[]) =>
-    ipcRenderer.invoke('update-checkins', date, checkedList)
+    ipcRenderer.invoke('update-checkins', date, checkedList),
+  getCheckedActivities: (date: string) => ipcRenderer.invoke('get-checked-activities', date)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

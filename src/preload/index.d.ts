@@ -17,6 +17,9 @@ declare global {
         date: string,
         checkedList: Array<{ id: number; isChecked: boolean }>
       ) => Promise<void>
+      getCheckedActivities: (
+        date: string
+      ) => Promise<{ name: string; id: number; isChecked: boolean }[]>
     }
   }
 }

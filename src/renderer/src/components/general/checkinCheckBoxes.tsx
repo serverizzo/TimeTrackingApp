@@ -1,20 +1,24 @@
-import React, { Activity, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 export default function CheckinCheckBoxes({ date }: { date: string }) {
   const [activities, setActivities] = useState<{ id: number; name: string }[]>([])
-  const [checkedActivities, setCheckedActivities] = useState<{ id: number; isChecked: boolean }[]>(
-    []
-  )
+  const [checkedActivities, setCheckedActivities] = useState<
+    { id: number; name: string; isChecked: boolean }[]
+  >([])
   useEffect(() => {
-    window.api.getActivities().then((passedActivities) => {
-      setActivities(passedActivities)
-      setCheckedActivities(passedActivities.map((ele) => ({ id: ele.id, isChecked: false })))
+    // window.api.getActivities().then((passedActivities) => {
+    //   setActivities(passedActivities)
+    //   setCheckedActivities(passedActivities.map((ele) => ({ id: ele.id, isChecked: false })))
+    // })
+
+    window.api.getCheckedActivities(date).then((res) => {
+      setCheckedActivities(res)
     })
   }, [])
 
   const handleToggle = (id: number) => {
     setCheckedActivities((prev) =>
-      prev.map((ele: { id: number; isChecked: boolean }) =>
+      prev.map((ele: { id: number; isChecked: boolean; name: string }) =>
         ele.id == id ? { ...ele, isChecked: !ele.isChecked } : ele
       )
     )
@@ -28,8 +32,8 @@ export default function CheckinCheckBoxes({ date }: { date: string }) {
   return (
     <div>
       <p>Activities for {date}</p>
-      {activities &&
-        activities.map((activity) => (
+      {checkedActivities &&
+        checkedActivities.map((activity) => (
           <label
             key={activity.id}
             style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}
