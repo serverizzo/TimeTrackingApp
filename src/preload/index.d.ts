@@ -20,6 +20,11 @@ declare global {
       getCheckedActivities: (
         date: string
       ) => Promise<{ name: string; id: number; isChecked: boolean }[]>
+      getCheckedActivitiesByMonth: (
+        startDate: string,
+        endDate: string
+      ) => Promise<{ date: string; id: number; name: string; iconLocation: string }[]>
+      getUserDataPath: () => Promise<string>
     }
   }
 }

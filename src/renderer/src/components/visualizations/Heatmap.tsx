@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { HeatmapEntry } from './types'
 import { DebugStyles } from '@renderer/styles.ts/debugStyle'
 import { runningIcon, walkingIcon } from '@renderer/assets/icons'
@@ -20,6 +20,13 @@ function getColor(total: number, max: number): string {
   return '#0F6E56'
 }
 
+interface CheckinItem {
+  date: string
+  id: number
+  name: string
+  iconLocation: string
+}
+
 export default function Calendar({ data }: Props) {
   const [viewDate, setViewDate] = useState(new Date())
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; date: string } | null>(
@@ -27,6 +34,9 @@ export default function Calendar({ data }: Props) {
   )
   const [openModal, setOpenModal] = useState(false)
   const [selectedDate, setSelectedDate] = useState<string>('')
+  const [monthlyCheckinItems, setMonthlyCheckinItems] = useState<CheckinItem[]>([])
+  const [triggerRefresh, setTriggerRefresh] = useState<boolean>(false)
+  const [userDataPath, setUserDataPath] = useState<string>('')
 
   const year = viewDate.getFullYear()
   const month = viewDate.getMonth()
@@ -61,6 +71,19 @@ export default function Calendar({ data }: Props) {
     setSelectedDate(date)
     setOpenModal(true)
   }
+
+  useEffect(() => {
+    window.api.getUserDataPath().then(setUserDataPath)
+    const startDate = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1)
+      .toISOString()
+      .split('T')[0]
+    const endDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0)
+      .toISOString()
+      .split('T')[0]
+    window.api.getCheckedActivitiesByMonth(startDate, endDate).then(setMonthlyCheckinItems)
+
+    // todo: have this trigger on exiting modal (use trigger refresh)
+  }, [])
 
   return (
     <div
@@ -118,8 +141,20 @@ export default function Calendar({ data }: Props) {
               onClick={closeMenu}
             >
               {day}
-              <img src={runningIcon} alt="running" width={24} height={24} />
-              <img src={walkingIcon} alt="running" width={24} height={24} />
+              {monthlyCheckinItems &&
+                monthlyCheckinItems
+                  .filter((ele) => ele.date === dateStr)
+                  .map((ele) => (
+                    <img
+                      key={ele.id}
+                      src={`appicon://${userDataPath}/icons/${ele.iconLocation}`}
+                      alt={ele.name}
+                      width={24}
+                      height={24}
+                    />
+                  ))}
+              {/* <img src={runningIcon} alt="running" width={24} height={24} /> */}
+              {/* <img src={walkingIcon} alt="running" width={24} height={24} /> */}
             </div>
           )
         })}

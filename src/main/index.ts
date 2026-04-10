@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog, protocol, net } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -39,12 +39,21 @@ function createWindow(): void {
   }
 }
 
+protocol.registerSchemesAsPrivileged([
+  { scheme: 'appicon', privileges: { secure: true, standard: true } }
+])
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   initializeDatabase()
   createIconDirectory()
+
+  protocol.handle('appicon', (request) => {
+    const filePath = request.url.replace('appicon://', '/')
+    return net.fetch(`file://${filePath}`)
+  })
 
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
@@ -181,6 +190,27 @@ app.whenReady().then(() => {
       insertOrDelete(checkList)
     }
   )
+
+  ipcMain.handle('get-checked-activities-by-month', (_, dateStart: string, dateEnd: string) => {
+    const db = getDb()
+
+    return db
+      .prepare(
+        `
+      SELECT da.date, a.id, a.name, a.iconLocation
+      FROM activities a
+      JOIN daily_activities da
+      ON a.id = da.activity_id
+      WHERE da.date BETWEEN ? AND ?
+      ORDER BY da.date
+      `
+      )
+      .all(dateStart, dateEnd)
+  })
+
+  ipcMain.handle('get-user-data-path', () => {
+    return app.getPath('userData')
+  })
 
   createWindow()
 

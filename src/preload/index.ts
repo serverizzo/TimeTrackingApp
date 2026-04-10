@@ -13,7 +13,10 @@ const api = {
   getActivities: () => ipcRenderer.invoke('get-activities'),
   updateCheckin: (date: string, checkedList: { id: number; isChecked: boolean }[]) =>
     ipcRenderer.invoke('update-checkins', date, checkedList),
-  getCheckedActivities: (date: string) => ipcRenderer.invoke('get-checked-activities', date)
+  getCheckedActivities: (date: string) => ipcRenderer.invoke('get-checked-activities', date),
+  getCheckedActivitiesByMonth: (dateStart: string, dateEnd: string) =>
+    ipcRenderer.invoke('get-checked-activities-by-month', dateStart, dateEnd),
+  getUserDataPath: () => ipcRenderer.invoke('get-user-data-path')
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
