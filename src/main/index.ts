@@ -5,6 +5,7 @@ import icon from '../../resources/icon.png?asset'
 import fs from 'fs'
 import { initializeDatabase, getDb } from './database'
 import { LapRow } from '../shared/databasetypes/LapRow'
+import { createIconDirectory } from './createIconDirectory'
 
 function createWindow(): void {
   // Create the browser window.
@@ -43,6 +44,7 @@ function createWindow(): void {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   initializeDatabase()
+  createIconDirectory()
 
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
