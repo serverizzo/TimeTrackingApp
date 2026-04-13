@@ -27,7 +27,15 @@ export default function VisualizationsRoute() {
   }, [windowStart])
 
   return (
-    <div>
+    <div
+      style={{
+        height: '100vh',
+        overflowY: 'auto',
+        paddingBottom: 100,
+        paddingLeft: 10,
+        paddingTop: 10
+      }}
+    >
       <p>VisualizationsRoute</p>
       <Heatmap data={heatmapData} />
       <GanttChart
