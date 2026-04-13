@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { HeatmapEntry } from './types'
 import { DebugStyles } from '@renderer/styles.ts/debugStyle'
-import { runningIcon, walkingIcon } from '@renderer/assets/icons'
 import Modal from '../general/checkinModal'
 import CheckinCheckBoxes from '../general/checkinCheckBoxes'
 
