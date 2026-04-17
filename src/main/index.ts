@@ -9,6 +9,7 @@ import { createIconDirectory } from './createIconDirectory'
 import { lapHandlers } from './laphandlers'
 import { visualizationhandlers } from './visualizationhandlers'
 import { activityhandlers } from './activityhandlers'
+import { createNotesFile } from './createNotesFile'
 
 function createWindow(): void {
   // Create the browser window.
@@ -55,6 +56,7 @@ app.whenReady().then(() => {
   lapHandlers()
   visualizationhandlers()
   activityhandlers()
+  createNotesFile()
 
   protocol.handle('appicon', (request) => {
     const filePath = request.url.replace('appicon://', '/')
