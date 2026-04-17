@@ -6,6 +6,9 @@ import fs from 'fs'
 import { initializeDatabase, getDb } from './database'
 import { LapRow } from '../shared/databasetypes/LapRow'
 import { createIconDirectory } from './createIconDirectory'
+import { lapHandlers } from './laphandlers'
+import { visualizationhandlers } from './visualizationhandlers'
+import { activityhandlers } from './activityhandlers'
 
 function createWindow(): void {
   // Create the browser window.
@@ -49,6 +52,9 @@ protocol.registerSchemesAsPrivileged([
 app.whenReady().then(() => {
   initializeDatabase()
   createIconDirectory()
+  lapHandlers()
+  visualizationhandlers()
+  activityhandlers()
 
   protocol.handle('appicon', (request) => {
     const filePath = request.url.replace('appicon://', '/')
@@ -78,134 +84,6 @@ app.whenReady().then(() => {
     if (filePath) {
       fs.writeFileSync(filePath, csvContent)
     }
-  })
-
-  ipcMain.handle('insert-laps', (_, laps: LapRow[]) => {
-    try {
-      const db = getDb()
-
-      const insertCommand = db.prepare(`
-        INSERT OR IGNORE INTO laps (timestarted, date, lap_time, note)
-        VALUES (@timestarted, @date, @lapTime, @note)
-        `)
-
-      const insertMany = db.transaction((laps) => {
-        for (const lap of laps) {
-          insertCommand.run(lap)
-        }
-      })
-
-      insertMany(laps)
-      return { success: true }
-    } catch {
-      throw new Error('failed to save laps')
-    }
-  })
-
-  // Heatmap — aggregated daily totals for the past year
-  ipcMain.handle('get-heatmap-data', () => {
-    const db = getDb()
-    return db
-      .prepare(
-        `
-    SELECT date, SUM(lap_time) as total
-    FROM laps
-    WHERE date >= date('now', '-1 year')
-    GROUP BY date
-    ORDER BY date
-  `
-      )
-      .all()
-  })
-
-  // Gantt — all laps for a 7 day window
-  ipcMain.handle('get-laps-by-range', (_, startDate: string, endDate: string) => {
-    const db = getDb()
-    return db
-      .prepare(
-        `
-    SELECT timestarted, date, lap_time, note
-    FROM laps
-    WHERE date BETWEEN ? AND ?
-    ORDER BY date, timestarted
-  `
-      )
-      .all(startDate, endDate)
-  })
-
-  ipcMain.handle('get-activities', (_) => {
-    const db = getDb()
-    return db
-      .prepare(
-        `
-    SELECT id, name
-    FROM activities
-    ORDER BY name
-  `
-      )
-      .all()
-  })
-
-  ipcMain.handle('get-checked-activities', (_, date) => {
-    const db = getDb()
-    return db
-      .prepare(
-        `
-      SELECT a.name, a.id,
-        CASE WHEN da.activity_id IS NOT NULL then 1 ELSE 0 END as isChecked
-      FROM activities a
-      LEFT JOIN daily_activities da
-        ON a.id = da.activity_id
-        AND da.date = ?
-      ORDER BY a.name
-    `
-      )
-      .all(date)
-  })
-
-  ipcMain.handle(
-    'update-checkins',
-    (_, date: string, checkList: { id: number; isChecked: boolean }[]) => {
-      const db = getDb()
-
-      const insert = db.prepare(`
-        INSERT OR IGNORE INTO daily_activities (date, activity_id)
-        VALUES (?, ?)
-      `)
-
-      const deleteFunc = db.prepare(`
-        DELETE FROM daily_activities 
-        WHERE date = ? AND activity_id = ?
-      `)
-
-      const insertOrDelete = db.transaction((listToRun: { id: number; isChecked: boolean }[]) => {
-        for (const ele of listToRun) {
-          // if checked, add to db
-          if (ele.isChecked) insert.run(date, ele.id)
-          // otherwise remove from db
-          else deleteFunc.run(date, ele.id)
-        }
-      })
-
-      insertOrDelete(checkList)
-    }
-  )
-
-  ipcMain.handle('get-checked-activities-by-month', (_, dateStart: string, dateEnd: string) => {
-    const db = getDb()
-
-    return db
-      .prepare(
-        `
-      SELECT da.date, a.id, a.name, a.iconLocation
-      FROM activities a
-      JOIN daily_activities da
-      ON a.id = da.activity_id
-      WHERE da.date BETWEEN ? AND ?
-      ORDER BY da.date
-      `
-      )
-      .all(dateStart, dateEnd)
   })
 
   ipcMain.handle('get-user-data-path', () => {
