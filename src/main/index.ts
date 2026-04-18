@@ -3,13 +3,13 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import fs from 'fs'
-import { initializeDatabase, getDb } from './database'
-import { LapRow } from '../shared/databasetypes/LapRow'
+import { initializeDatabase } from './database'
 import { createIconDirectory } from './createIconDirectory'
 import { lapHandlers } from './laphandlers'
 import { visualizationhandlers } from './visualizationhandlers'
 import { activityhandlers } from './activityhandlers'
 import { createNotesFile } from './createNotesFile'
+import { registerNotesHandlers } from './registerNotesHandler'
 
 function createWindow(): void {
   // Create the browser window.
@@ -57,6 +57,7 @@ app.whenReady().then(() => {
   visualizationhandlers()
   activityhandlers()
   createNotesFile()
+  registerNotesHandlers()
 
   protocol.handle('appicon', (request) => {
     const filePath = request.url.replace('appicon://', '/')

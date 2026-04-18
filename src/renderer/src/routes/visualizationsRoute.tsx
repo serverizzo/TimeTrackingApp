@@ -1,8 +1,10 @@
 import GanttChart from '@renderer/components/visualizations/GanttChart'
 import Heatmap from '@renderer/components/visualizations/Heatmap'
+import NotesPannel from '@renderer/components/visualizations/NotesPannel'
 import SummaryPanel from '@renderer/components/visualizations/summaryPannel'
 import { HeatmapEntry, LapEntry } from '@renderer/components/visualizations/types'
-import { useEffect, useState } from 'react'
+import { DebugStyles } from '@renderer/styles.ts/debugStyle'
+import { useEffect, useRef, useState } from 'react'
 
 export default function VisualizationsRoute() {
   const [heatmapData, setHeatmapData] = useState<HeatmapEntry[]>([])
@@ -12,6 +14,14 @@ export default function VisualizationsRoute() {
     d.setDate(d.getDate() - 6)
     return d
   })
+  const calendarRef = useRef<HTMLDivElement>(null)
+  const [calendarHeight, setCalendarHeight] = useState<number>(0)
+
+  useEffect(() => {
+    if (calendarRef.current) {
+      setCalendarHeight(calendarRef.current.offsetHeight)
+    }
+  }, [heatmapData])
 
   const formatDate = (d: Date) => d.toISOString().split('T')[0]
 
@@ -38,7 +48,14 @@ export default function VisualizationsRoute() {
       }}
     >
       <p>VisualizationsRoute</p>
-      <Heatmap data={heatmapData} />
+      <div style={{ display: 'flex' }}>
+        <div ref={calendarRef}>
+          <Heatmap data={heatmapData} />
+        </div>
+        <div style={{ height: calendarHeight, overflowY: 'auto', paddingLeft: 20 }}>
+          <NotesPannel />
+        </div>
+      </div>
       <GanttChart
         laps={laps}
         windowStart={windowStart}

@@ -25,6 +25,7 @@ declare global {
         endDate: string
       ) => Promise<{ date: string; id: number; name: string; iconLocation: string }[]>
       getUserDataPath: () => Promise<string>
+      getNotes: () => Promise<string>
     }
   }
 }
