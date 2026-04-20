@@ -88,8 +88,8 @@ export default function Calendar({ data }: Props) {
   return (
     <div
       style={{
-        marginBottom: '1.5rem',
-        width: 500 // this is the width of the calandar
+        marginBottom: '1.5rem'
+        // width: 500 // this is the width of the calandar
         // ,...DebugStyles.divOutline
       }}
     >

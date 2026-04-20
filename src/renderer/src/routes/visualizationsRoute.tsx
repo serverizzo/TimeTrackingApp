@@ -16,6 +16,26 @@ export default function VisualizationsRoute() {
   })
   const calendarRef = useRef<HTMLDivElement>(null)
   const [calendarHeight, setCalendarHeight] = useState<number>(0)
+  const [calendarWidth, setCalendarWidth] = useState<number>(500)
+  const isDragging = useRef<boolean>(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  const handleMouseDown = () => {
+    isDragging.current = true
+  }
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging.current || !containerRef.current) return
+    const containerLeft = containerRef.current.getBoundingClientRect().left
+    const newWidth = e.clientX - containerLeft
+    if (newWidth > 200 && newWidth < 800) {
+      setCalendarWidth(newWidth)
+    }
+  }
+
+  const handleMouseUp = () => {
+    isDragging.current = false
+  }
 
   useEffect(() => {
     if (calendarRef.current) {
@@ -48,14 +68,44 @@ export default function VisualizationsRoute() {
       }}
     >
       <p>VisualizationsRoute</p>
-      <div style={{ display: 'flex' }}>
-        <div ref={calendarRef}>
+
+      <div
+        ref={containerRef}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        style={{ display: 'flex', alignItems: 'flex-start', gap: 0 }}
+      >
+        <div ref={calendarRef} style={{ width: calendarWidth, flexShrink: 0 }}>
           <Heatmap data={heatmapData} />
         </div>
-        <div style={{ height: calendarHeight, overflowY: 'auto', paddingLeft: 20 }}>
+
+        {/* adjustable bar */}
+        <div
+          onMouseDown={handleMouseDown}
+          style={{
+            width: 6,
+            cursor: 'col-resize',
+            background: 'rgba(128,128,128,0.2)',
+            alignSelf: 'stretch',
+            borderRadius: 3,
+            margin: '0 4px',
+            flexShrink: 0
+          }}
+        />
+
+        <div
+          style={{
+            flex: 1,
+            height: calendarHeight,
+            overflowY: 'auto',
+            paddingLeft: 20
+          }}
+        >
           <NotesPannel />
         </div>
       </div>
+
       <GanttChart
         laps={laps}
         windowStart={windowStart}
