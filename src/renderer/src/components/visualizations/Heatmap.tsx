@@ -88,7 +88,8 @@ export default function Calendar({ data }: Props) {
   return (
     <div
       style={{
-        marginBottom: '1.5rem'
+        marginBottom: '1.5rem',
+        width: '100%'
         // width: 500 // this is the width of the calandar
         // ,...DebugStyles.divOutline
       }}
@@ -128,7 +129,8 @@ export default function Calendar({ data }: Props) {
                 borderRadius: 6,
                 background: getColor(total, maxTotal),
                 display: 'flex',
-                // alignItems: 'center',
+                alignItems: 'flex-start',
+                flexWrap: 'wrap',
                 // justifyContent: 'center',
                 padding: 5,
                 fontSize: 11,
@@ -149,12 +151,9 @@ export default function Calendar({ data }: Props) {
                       key={ele.id}
                       src={`appicon://${userDataPath}/icons/${ele.iconLocation}`}
                       alt={ele.name}
-                      width={24}
-                      height={24}
+                      width={'30%'}
                     />
                   ))}
-              {/* <img src={runningIcon} alt="running" width={24} height={24} /> */}
-              {/* <img src={walkingIcon} alt="running" width={24} height={24} /> */}
             </div>
           )
         })}
