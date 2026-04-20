@@ -4,6 +4,7 @@ import { StopwatchProvider } from './context/stopwatchcontext'
 import { Toaster } from 'react-hot-toast'
 import VisualizationsRoute from './routes/visualizationsRoute'
 import Sidebar from './components/general/Sidebar'
+import Journal from './components/journal/journal'
 
 function App(): React.JSX.Element {
   return (
@@ -13,6 +14,7 @@ function App(): React.JSX.Element {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/visualizations" element={<VisualizationsRoute />} />
+          <Route path="/journal" element={<Journal />} />
         </Routes>
       </div>
       <Toaster />

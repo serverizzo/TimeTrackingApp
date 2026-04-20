@@ -33,6 +33,7 @@ export default function Sidebar() {
       <button onClick={() => saveToDatabase(laps)}>Save to Database</button>
       <button onClick={navigateLapDisplay}>Lap Display</button>
       <button onClick={navigateVisualizations}>Visualizations</button>
+      <button onClick={() => navigate('/journal')}>Journal</button>
     </div>
   )
 }
