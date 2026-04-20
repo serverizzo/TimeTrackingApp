@@ -36,6 +36,7 @@ export default function Calendar({ data }: Props) {
   const [monthlyCheckinItems, setMonthlyCheckinItems] = useState<CheckinItem[]>([])
   const [triggerRefresh, setTriggerRefresh] = useState<boolean>(false)
   const [userDataPath, setUserDataPath] = useState<string>('')
+  const [rerender, setRerender] = useState<boolean>(false)
 
   const year = viewDate.getFullYear()
   const month = viewDate.getMonth()
@@ -82,7 +83,7 @@ export default function Calendar({ data }: Props) {
     window.api.getCheckedActivitiesByMonth(startDate, endDate).then(setMonthlyCheckinItems)
 
     // todo: have this trigger on exiting modal (use trigger refresh)
-  }, [])
+  }, [rerender])
 
   return (
     <div
@@ -201,7 +202,7 @@ export default function Calendar({ data }: Props) {
 
       {openModal && (
         <Modal onClose={() => setOpenModal(false)}>
-          <CheckinCheckBoxes date={selectedDate} />
+          <CheckinCheckBoxes setRerender={setRerender} setOpen={setOpenModal} date={selectedDate} />
         </Modal>
       )}
 

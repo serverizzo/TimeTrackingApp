@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from 'react'
 
-export default function CheckinCheckBoxes({ date }: { date: string }) {
+interface Props {
+  date: string
+  setOpen: (value: boolean) => void
+  setRerender: (value: (prev: boolean) => boolean) => void
+}
+
+export default function CheckinCheckBoxes({ date, setOpen, setRerender }: Props) {
   const [activities, setActivities] = useState<{ id: number; name: string }[]>([])
   const [checkedActivities, setCheckedActivities] = useState<
     { id: number; name: string; isChecked: boolean }[]
@@ -27,6 +33,8 @@ export default function CheckinCheckBoxes({ date }: { date: string }) {
   const saveCheckinCheckBoxes = async () => {
     console.log('todays date', date)
     await window.api.updateCheckin(date, Array.from(checkedActivities))
+    setOpen(false)
+    setRerender((prev) => !prev)
   }
 
   return (
