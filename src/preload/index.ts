@@ -17,7 +17,8 @@ const api = {
   getCheckedActivitiesByMonth: (dateStart: string, dateEnd: string) =>
     ipcRenderer.invoke('get-checked-activities-by-month', dateStart, dateEnd),
   getUserDataPath: () => ipcRenderer.invoke('get-user-data-path'),
-  getNotes: () => ipcRenderer.invoke('get-notes')
+  getNotes: () => ipcRenderer.invoke('get-notes'),
+  saveNotes: (content: string) => ipcRenderer.invoke('save-notes', content)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

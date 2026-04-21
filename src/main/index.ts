@@ -9,7 +9,7 @@ import { lapHandlers } from './laphandlers'
 import { visualizationhandlers } from './visualizationhandlers'
 import { activityhandlers } from './activityhandlers'
 import { createNotesFile } from './createNotesFile'
-import { registerNotesHandlers } from './registerNotesHandler'
+import { registerNotesHandlers } from './handlers/registerNotesHandler'
 
 function createWindow(): void {
   // Create the browser window.

@@ -12,12 +12,17 @@ export default function Journal() {
     window.api.getNotes().then(setNotes)
   }, [])
 
+  const handleSave = () => {
+    window.api.saveNotes(notes)
+  }
+
   return (
     <div
       style={{
         display: 'flex',
         flexDirection: 'column',
         height: '100vh',
+        width: '100%',
         padding: '1rem',
         boxSizing: 'border-box'
       }}
@@ -27,12 +32,12 @@ export default function Journal() {
         <button onClick={() => setMode('edit')}>Edit</button>
         <button onClick={() => setMode('split')}>Split</button>
         <button onClick={() => setMode('preview')}>Preview</button>
+        <button onClick={handleSave}>Save</button>
         <div style={{ flex: 1 }} />
-        {/* <button onClick={handleSave}>Save</button> */}
       </div>
 
       {/* Editor / Preview */}
-      <div style={{ display: 'flex', flex: 1, gap: 16, overflow: 'hidden' }}>
+      <div style={{ display: 'flex', flex: 1, gap: 16, overflow: 'hidden', width: '100%' }}>
         {/* Editor */}
         {(mode === 'edit' || mode === 'split') && (
           <textarea

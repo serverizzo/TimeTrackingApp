@@ -26,6 +26,7 @@ declare global {
       ) => Promise<{ date: string; id: number; name: string; iconLocation: string }[]>
       getUserDataPath: () => Promise<string>
       getNotes: () => Promise<string>
+      saveNotes: (content: string) => Promise<void>
     }
   }
 }
