@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { LapRow } from '../shared/databasetypes/LapRow'
+import { notesApi } from './apis/notesApi'
 
 // Custom APIs for renderer
 const api = {
@@ -17,8 +18,8 @@ const api = {
   getCheckedActivitiesByMonth: (dateStart: string, dateEnd: string) =>
     ipcRenderer.invoke('get-checked-activities-by-month', dateStart, dateEnd),
   getUserDataPath: () => ipcRenderer.invoke('get-user-data-path'),
-  getNotes: () => ipcRenderer.invoke('get-notes'),
-  saveNotes: (content: string) => ipcRenderer.invoke('save-notes', content)
+
+  ...notesApi
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

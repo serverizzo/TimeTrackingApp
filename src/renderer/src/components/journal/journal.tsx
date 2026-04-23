@@ -8,18 +8,40 @@ import { oneDark } from '@codemirror/theme-one-dark'
 type ViewMode = 'split' | 'edit' | 'preview'
 
 export default function Journal() {
-  const [notes, setNotes] = useState<string>('')
+  const [notes, setNotes] = useState<string>('') // the one currently being rendered
+  // const [draft, setDraft] = useState<string | null>('')
   const [savedNotes, setSavedNotes] = useState<string>('')
   const [mode, setMode] = useState<ViewMode>('split')
 
   const isDirty = notes !== savedNotes
 
   useEffect(() => {
-    window.api.getNotes().then((content) => {
-      setNotes(content)
-      setSavedNotes(content)
-    })
+    const loadNotes = async () => {
+      const draft = await window.api.getDraft()
+      const saved = await window.api.getNotes()
+      setNotes(saved)
+      setSavedNotes(saved)
+
+      console.log('draft:', draft)
+      console.log('saved:', saved)
+
+      if (draft !== null && draft !== '' && draft !== saved) {
+        setNotes(draft)
+        toast('Unsaved changes restored from last session', { icon: '⚠️' })
+      } else {
+        setNotes(saved)
+      }
+    }
+    loadNotes()
   }, [])
+
+  // write to draft if dirty, use debounce to prevent multiple writes
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      if (isDirty) window.api.saveDraft(notes)
+    }, 1000)
+    return () => clearTimeout(debounceTimer)
+  }, [notes])
 
   const handleSave = async () => {
     await toast.promise(window.api.saveNotes(notes), {
@@ -45,11 +67,11 @@ export default function Journal() {
         <button onClick={() => setMode('edit')}>Edit</button>
         <button onClick={() => setMode('split')}>Split</button>
         <button onClick={() => setMode('preview')}>Preview</button>
+        <button onClick={handleSave}>Save</button>
         <span style={{ fontSize: 12, color: isDirty ? 'orange' : 'grey' }}>
           {isDirty ? '● unsaved changes' : '● saved'}
         </span>
         <div style={{ flex: 1 }} />
-        <button onClick={handleSave}>Save</button>
       </div>
 
       <div style={{ display: 'flex', flex: 1, gap: 16, overflow: 'hidden', width: '100%' }}>

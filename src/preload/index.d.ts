@@ -27,6 +27,9 @@ declare global {
       getUserDataPath: () => Promise<string>
       getNotes: () => Promise<string>
       saveNotes: (content: string) => Promise<void>
+      saveDraft: (content: string) => Promise<void>
+      getDraft: () => Promise<string | null>
+      deleteDraft: () => Promise<void>
     }
   }
 }
