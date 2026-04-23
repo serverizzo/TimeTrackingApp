@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import toast from 'react-hot-toast'
 import CodeMirror from '@uiw/react-codemirror'
@@ -14,6 +14,7 @@ export default function Journal() {
   // const [draft, setDraft] = useState<string | null>('')
   const [savedNotes, setSavedNotes] = useState<string>('')
   const [mode, setMode] = useState<ViewMode>('split')
+  const saveStateDebounced = useRef<NodeJS.Timeout | null>(null)
 
   const isDirty = notes !== savedNotes
 
@@ -106,8 +107,11 @@ export default function Journal() {
                 }
               }}
               onUpdate={(viewUpdate) => {
-                const serialized = viewUpdate.state.toJSON({ history: historyField })
-                window.api.saveEditorState(JSON.stringify(serialized))
+                if (saveStateDebounced.current) clearTimeout(saveStateDebounced.current)
+                saveStateDebounced.current = setTimeout(() => {
+                  const serialized = viewUpdate.state.toJSON({ history: historyField })
+                  window.api.saveEditorState(JSON.stringify(serialized))
+                }, 500)
               }}
             />
           </div>
