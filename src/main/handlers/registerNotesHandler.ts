@@ -36,4 +36,15 @@ export function registerNotesHandlers() {
     const draftPath = path.join(app.getPath('userData'), 'notes', `${currentYear}.draft.md`)
     if (fs.existsSync(draftPath)) fs.unlinkSync(draftPath)
   })
+
+  ipcMain.handle('save-editor-state', (_, state: string) => {
+    const statePath = path.join(app.getPath('userData'), 'notes', 'editor-state.json')
+    fs.writeFileSync(statePath, state, 'utf-8')
+  })
+
+  ipcMain.handle('get-editor-state', () => {
+    const statePath = path.join(app.getPath('userData'), 'notes', 'editor-state.json')
+    if (!fs.existsSync(statePath)) return null
+    return fs.readFileSync(statePath, 'utf-8')
+  })
 }

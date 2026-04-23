@@ -30,6 +30,8 @@ declare global {
       saveDraft: (content: string) => Promise<void>
       getDraft: () => Promise<string | null>
       deleteDraft: () => Promise<void>
+      saveEditorState: (state: string) => Promise<void>
+      getEditorState: () => Promise<string>
     }
   }
 }

@@ -4,6 +4,8 @@ import toast from 'react-hot-toast'
 import CodeMirror from '@uiw/react-codemirror'
 import { markdown } from '@codemirror/lang-markdown'
 import { oneDark } from '@codemirror/theme-one-dark'
+import { history, historyField } from '@codemirror/commands'
+import { EditorState } from '@codemirror/state'
 
 type ViewMode = 'split' | 'edit' | 'preview'
 
@@ -88,10 +90,25 @@ export default function Journal() {
             <CodeMirror
               value={notes}
               height="100%"
-              extensions={[markdown()]}
+              extensions={[markdown(), history()]}
               theme={oneDark}
               onChange={(value) => setNotes(value)}
               style={{ height: '100%', fontSize: 13 }}
+              onCreateEditor={async (view) => {
+                const savedState = await window.api.getEditorState()
+                if (savedState) {
+                  const state = EditorState.fromJSON(
+                    JSON.parse(savedState),
+                    { extensions: [markdown(), history()] },
+                    { history: historyField }
+                  )
+                  view.setState(state)
+                }
+              }}
+              onUpdate={(viewUpdate) => {
+                const serialized = viewUpdate.state.toJSON({ history: historyField })
+                window.api.saveEditorState(JSON.stringify(serialized))
+              }}
             />
           </div>
         )}
