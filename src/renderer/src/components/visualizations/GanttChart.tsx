@@ -194,7 +194,7 @@ export default function GanttChart({ laps, windowStart, windowEnd, onPrev, onNex
                       key={i}
                       // title={`${lap.note || 'Timer paused'} — ${Math.round(lap.lap_time / 60000)}m`}
                       onMouseEnter={(e) => {
-                        if (!isPanning) {
+                        if (!isPanning && !isEditing) {
                           setTooltip({ x: e.clientX, y: e.clientY, lap })
                           setShowToolTip(true)
                         }
@@ -277,7 +277,8 @@ export default function GanttChart({ laps, windowStart, windowEnd, onPrev, onNex
             minWidth: 280
           }}
         >
-          <p style={{ margin: '0 0 8px', fontWeight: 500 }}>Edit note</p>
+          <p style={{ margin: '0 0 8px', fontWeight: 500 }}>Edit note:</p>
+          <p>{`${tooltip.lap.note}`}</p>
           <p style={{ margin: '0 0 8px', fontSize: 11, color: 'grey' }}>
             {tooltip.lap.timestarted} — {Math.round(tooltip.lap.lap_time / 60000)}m
           </p>
