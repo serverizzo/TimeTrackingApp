@@ -7,6 +7,7 @@ declare global {
     api: {
       saveCsv: (csvContent: string, dateStr: string) => Promise<void>
       insertLaps: (laps: LapRow[]) => Promise<{ success: boolean }>
+      updateLapNote: (timeStarted: string, date: string, note: string) => Promise<void>
       getHeatmapData: () => Promise<{ date: string; total: number }[]>
       getLapsByRange: (
         startDate: string,

@@ -39,7 +39,18 @@ const parseTimestarted = (timestarted: string): number => {
   return hour24 + minute / 60
 }
 
+interface TooltipState {
+  x: number
+  y: number
+  lap: LapEntry
+}
+
 export default function GanttChart({ laps, windowStart, windowEnd, onPrev, onNext }: Props) {
+  const [tooltip, setTooltip] = useState<TooltipState | null>(null)
+  const [showToolTip, setShowToolTip] = useState<boolean>(false)
+  const [editingNote, setEditingNote] = useState<string>('')
+  const [isEditing, setIsEditing] = useState<boolean>(false)
+
   const days: Date[] = []
   for (let i = 0; i < 7; i++) {
     const d = new Date(windowStart)
@@ -99,6 +110,16 @@ export default function GanttChart({ laps, windowStart, windowEnd, onPrev, onNex
   useEffect(() => {
     if (zoom === 1) setPanOffset(0)
   }, [zoom])
+
+  const handleSaveNote = async () => {
+    if (!tooltip) return
+    console.log(tooltip.lap.timestarted)
+
+    await window.api.updateLapNote(tooltip.lap.timestarted, tooltip.lap.date, editingNote)
+    setIsEditing(false)
+    setTooltip(null)
+    // onLapUpdated()
+  }
 
   return (
     <div style={{ marginBottom: '1.5rem' }}>
@@ -171,7 +192,19 @@ export default function GanttChart({ laps, windowStart, windowEnd, onPrev, onNex
                   return (
                     <div
                       key={i}
-                      title={`${lap.note || 'Timer paused'} — ${Math.round(lap.lap_time / 60000)}m`}
+                      // title={`${lap.note || 'Timer paused'} — ${Math.round(lap.lap_time / 60000)}m`}
+                      onMouseEnter={(e) => {
+                        if (!isPanning) {
+                          setTooltip({ x: e.clientX, y: e.clientY, lap })
+                          setShowToolTip(true)
+                        }
+                      }}
+                      onMouseLeave={() => setShowToolTip(false)}
+                      onDoubleClick={() => {
+                        setEditingNote(lap.note || '')
+                        setIsEditing(true)
+                        setTooltip({ x: 0, y: 0, lap })
+                      }}
                       style={{
                         position: 'absolute',
                         left: `${left}%`,
@@ -199,6 +232,92 @@ export default function GanttChart({ laps, windowStart, windowEnd, onPrev, onNex
           )
         })}
       </div>
+
+      {/* Hover tooltip */}
+      {tooltip && showToolTip && !isEditing && (
+        <div
+          style={{
+            position: 'fixed',
+            top: tooltip.y + 12,
+            left: tooltip.x + 12,
+            background: '#1a1a2e',
+            border: '0.5px solid grey',
+            borderRadius: 6,
+            padding: '8px 12px',
+            fontSize: 11,
+            zIndex: 1000,
+            pointerEvents: 'none'
+          }}
+        >
+          <p style={{ margin: '0 0 4px', fontWeight: 500 }}>{tooltip.lap.note || 'Timer paused'}</p>
+          <p style={{ margin: '0 0 2px', color: 'grey' }}>Started: {tooltip.lap.timestarted}</p>
+          <p style={{ margin: 0, color: 'grey' }}>
+            Duration: {Math.round(tooltip.lap.lap_time / 60000)}m
+          </p>
+          <p style={{ margin: '4px 0 0', color: 'grey', fontStyle: 'italic' }}>
+            Double click to edit
+          </p>
+        </div>
+      )}
+
+      {/* Edit popover */}
+      {isEditing && tooltip && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            background: '#1a1a2e',
+            border: '0.5px solid grey',
+            borderRadius: 8,
+            padding: '1rem',
+            fontSize: 13,
+            zIndex: 1000,
+            minWidth: 280
+          }}
+        >
+          <p style={{ margin: '0 0 8px', fontWeight: 500 }}>Edit note</p>
+          <p style={{ margin: '0 0 8px', fontSize: 11, color: 'grey' }}>
+            {tooltip.lap.timestarted} — {Math.round(tooltip.lap.lap_time / 60000)}m
+          </p>
+          <input
+            autoFocus
+            value={editingNote}
+            onChange={(e) => setEditingNote(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSaveNote()
+              if (e.key === 'Escape') {
+                setIsEditing(false)
+                setTooltip(null)
+              }
+            }}
+            style={{
+              width: '100%',
+              padding: '6px 8px',
+              borderRadius: 4,
+              border: '0.5px solid grey',
+              background: 'transparent',
+              color: 'inherit',
+              fontSize: 13,
+              boxSizing: 'border-box',
+              marginBottom: 8,
+              outline: 'none'
+            }}
+          />
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+            <button
+              onClick={() => {
+                setIsEditing(false)
+                setTooltip(null)
+              }}
+            >
+              Cancel
+            </button>
+            <button onClick={handleSaveNote}>Save</button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

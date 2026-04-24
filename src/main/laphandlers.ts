@@ -24,4 +24,14 @@ export function lapHandlers() {
       throw new Error('failed to save laps')
     }
   })
+
+  ipcMain.handle('update-lap', (_, timeStarted, date, note) => {
+    const db = getDb()
+    db.prepare(
+      `UPDATE laps
+      SET note = ?
+      WHERE timestarted = ? 
+      AND date = ?`
+    ).run(note, timeStarted, date)
+  })
 }
