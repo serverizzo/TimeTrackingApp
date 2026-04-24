@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { LapEntry } from './types'
 
 interface Props {
@@ -60,20 +60,71 @@ export default function GanttChart({ laps, windowStart, windowEnd, onPrev, onNex
   const DAY_END = laps.length > 0 ? Math.min(24, Math.ceil(Math.max(...endHours)) + 1) : 20
   const DAY_HOURS = DAY_END - DAY_START
 
+  const [zoom, setZoom] = useState<number>(1)
+  const [panOffset, setPanOffset] = useState<number>(0)
+  const [isPanning, setIsPanning] = useState<boolean>(false)
+  const panStartX = useRef<number>(0)
+  const panStartOffset = useRef<number>(0)
+
+  const visibleHours = DAY_HOURS / zoom
+  const DAY_START_VISIBLE = Math.max(0, panOffset)
+  const DAY_END_VISIBLE = Math.min(24, panOffset + visibleHours)
+
   const hours: number[] = []
-  for (let h = DAY_START; h <= DAY_END; h += 2) {
+  for (let h = Math.floor(DAY_START_VISIBLE); h <= Math.ceil(DAY_END_VISIBLE); h++) {
     hours.push(h)
   }
 
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault()
+    const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1
+    setZoom((prev) => Math.min(Math.max(prev * zoomFactor, 1), 8))
+  }
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsPanning(true)
+    panStartX.current = e.clientX
+    panStartOffset.current = panOffset
+  }
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isPanning) return
+    const delta = (panStartX.current - e.clientX) / 100
+    const newOffset = Math.max(0, Math.min(24 - visibleHours, panStartOffset.current + delta))
+    setPanOffset(newOffset)
+  }
+
+  const handleMouseUp = () => setIsPanning(false)
+
+  useEffect(() => {
+    if (zoom === 1) setPanOffset(0)
+  }, [zoom])
+
   return (
     <div style={{ marginBottom: '1.5rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-        <button onClick={onPrev}>←</button>
-        <span style={{ fontSize: 13, color: 'grey' }}>
-          {windowStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} —{' '}
-          {windowEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-        </span>
-        <button onClick={onNext}>→</button>
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+          <button onClick={onPrev}>←</button>
+          <span style={{ fontSize: 13, color: 'grey' }}>
+            {windowStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} —{' '}
+            {windowEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+          </span>
+          <button onClick={onNext}>→</button>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <button onClick={() => setZoom((prev) => Math.max(prev * 0.9, 1))}>−</button>
+          <span style={{ fontSize: 11, color: 'grey' }}>{Math.round(zoom * 100)}%</span>
+          <button onClick={() => setZoom((prev) => Math.min(prev * 1.1, 8))}>+</button>
+          <button
+            onClick={() => {
+              setZoom(1)
+              setPanOffset(0)
+            }}
+          >
+            Reset
+          </button>
+        </div>
       </div>
 
       <div style={{ display: 'flex', marginBottom: 6, marginLeft: 56 }}>
@@ -84,60 +135,70 @@ export default function GanttChart({ laps, windowStart, windowEnd, onPrev, onNex
         ))}
       </div>
 
-      {days.map((day) => {
-        const dateStr = formatDate(day)
-        const dayLaps = lapsByDay.get(dateStr) ?? []
-        return (
-          <div key={dateStr} style={{ display: 'flex', alignItems: 'center', marginBottom: 6 }}>
-            <span style={{ fontSize: 10, color: 'grey', width: 52, flexShrink: 0 }}>
-              {day.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-            </span>
-            <div
-              style={{
-                flex: 1,
-                height: 26,
-                background: 'rgba(128,128,128,0.1)',
-                borderRadius: 4,
-                position: 'relative',
-                overflow: 'hidden'
-              }}
-            >
-              {dayLaps.map((lap, i) => {
-                const startHour = parseTimestarted(lap.timestarted)
-                const durationHours = lap.lap_time / 3600000
-                const left = ((startHour - DAY_START) / DAY_HOURS) * 100
-                const width = (durationHours / DAY_HOURS) * 100
-                const c = getActivityColor(lap.note || 'Timer paused')
-                return (
-                  <div
-                    key={i}
-                    title={`${lap.note || 'Timer paused'} — ${Math.round(lap.lap_time / 60000)}m`}
-                    style={{
-                      position: 'absolute',
-                      left: `${left}%`,
-                      width: `${Math.max(width, 0.5)}%`,
-                      height: '100%',
-                      background: c.bg,
-                      border: `1px solid ${c.border}`,
-                      borderRadius: 3,
-                      display: 'flex',
-                      alignItems: 'center',
-                      padding: '0 4px',
-                      fontSize: 10,
-                      color: c.text,
-                      overflow: 'hidden',
-                      whiteSpace: 'nowrap',
-                      boxSizing: 'border-box'
-                    }}
-                  >
-                    {lap.note}
-                  </div>
-                )
-              })}
+      <div
+        onWheel={handleWheel}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        style={{ cursor: isPanning ? 'grabbing' : 'grab' }}
+      >
+        {days.map((day) => {
+          const dateStr = formatDate(day)
+          const dayLaps = lapsByDay.get(dateStr) ?? []
+          return (
+            <div key={dateStr} style={{ display: 'flex', alignItems: 'center', marginBottom: 6 }}>
+              <span style={{ fontSize: 10, color: 'grey', width: 52, flexShrink: 0 }}>
+                {day.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+              </span>
+              <div
+                style={{
+                  flex: 1,
+                  height: 26,
+                  background: 'rgba(128,128,128,0.1)',
+                  borderRadius: 4,
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}
+              >
+                {dayLaps.map((lap, i) => {
+                  const startHour = parseTimestarted(lap.timestarted)
+                  const durationHours = lap.lap_time / 3600000
+                  const left =
+                    ((startHour - DAY_START_VISIBLE) / (DAY_END_VISIBLE - DAY_START_VISIBLE)) * 100
+                  const width = (durationHours / (DAY_END_VISIBLE - DAY_START_VISIBLE)) * 100
+                  const c = getActivityColor(lap.note || 'Timer paused')
+                  return (
+                    <div
+                      key={i}
+                      title={`${lap.note || 'Timer paused'} — ${Math.round(lap.lap_time / 60000)}m`}
+                      style={{
+                        position: 'absolute',
+                        left: `${left}%`,
+                        width: `${Math.max(width, 0.5)}%`,
+                        height: '100%',
+                        background: c.bg,
+                        border: `1px solid ${c.border}`,
+                        borderRadius: 3,
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '0 4px',
+                        fontSize: 10,
+                        color: c.text,
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap',
+                        boxSizing: 'border-box'
+                      }}
+                    >
+                      {lap.note}
+                    </div>
+                  )
+                })}
+              </div>
             </div>
-          </div>
-        )
-      })}
+          )
+        })}
+      </div>
     </div>
   )
 }
