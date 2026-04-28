@@ -84,11 +84,13 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
   const lap = (defaultNote: string = '') => {
     if (!isTimerRunning) return
 
+    const lapTime = lapStartTimeRef.current
+
     setLaps((prev) => [
       ...prev,
       {
         id: lapCountRef.current,
-        timestarted: new Date(lapStartTimeRef.current).toLocaleString('en-US', {
+        timestarted: new Date(lapTime).toLocaleString('en-US', {
           hour: '2-digit',
           minute: '2-digit',
           second: '2-digit',
@@ -101,8 +103,8 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
       }
     ])
     lapCountRef.current = lapCountRef.current + 1
-    lapStartTimeRef.current = Date.now()
     setElapsedLapTime(0)
+    lapStartTimeRef.current = Date.now()
   }
 
   const updateNote = (index: number, note: string) => {
