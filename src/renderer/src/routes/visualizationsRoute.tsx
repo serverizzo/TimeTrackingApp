@@ -64,7 +64,7 @@ export default function VisualizationsRoute() {
         paddingBottom: 100,
         paddingLeft: 10,
         paddingTop: 10,
-        paddingRight: 120
+        paddingRight: 10
       }}
     >
       <p>VisualizationsRoute</p>
