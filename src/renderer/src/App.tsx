@@ -6,7 +6,7 @@ import VisualizationsRoute from './routes/visualizationsRoute'
 import Sidebar from './components/general/Sidebar'
 import Journal from './components/journal/journal'
 import { DebugStyles } from './styles.ts/debugStyle'
-import '../styles.ts/scrollbar.css'
+import './styles.ts/scrollbar.css'
 
 function App(): React.JSX.Element {
   return (
