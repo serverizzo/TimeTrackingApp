@@ -21,20 +21,20 @@ export default function SummaryPanel({ laps }: Props) {
 
   const totalMs = filteredLaps.reduce((sum, l) => sum + l.lap_time, 0)
 
-  const dayTotals = new Map<string, number>()
+  const hoursPerDayMap = new Map<string, number>()
   filteredLaps.forEach((lap: LapEntry) => {
     let dateArray = lap.date.split('-').map(Number)
     let date = new Date(dateArray[0], dateArray[1] - 1, dateArray[2])
     let dateString = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-    dayTotals.set(dateString, (dayTotals.get(lap.date) ?? 0) + lap.lap_time)
+    hoursPerDayMap.set(dateString, (hoursPerDayMap.get(dateString) ?? 0) + lap.lap_time)
   })
 
-  const bestDay = Array.from(dayTotals.entries()).reduce(
+  const bestDay = Array.from(hoursPerDayMap.entries()).reduce(
     (best, [date, ms]) => (ms > best.ms ? { date, ms } : best),
     { date: '-', ms: 0 }
   )
 
-  const maxDayMs = Math.max(...Array.from(dayTotals.values()), 1)
+  const maxDayMs = Math.max(...Array.from(hoursPerDayMap.values()), 1)
 
   const formatDuration = (ms: number): string => {
     const totalMinutes = Math.floor(ms / 60000)
@@ -46,8 +46,10 @@ export default function SummaryPanel({ laps }: Props) {
   }
 
   const avgHours =
-    dayTotals.size > 0
-      ? formatDuration(Array.from(dayTotals.values()).reduce((s, v) => s + v, 0) / dayTotals.size)
+    hoursPerDayMap.size > 0
+      ? formatDuration(
+          Array.from(hoursPerDayMap.values()).reduce((s, v) => s + v, 0) / hoursPerDayMap.size
+        )
       : '0m'
 
   return (
@@ -102,7 +104,7 @@ export default function SummaryPanel({ laps }: Props) {
       <p style={{ fontSize: 13, color: 'grey', margin: '0 0 8px' }}>
         Hours per day ({selectedActivity})
       </p>
-      {Array.from(dayTotals.entries()).map(([date, ms]) => (
+      {Array.from(hoursPerDayMap.entries()).map(([date, ms]) => (
         <div key={date} style={{ display: 'flex', alignItems: 'center', marginBottom: 6, gap: 8 }}>
           <span
             style={{
