@@ -1,0 +1,17 @@
+.scroll_enabled {
+  overflow-y: scroll;
+  height: 500px;
+}
+.scroll_enabled::-webkit-scrollbar {
+  width: 6px;
+}
+.scroll_enabled::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scroll_enabled::-webkit-scrollbar-thumb {
+  background-color: #333333;
+  border-radius: 6px;
+}
+.scroll_enabled::-webkit-scrollbar-thumb:hover {
+  background-color: #666;
+}

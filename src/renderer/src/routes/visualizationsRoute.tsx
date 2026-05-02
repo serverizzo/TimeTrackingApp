@@ -3,7 +3,6 @@ import Heatmap from '@renderer/components/visualizations/Heatmap'
 import NotesPannel from '@renderer/components/visualizations/NotesPannel'
 import SummaryPanel from '@renderer/components/visualizations/summaryPannel'
 import { HeatmapEntry, LapEntry } from '@renderer/components/visualizations/types'
-import { DebugStyles } from '@renderer/styles.ts/debugStyle'
 import { useEffect, useRef, useState } from 'react'
 
 export default function VisualizationsRoute() {
@@ -58,6 +57,7 @@ export default function VisualizationsRoute() {
 
   return (
     <div
+      className="scroll_enabled"
       style={{
         height: '100vh',
         overflowY: 'auto',

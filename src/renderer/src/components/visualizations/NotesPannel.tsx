@@ -13,7 +13,7 @@ export default function NotesPannel() {
 
   return (
     <div>
-      <style>
+      {/* <style>
         {`
           .scroll_enabled {
               overflow-y: scroll;
@@ -37,7 +37,7 @@ export default function NotesPannel() {
               background-color: #666;
             }
         `}
-      </style>
+      </style> */}
       <p style={{ fontSize: 13, color: 'grey', marginBottom: 8 }}>Journal</p>
       {/* <pre className="scroll_enabled">{notes}</pre> */}
       <div className="scroll_enabled">
