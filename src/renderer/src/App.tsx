@@ -7,6 +7,7 @@ import Sidebar from './components/general/Sidebar'
 import Journal from './components/journal/journal'
 import { DebugStyles } from './styles.ts/debugStyle'
 import './styles.ts/scrollbar.css'
+import Activities from './routes/activities'
 
 function App(): React.JSX.Element {
   return (
@@ -36,6 +37,7 @@ function App(): React.JSX.Element {
 
           <Route path="/visualizations" element={<VisualizationsRoute />} />
           <Route path="/journal" element={<Journal />} />
+          <Route path="/activities" element={<Activities />} />
         </Routes>
       </div>
       <Toaster />

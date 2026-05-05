@@ -20,6 +20,7 @@ export default function Sidebar() {
       <button onClick={navigateLapDisplay}>Lap Display</button>
       <button onClick={navigateVisualizations}>Visualizations</button>
       <button onClick={() => navigate('/journal')}>Journal</button>
+      <button onClick={() => navigate('/activities')}>Activities</button>
     </div>
   )
 }
