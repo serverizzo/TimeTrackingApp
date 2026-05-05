@@ -6,6 +6,7 @@ import { markdown } from '@codemirror/lang-markdown'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { history, historyField } from '@codemirror/commands'
 import { EditorState } from '@codemirror/state'
+import { EditorView } from '@codemirror/view'
 
 type ViewMode = 'split' | 'edit' | 'preview'
 
@@ -15,6 +16,7 @@ export default function Journal() {
   const [savedNotes, setSavedNotes] = useState<string>('')
   const [mode, setMode] = useState<ViewMode>('split')
   const saveStateDebounced = useRef<NodeJS.Timeout | null>(null)
+  const [textWrap, setTextWrap] = useState(true)
 
   const isDirty = notes !== savedNotes
 
@@ -91,7 +93,7 @@ export default function Journal() {
             <CodeMirror
               value={notes}
               height="100%"
-              extensions={[markdown(), history()]}
+              extensions={[markdown(), history(), textWrap ? EditorView.lineWrapping : []]}
               theme={oneDark}
               onChange={(value) => setNotes(value)}
               style={{ height: '100%', fontSize: 13 }}
