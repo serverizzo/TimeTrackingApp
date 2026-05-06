@@ -29,8 +29,8 @@ export default function Journal() {
       setNotes(saved)
       setSavedNotes(saved)
 
-      console.log('draft:', draft)
-      console.log('saved:', saved)
+      // console.log('draft:', draft)
+      // console.log('saved:', saved)
 
       if (draft !== null && draft !== '' && draft !== saved) {
         setNotes(draft)
