@@ -13,9 +13,41 @@ function getColor(total: number, max: number): string {
   if (total === 0 || max === 0) return 'rgba(128,128,128,0.1)'
   const intensity = total / max
   if (intensity < 0.25) return '#9FE1CB'
-  if (intensity < 0.5) return '#5DCAA5'
+  if (intensity < 0.5) return '#5dcaa9'
   if (intensity < 0.75) return '#1D9E75'
   return '#0F6E56'
+}
+
+function hexToHue(hex: string): number {
+  const r = parseInt(hex.slice(1, 3), 16) / 255
+  const g = parseInt(hex.slice(3, 5), 16) / 255
+  const b = parseInt(hex.slice(5, 7), 16) / 255
+  const max = Math.max(r, g, b),
+    min = Math.min(r, g, b)
+  const delta = max - min
+  if (delta === 0) return 0
+  let h = max === r ? ((g - b) / delta) % 6 : max === g ? (b - r) / delta + 2 : (r - g) / delta + 4
+  return Math.round(h * 60 + 360) % 360
+}
+
+function getColorAtIntensity(baseColor: string, total: number, max: number): string {
+  if (total === 0 || max === 0) return 'rgba(128,128,128,0.1)'
+  const hue = hexToHue(baseColor)
+  const intensity = total / max
+  // if (intensity < 0.25) return `hsl(${hue}, 80%, 25%)`
+  // if (intensity < 0.75) return `hsl(${hue}, 55%, 58%)`
+  // if (intensity < 0.5) return `hsl(${hue}, 70%, 37%)`
+  // return `hsl(${hue}, 65%, 76%)`
+
+  if (intensity < 0.25) return `hsl(${hue}, 50%, 35%)` // darkest — least active
+  if (intensity < 0.5) return `hsl(${hue}, 60%, 38%)`
+  if (intensity < 0.75) return `hsl(${hue}, 77%, 45%)`
+  return `hsl(${hue}, 85%, 63%)` // brightest — most active
+
+  // if (intensity < 0.25) return `hsl(${hue}, 80%, 28%)` // darkest — least active
+  // if (intensity < 0.5) return `hsl(${hue}, 75%, 42%)`
+  // if (intensity < 0.75) return `hsl(${hue}, 65%, 62%)`
+  // return `hsl(${hue}, 60%, 82%)` // lightest — most active
 }
 
 interface CheckinItem {
@@ -110,9 +142,11 @@ export default function Calendar({ data }: Props) {
       const end = cursor + (entry.total / dayTotal) * 100
       let color = '#218648' // default Uncategorized color
       if (entry.calendar_name === 'leisure') {
-        color = '#bdc022'
+        color = '#224c9b'
       }
-      stops.push(`${color} ${cursor.toFixed(1)}% ${end.toFixed(1)}%`)
+      stops.push(
+        `${getColorAtIntensity(color, entry.total, groupMax.get(entry.calendar_name) ?? 1)} ${cursor.toFixed(1)}% ${end.toFixed(1)}%`
+      )
       cursor = end
     }
     return `linear-gradient(to right, ${stops.join(', ')})`
