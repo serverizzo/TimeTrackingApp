@@ -13,7 +13,14 @@ export default function Activities() {
     getActivities()
   }, [])
 
-  const handleChange = (id: number, field: keyof ActivitiesRow, value: string | boolean) => {
+  const handleChange = (
+    id: number,
+    field: keyof ActivitiesRow,
+    value: string | number | boolean
+  ) => {
+    if (field === 'isTrackedInLaps' || field === 'isTrackedInCheckin') {
+      value = value ? 1 : 0
+    }
     setActivities((prev) =>
       prev?.map((activity) => (activity.id === id ? { ...activity, [field]: value } : activity))
     )
@@ -31,9 +38,9 @@ export default function Activities() {
         <thead>
           <tr>
             <th style={styles.cellStyle}>Activity Name</th>
-            <th style={styles.cellStyle}>Include in autocomplete</th>
+            <th style={styles.cellStyle}>Tracked in Laps</th>
             <th style={styles.cellStyle}>Name of Calandar/Heatmap</th>
-            <th style={styles.cellStyle}>Include in check-in</th>
+            <th style={styles.cellStyle}>Tracked in check-in</th>
             <th style={styles.cellStyle}>Icon</th>
             <th style={styles.cellStyle}></th> {/* purposefully empty, left for trash icon */}
           </tr>
@@ -48,13 +55,27 @@ export default function Activities() {
                 />
               </td>
               <td style={styles.cellStyle}>
-                <input type="checkbox" />
+                <input
+                  onChange={(e) => {
+                    handleChange(activity.id, 'isTrackedInLaps', e.target.checked)
+                  }}
+                  type="checkbox"
+                />
               </td>
               <td style={styles.cellStyle}>
-                <input />
+                <input
+                  onChange={(e) => {
+                    handleChange(activity.id, 'calendar', e.target.value)
+                  }}
+                />
               </td>
               <td style={styles.cellStyle}>
-                <input type="checkbox" />
+                <input
+                  onChange={(e) =>
+                    handleChange(activity.id, 'isTrackedInCheckin', e.target.checked)
+                  }
+                  type="checkbox"
+                />
               </td>
               <td style={styles.cellStyle}>
                 <input type="checkbox" />
