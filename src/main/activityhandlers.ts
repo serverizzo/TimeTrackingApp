@@ -1,5 +1,6 @@
 import { ipcMain } from 'electron'
 import { getDb } from './database'
+import { ActivitiesRow } from '../shared/databasetypes/ActivitiesRow'
 
 export function activityhandlers() {
   ipcMain.handle('get-activities', (_) => {
@@ -7,7 +8,7 @@ export function activityhandlers() {
     return db
       .prepare(
         `
-        SELECT id, name
+        SELECT id, name, iconLocation, isTrackedInLaps, calendar, isTrackedInCheckin
         FROM activities
         ORDER BY name
       `
@@ -75,5 +76,28 @@ export function activityhandlers() {
           `
       )
       .all(dateStart, dateEnd)
+  })
+
+  ipcMain.handle('update-or-insert-activity', (_, activities: ActivitiesRow[]) => {
+    const db = getDb()
+
+    const upsert = db.prepare(`
+    INSERT INTO activities (id, name, iconLocation, isTrackedInLaps, calendar, isTrackedInCheckin)
+    VALUES (@id, @name, @iconLocation, @isTrackedInLaps, @calendar, @isTrackedInCheckin)
+    ON CONFLICT(id) DO UPDATE SET
+      name = excluded.name,
+      iconLocation = excluded.iconLocation,
+      isTrackedInLaps = excluded.isTrackedInLaps,
+      calendar = excluded.calendar,
+      isTrackedInCheckin = excluded.isTrackedInCheckin
+  `)
+
+    const upsertMany = db.transaction((rows: ActivitiesRow[]) => {
+      for (const row of rows) {
+        upsert.run(row)
+      }
+    })
+
+    upsertMany(activities)
   })
 }

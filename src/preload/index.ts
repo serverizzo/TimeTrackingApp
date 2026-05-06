@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { LapRow } from '../shared/databasetypes/LapRow'
 import { notesApi } from './apis/notesApi'
+import { ActivitiesRow } from '../shared/databasetypes/ActivitiesRow'
 
 // Custom APIs for renderer
 const api = {
@@ -14,6 +15,8 @@ const api = {
   getLapsByRange: (startDate: string, endDate: string) =>
     ipcRenderer.invoke('get-laps-by-range', startDate, endDate),
   getActivities: () => ipcRenderer.invoke('get-activities'),
+  updateOrInsertActivity: (activities: ActivitiesRow[]) =>
+    ipcRenderer.invoke('update-or-insert-activity', activities),
   updateCheckin: (date: string, checkedList: { id: number; isChecked: boolean }[]) =>
     ipcRenderer.invoke('update-checkins', date, checkedList),
   getCheckedActivities: (date: string) => ipcRenderer.invoke('get-checked-activities', date),

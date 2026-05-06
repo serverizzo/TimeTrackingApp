@@ -1,4 +1,5 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
+import { ActivitiesRow } from 'src/shared/databasetypes/ActivitiesRow'
 import { LapRow } from 'src/shared/databasetypes/LapRow'
 
 declare global {
@@ -13,7 +14,8 @@ declare global {
         startDate: string,
         endDate: string
       ) => Promise<{ timestarted: string; date: string; lap_time: number; note: string }[]>
-      getActivities: () => Promise<{ id: number; name: string }[]>
+      getActivities: () => Promise<ActivitiesRow[]>
+      updateOrInsertActivity: (activities: ActivitiesRow[]) => Promise<void>
       updateCheckin: (
         date: string,
         checkedList: Array<{ id: number; isChecked: boolean }>

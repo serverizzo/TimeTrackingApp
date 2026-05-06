@@ -1,13 +1,9 @@
 import { DebugStyles } from '@renderer/styles.ts/debugStyle'
 import React, { useEffect, useState } from 'react'
-
-interface ActivitesRow {
-  id: number
-  name: string
-}
+import { ActivitiesRow } from 'src/shared/databasetypes/ActivitiesRow'
 
 export default function Activities() {
-  const [activities, setActivities] = useState<ActivitesRow[]>()
+  const [activities, setActivities] = useState<ActivitiesRow[]>([])
 
   useEffect(() => {
     const getActivities = async () => {
@@ -17,8 +13,20 @@ export default function Activities() {
     getActivities()
   }, [])
 
+  const handleChange = (id: number, field: keyof ActivitiesRow, value: string | boolean) => {
+    setActivities((prev) =>
+      prev?.map((activity) => (activity.id === id ? { ...activity, [field]: value } : activity))
+    )
+  }
+
+  const saveToDatabase = async () => {
+    // window.api.saveToDatabase()
+    window.api.updateOrInsertActivity(activities)
+  }
+
   return (
     <div>
+      <button onClick={saveToDatabase}>Save</button>
       <table>
         <thead>
           <tr>
@@ -34,13 +42,16 @@ export default function Activities() {
           {activities?.sort().map((activity) => (
             <tr>
               <td style={styles.cellStyle}>
-                <input defaultValue={activity.name} />
+                <input
+                  value={activity.name}
+                  onChange={(e) => handleChange(activity.id, 'name', e.target.value)}
+                />
               </td>
               <td style={styles.cellStyle}>
                 <input type="checkbox" />
               </td>
               <td style={styles.cellStyle}>
-                <input defaultValue={activity.name} />
+                <input />
               </td>
               <td style={styles.cellStyle}>
                 <input type="checkbox" />

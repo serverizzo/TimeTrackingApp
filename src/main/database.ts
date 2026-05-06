@@ -41,7 +41,10 @@ export function initializeDatabase(): void {
         CREATE TABLE IF NOT EXISTS activities (
             id        INTEGER PRIMARY KEY AUTOINCREMENT,
             name      TEXT NOT NULL UNIQUE,
-            iconLocation      TEXT
+            iconLocation      TEXT,
+            isTrackedInLaps   INTERGER,
+            calendar          TEXT,
+            isTrackedInCheckin  INTERGER
             )
             `)
 }
