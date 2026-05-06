@@ -8,10 +8,14 @@ export function visualizationhandlers() {
     return db
       .prepare(
         `
-        SELECT date, SUM(lap_time) as total
-        FROM laps
+        SELECT 
+          l.date, 
+          COALESCE(a.calendar, 'Uncategorized') AS calendar_name,
+          SUM(lap_time) as total
+        FROM laps l 
+        LEFT JOIN activities a ON l.note = a.name
         WHERE date >= date('now', '-1 year')
-        GROUP BY date
+        GROUP BY l.date, COALESCE(a.calendar, 'Uncategorized')
         ORDER BY date
       `
       )

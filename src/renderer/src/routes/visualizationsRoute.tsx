@@ -2,8 +2,9 @@ import GanttChart from '@renderer/components/visualizations/GanttChart'
 import Heatmap from '@renderer/components/visualizations/Heatmap'
 import NotesPannel from '@renderer/components/visualizations/NotesPannel'
 import SummaryPanel from '@renderer/components/visualizations/summaryPannel'
-import { HeatmapEntry, LapEntry } from '@renderer/components/visualizations/types'
+import { LapEntry } from '@renderer/components/visualizations/types'
 import { useEffect, useRef, useState } from 'react'
+import { HeatmapEntry } from 'src/shared/queryTypes/heatmapEntry'
 
 export default function VisualizationsRoute() {
   const [heatmapData, setHeatmapData] = useState<HeatmapEntry[]>([])

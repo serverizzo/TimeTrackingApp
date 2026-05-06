@@ -1,6 +1,7 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 import { ActivitiesRow } from 'src/shared/databasetypes/ActivitiesRow'
 import { LapRow } from 'src/shared/databasetypes/LapRow'
+import { HeatmapEntry } from 'src/shared/queryTypes/heatmapEntry'
 
 declare global {
   interface Window {
@@ -9,7 +10,7 @@ declare global {
       saveCsv: (csvContent: string, dateStr: string) => Promise<void>
       insertLaps: (laps: LapRow[]) => Promise<{ success: boolean }>
       updateLapNote: (timeStarted: string, date: string, note: string) => Promise<void>
-      getHeatmapData: () => Promise<{ date: string; total: number }[]>
+      getHeatmapData: () => Promise<HeatmapEntry[]>
       getLapsByRange: (
         startDate: string,
         endDate: string

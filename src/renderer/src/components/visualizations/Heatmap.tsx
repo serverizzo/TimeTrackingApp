@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
-import { HeatmapEntry } from './types'
-import { DebugStyles } from '@renderer/styles.ts/debugStyle'
+import { HeatmapEntry } from 'src/shared/queryTypes/heatmapEntry'
 import Modal from '../general/checkinModal'
 import CheckinCheckBoxes from '../general/checkinCheckBoxes'
 
@@ -41,12 +40,29 @@ export default function Calendar({ data }: Props) {
   const year = viewDate.getFullYear()
   const month = viewDate.getMonth()
 
-  const dataMap = new Map(data.map((d) => [d.date, d.total]))
-  const monthEntries = data.filter((d) => {
-    const [y, m] = d.date.split('-').map(Number)
-    return y === year && m === month + 1
-  })
-  const maxTotal = Math.max(...monthEntries.map((d) => d.total), 1)
+  // const dataMap = new Map(data.map((d) => [d.date, d.total]))
+  // const monthEntries = data.filter((d) => {
+  //   const [y, m] = d.date.split('-').map(Number)
+  //   return y === year && m === month + 1
+  // })
+  // const maxTotal = Math.max(...monthEntries.map((d) => d.total), 1)
+
+  const dataMap = new Map<string, HeatmapEntry[]>()
+  for (const entry of data) {
+    const existing = dataMap.get(entry.date) ?? []
+    existing.push(entry)
+    dataMap.set(entry.date, existing)
+  }
+
+  const groupMax = new Map<string, number>()
+  for (const calandar of dataMap.values()) {
+    for (const entry of calandar) {
+      groupMax.set(
+        entry.calendar_name,
+        Math.max(groupMax.get(entry.calendar_name) ?? 0, entry.total)
+      )
+    }
+  }
 
   const firstDay = new Date(year, month, 1).getDay()
   const daysInMonth = new Date(year, month + 1, 0).getDate()
@@ -85,6 +101,23 @@ export default function Calendar({ data }: Props) {
     // todo: have this trigger on exiting modal (use trigger refresh)
   }, [rerender])
 
+  function buildBackground(heatMapEntriesArray: HeatmapEntry[]): string {
+    if (heatMapEntriesArray.length === 0) return 'rgba(128,128,128,0.1)'
+    const dayTotal = heatMapEntriesArray.reduce((sum, entry) => sum + entry.total, 0)
+    let cursor = 0
+    const stops: string[] = []
+    for (const entry of heatMapEntriesArray) {
+      const end = cursor + (entry.total / dayTotal) * 100
+      let color = '#218648' // default Uncategorized color
+      if (entry.calendar_name === 'leisure') {
+        color = '#bdc022'
+      }
+      stops.push(`${color} ${cursor.toFixed(1)}% ${end.toFixed(1)}%`)
+      cursor = end
+    }
+    return `linear-gradient(to right, ${stops.join(', ')})`
+  }
+
   return (
     <div
       style={{
@@ -120,6 +153,7 @@ export default function Calendar({ data }: Props) {
           if (day === null) return <div key={`empty-${i}`} />
           const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
           const total = dataMap.get(dateStr) ?? 0
+          const groups = dataMap.get(dateStr) ?? []
           const isToday = new Date().toISOString().split('T')[0] === dateStr
           return (
             <div
@@ -127,14 +161,15 @@ export default function Calendar({ data }: Props) {
               style={{
                 aspectRatio: '1',
                 borderRadius: 6,
-                background: getColor(total, maxTotal),
+                // background: getColor(total, maxTotal),
+                background: buildBackground(groups),
                 display: 'flex',
                 alignItems: 'flex-start',
                 flexWrap: 'wrap',
                 // justifyContent: 'center',
                 padding: 5,
                 fontSize: 11,
-                color: total > 0 ? 'white' : 'grey',
+                color: groups.length > 0 ? 'white' : 'grey',
                 border: isToday ? '2px solid #ac600ae0' : '0px solid transparent',
                 cursor: 'default',
                 boxSizing: 'border-box'
