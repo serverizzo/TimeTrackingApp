@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { HeatmapEntry } from 'src/shared/queryTypes/heatmapEntry'
 import Modal from '../general/checkinModal'
 import CheckinCheckBoxes from '../general/checkinCheckBoxes'
+import ToolTipDateSummary from './HeatmapSubComponents/ToolTipDateSummary'
 
 interface Props {
   data: HeatmapEntry[]
@@ -280,56 +281,12 @@ export default function Calendar({ data }: Props) {
         )}
 
         {hoverSummery && hoverSummery.groups.length > 0 && (
-          <div
-            style={{
-              position: 'fixed',
-              top: hoverSummery.y + 12,
-              left: hoverSummery.x + 12,
-              background: '#1a1a1a',
-              border: '0.5px solid rgba(114, 114, 114, 0.15)',
-              borderRadius: 6,
-              padding: '8px 12px',
-              zIndex: 999,
-              fontSize: 12,
-              color: 'white',
-              pointerEvents: 'none'
-            }}
-          >
-            <div>
-              {hoverSummery.groups.map((heatmapEntry, i) => (
-                <span key={heatmapEntry.calendar_name}>
-                  {i > 0 && <span style={{ color: 'grey' }}> · </span>}
-                  <span>{heatmapEntry.calendar_name}</span>
-                </span>
-              ))}
-              {hoverSummery.groups.map((heatmapEntry) => {
-                const cumulativeTime = hoverSummery.groups.reduce(
-                  (sum, entry) => sum + entry.total,
-                  0
-                )
-                const dailyPercent = Math.round((heatmapEntry.total / cumulativeTime) * 100)
-                return (
-                  <div
-                    key={heatmapEntry.calendar_name}
-                    style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}
-                  >
-                    <div
-                      style={{
-                        width: 8,
-                        height: 8,
-                        borderRadius: 2,
-                        background: '#e9e9e9e0' //TODO: fill this color
-                      }}
-                    />
-                    <span>{heatmapEntry.calendar_name}</span>
-                    <span style={{ marginLeft: 'auto', paddingLeft: 16, color: '#e9e9e9e0' }}>
-                      {Math.round(heatmapEntry.total / 60000)}m ({dailyPercent}%)
-                    </span>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
+          <ToolTipDateSummary
+            x={hoverSummery.x}
+            y={hoverSummery.y}
+            date={hoverSummery.date}
+            groups={hoverSummery.groups}
+          />
         )}
       </div>
 
