@@ -1,9 +1,13 @@
+import Tooltips from '@renderer/components/activities/Tooltips'
 import { DebugStyles } from '@renderer/styles.ts/debugStyle'
 import React, { useEffect, useState } from 'react'
 import { ActivitiesRow } from 'src/shared/databasetypes/ActivitiesRow'
 
 export default function Activities() {
   const [activities, setActivities] = useState<ActivitiesRow[]>([])
+  const [tooltipCalendar, setTooltipsCalendar] = useState<{ xPos: number; yPos: number } | null>(
+    null
+  )
 
   useEffect(() => {
     const getActivities = async () => {
@@ -39,7 +43,16 @@ export default function Activities() {
           <tr>
             <th style={styles.cellStyle}>Activity Name</th>
             <th style={styles.cellStyle}>Tracked in Laps</th>
-            <th style={styles.cellStyle}>Name of Calandar/Heatmap</th>
+            <th style={{ ...styles.cellStyle, display: 'flex', justifyContent: 'center' }}>
+              <div style={{ display: 'flex' }}>
+                <p>Name of Calandar/Heatmap</p>
+                <div
+                  onMouseEnter={(e) => setTooltipsCalendar({ xPos: e.clientX, yPos: e.clientY })}
+                  onMouseLeave={() => setTooltipsCalendar(null)}
+                  style={{ background: 'red', height: '10px', width: '10px', borderRadius: 10 }}
+                />
+              </div>
+            </th>
             <th style={styles.cellStyle}>Tracked in check-in</th>
             <th style={styles.cellStyle}>Icon</th>
             <th style={styles.cellStyle}></th> {/* purposefully empty, left for trash icon */}
@@ -87,6 +100,14 @@ export default function Activities() {
           ))}
         </tbody>
       </table>
+      {tooltipCalendar && (
+        <Tooltips
+          xPos={tooltipCalendar.xPos}
+          yPos={tooltipCalendar.yPos}
+          offset={12}
+          message={'new message'}
+        />
+      )}
     </div>
   )
 }
