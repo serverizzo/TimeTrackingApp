@@ -1,6 +1,7 @@
 import InfoIcon from '@renderer/assets/icons/infoIcon'
 import Tooltips from '@renderer/components/activities/Tooltips'
 import { DebugStyles } from '@renderer/styles.ts/debugStyle'
+import { active } from 'd3'
 import React, { useEffect, useState } from 'react'
 import { ActivitiesRow } from 'src/shared/databasetypes/ActivitiesRow'
 
@@ -9,6 +10,8 @@ export default function Activities() {
   const [tooltipCalendar, setTooltipsCalendar] = useState<{ xPos: number; yPos: number } | null>(
     null
   )
+  const [tooltipLaps, setTooltipsLaps] = useState<{ xPos: number; yPos: number } | null>(null)
+  const [tooltipCheckin, setTooltipCheckin] = useState<{ xPos: number; yPos: number } | null>(null)
 
   useEffect(() => {
     const getActivities = async () => {
@@ -43,7 +46,17 @@ export default function Activities() {
         <thead>
           <tr>
             <th style={styles.cellStyle}>Activity Name</th>
-            <th style={styles.cellStyle}>Tracked in Laps</th>
+            <th style={styles.cellStyle}>
+              <div style={{ display: 'flex' }}>
+                <p>Tracked in Laps</p>
+                <div
+                  onMouseEnter={(e) => setTooltipsLaps({ xPos: e.clientX, yPos: e.clientY })}
+                  onMouseLeave={() => setTooltipsLaps(null)}
+                >
+                  <InfoIcon size={20} />
+                </div>
+              </div>
+            </th>
             <th style={{ ...styles.cellStyle, display: 'flex', justifyContent: 'center' }}>
               <div style={{ display: 'flex' }}>
                 <p>Name of Calandar/Heatmap</p>
@@ -55,7 +68,17 @@ export default function Activities() {
                 </div>
               </div>
             </th>
-            <th style={styles.cellStyle}>Tracked in check-in</th>
+            <th style={styles.cellStyle}>
+              <div style={{ display: 'flex' }}>
+                <p>Tracked in check-in</p>
+                <div
+                  onMouseEnter={(e) => setTooltipCheckin({ xPos: e.clientX, yPos: e.clientY })}
+                  onMouseLeave={() => setTooltipCheckin(null)}
+                >
+                  <InfoIcon size={20} />
+                </div>
+              </div>
+            </th>
             <th style={styles.cellStyle}>Icon</th>
             <th style={styles.cellStyle}></th> {/* purposefully empty, left for trash icon */}
           </tr>
@@ -79,6 +102,7 @@ export default function Activities() {
               </td>
               <td style={styles.cellStyle}>
                 <input
+                  defaultValue={activity.calendar}
                   onChange={(e) => {
                     handleChange(activity.id, 'calendar', e.target.value)
                   }}
@@ -108,6 +132,24 @@ export default function Activities() {
           yPos={tooltipCalendar.yPos}
           offset={12}
           message={'new message'}
+        />
+      )}
+
+      {tooltipLaps && (
+        <Tooltips
+          xPos={tooltipLaps.xPos}
+          yPos={tooltipLaps.yPos}
+          offset={12}
+          message={'Laps Message'}
+        />
+      )}
+
+      {tooltipCheckin && (
+        <Tooltips
+          xPos={tooltipCheckin.xPos}
+          yPos={tooltipCheckin.yPos}
+          offset={12}
+          message={'checkin Message'}
         />
       )}
     </div>
