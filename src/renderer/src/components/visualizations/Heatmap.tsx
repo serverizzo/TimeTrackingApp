@@ -3,6 +3,7 @@ import { HeatmapEntry } from 'src/shared/queryTypes/heatmapEntry'
 import Modal from '../general/checkinModal'
 import CheckinCheckBoxes from '../general/checkinCheckBoxes'
 import ToolTipDateSummary from './HeatmapSubComponents/ToolTipDateSummary'
+import ContextMenu from './HeatmapSubComponents/contextMenu'
 
 interface Props {
   data: HeatmapEntry[]
@@ -123,7 +124,7 @@ export default function Calendar({ data }: Props) {
 
   const closeMenu = () => setContextMenu(null)
 
-  const openCheckInModal = (date: string) => {
+  const openCheckinModal = (date: string) => {
     setSelectedDate(date)
     setOpenModal(true)
   }
@@ -240,54 +241,10 @@ export default function Calendar({ data }: Props) {
           )
         })}
         {contextMenu && (
-          <div
-            style={{
-              position: 'fixed',
-              top: contextMenu.y,
-              left: contextMenu.x,
-              background: 'white',
-              border: '0.5px solid grey',
-              borderRadius: 4,
-              padding: '4px 0',
-              zIndex: 1000,
-              minWidth: 160
-            }}
-            onMouseLeave={closeMenu}
-          >
-            <div
-              style={{ padding: '8px 12px', fontSize: 13, color: 'gray', cursor: 'pointer' }}
-              onClick={() => {
-                console.log('Jump to', contextMenu.date)
-              }}
-            >
-              {contextMenu.date}
-            </div>
-            <div
-              style={{ padding: '8px 12px', fontSize: 12, color: 'grey', cursor: 'pointer' }}
-              onClick={() => openCheckInModal(contextMenu.date)}
-            >
-              Update checkins
-            </div>
-            <hr style={{ margin: '4px 0', borderColor: 'rgba(128,128,128,0.2)' }} />
-            <div
-              style={{ padding: '8px 12px', fontSize: 13, color: 'gray', cursor: 'pointer' }}
-              onClick={() => {
-                console.log('Jump to', contextMenu.date)
-              }}
-            >
-              Jump to this week
-            </div>
-          </div>
+          <ContextMenu {...contextMenu} closeMenu={closeMenu} openCheckinModal={openCheckinModal} />
         )}
 
-        {hoverSummery && hoverSummery.groups.length > 0 && (
-          <ToolTipDateSummary
-            x={hoverSummery.x}
-            y={hoverSummery.y}
-            date={hoverSummery.date}
-            groups={hoverSummery.groups}
-          />
-        )}
+        {hoverSummery && hoverSummery.groups.length > 0 && <ToolTipDateSummary {...hoverSummery} />}
       </div>
 
       {openModal && (
