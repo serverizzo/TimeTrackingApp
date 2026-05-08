@@ -197,7 +197,6 @@ export default function Calendar({ data }: Props) {
           const groups = dataMap.get(dateStr) ?? []
           const todayStr = new Date().toLocaleDateString('en-CA') // en-CA gives YYYY-MM-DD format
           const isToday = todayStr === dateStr
-          console.log(todayStr === dateStr, todayStr, dateStr)
           return (
             <div
               key={dateStr}
