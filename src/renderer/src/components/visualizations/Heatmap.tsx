@@ -67,7 +67,6 @@ export default function Calendar({ data }: Props) {
   const [openModal, setOpenModal] = useState(false)
   const [selectedDate, setSelectedDate] = useState<string>('')
   const [monthlyCheckinItems, setMonthlyCheckinItems] = useState<CheckinItem[]>([])
-  const [triggerRefresh, setTriggerRefresh] = useState<boolean>(false)
   const [userDataPath, setUserDataPath] = useState<string>('')
   const [rerender, setRerender] = useState<boolean>(false)
 
