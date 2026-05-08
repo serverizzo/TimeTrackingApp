@@ -1,3 +1,4 @@
+import InfoIcon from '@renderer/assets/icons/infoIcon'
 import Tooltips from '@renderer/components/activities/Tooltips'
 import { DebugStyles } from '@renderer/styles.ts/debugStyle'
 import React, { useEffect, useState } from 'react'
@@ -49,8 +50,9 @@ export default function Activities() {
                 <div
                   onMouseEnter={(e) => setTooltipsCalendar({ xPos: e.clientX, yPos: e.clientY })}
                   onMouseLeave={() => setTooltipsCalendar(null)}
-                  style={{ background: 'red', height: '10px', width: '10px', borderRadius: 10 }}
-                />
+                >
+                  <InfoIcon size={20} />
+                </div>
               </div>
             </th>
             <th style={styles.cellStyle}>Tracked in check-in</th>
