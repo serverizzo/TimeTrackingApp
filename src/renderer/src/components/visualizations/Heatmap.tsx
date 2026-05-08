@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
-import { HeatmapEntry } from './types'
-import { DebugStyles } from '@renderer/styles.ts/debugStyle'
+import { HeatmapEntry } from 'src/shared/queryTypes/heatmapEntry'
 import Modal from '../general/checkinModal'
 import CheckinCheckBoxes from '../general/checkinCheckBoxes'
 
@@ -14,9 +13,41 @@ function getColor(total: number, max: number): string {
   if (total === 0 || max === 0) return 'rgba(128,128,128,0.1)'
   const intensity = total / max
   if (intensity < 0.25) return '#9FE1CB'
-  if (intensity < 0.5) return '#5DCAA5'
+  if (intensity < 0.5) return '#5dcaa9'
   if (intensity < 0.75) return '#1D9E75'
   return '#0F6E56'
+}
+
+function hexToHue(hex: string): number {
+  const r = parseInt(hex.slice(1, 3), 16) / 255
+  const g = parseInt(hex.slice(3, 5), 16) / 255
+  const b = parseInt(hex.slice(5, 7), 16) / 255
+  const max = Math.max(r, g, b),
+    min = Math.min(r, g, b)
+  const delta = max - min
+  if (delta === 0) return 0
+  let h = max === r ? ((g - b) / delta) % 6 : max === g ? (b - r) / delta + 2 : (r - g) / delta + 4
+  return Math.round(h * 60 + 360) % 360
+}
+
+function getColorAtIntensity(baseColor: string, total: number, max: number): string {
+  if (total === 0 || max === 0) return 'rgba(128,128,128,0.1)'
+  const hue = hexToHue(baseColor)
+  const intensity = total / max
+  // if (intensity < 0.25) return `hsl(${hue}, 80%, 25%)`
+  // if (intensity < 0.75) return `hsl(${hue}, 55%, 58%)`
+  // if (intensity < 0.5) return `hsl(${hue}, 70%, 37%)`
+  // return `hsl(${hue}, 65%, 76%)`
+
+  if (intensity < 0.25) return `hsl(${hue}, 50%, 35%)` // darkest — least active
+  if (intensity < 0.5) return `hsl(${hue}, 60%, 38%)`
+  if (intensity < 0.75) return `hsl(${hue}, 77%, 45%)`
+  return `hsl(${hue}, 85%, 63%)` // brightest — most active
+
+  // if (intensity < 0.25) return `hsl(${hue}, 80%, 28%)` // darkest — least active
+  // if (intensity < 0.5) return `hsl(${hue}, 75%, 42%)`
+  // if (intensity < 0.75) return `hsl(${hue}, 65%, 62%)`
+  // return `hsl(${hue}, 60%, 82%)` // lightest — most active
 }
 
 interface CheckinItem {
@@ -41,12 +72,36 @@ export default function Calendar({ data }: Props) {
   const year = viewDate.getFullYear()
   const month = viewDate.getMonth()
 
-  const dataMap = new Map(data.map((d) => [d.date, d.total]))
-  const monthEntries = data.filter((d) => {
-    const [y, m] = d.date.split('-').map(Number)
-    return y === year && m === month + 1
-  })
-  const maxTotal = Math.max(...monthEntries.map((d) => d.total), 1)
+  const [hoverSummery, setHoverSummery] = useState<{
+    x: number
+    y: number
+    date: string
+    groups: HeatmapEntry[]
+  } | null>(null)
+
+  // const dataMap = new Map(data.map((d) => [d.date, d.total]))
+  // const monthEntries = data.filter((d) => {
+  //   const [y, m] = d.date.split('-').map(Number)
+  //   return y === year && m === month + 1
+  // })
+  // const maxTotal = Math.max(...monthEntries.map((d) => d.total), 1)
+
+  const dataMap = new Map<string, HeatmapEntry[]>()
+  for (const entry of data) {
+    const existing = dataMap.get(entry.date) ?? []
+    existing.push(entry)
+    dataMap.set(entry.date, existing)
+  }
+
+  const groupMax = new Map<string, number>()
+  for (const calandar of dataMap.values()) {
+    for (const entry of calandar) {
+      groupMax.set(
+        entry.calendar_name,
+        Math.max(groupMax.get(entry.calendar_name) ?? 0, entry.total)
+      )
+    }
+  }
 
   const firstDay = new Date(year, month, 1).getDay()
   const daysInMonth = new Date(year, month + 1, 0).getDate()
@@ -85,6 +140,25 @@ export default function Calendar({ data }: Props) {
     // todo: have this trigger on exiting modal (use trigger refresh)
   }, [rerender])
 
+  function buildBackground(heatMapEntriesArray: HeatmapEntry[]): string {
+    if (heatMapEntriesArray.length === 0) return 'rgba(128,128,128,0.1)'
+    const dayTotal = heatMapEntriesArray.reduce((sum, entry) => sum + entry.total, 0)
+    let cursor = 0
+    const stops: string[] = []
+    for (const entry of heatMapEntriesArray) {
+      const end = cursor + (entry.total / dayTotal) * 100
+      let color = '#218648' // default Uncategorized color
+      if (entry.calendar_name === 'leisure') {
+        color = '#224c9b'
+      }
+      stops.push(
+        `${getColorAtIntensity(color, entry.total, groupMax.get(entry.calendar_name) ?? 1)} ${cursor.toFixed(1)}% ${end.toFixed(1)}%`
+      )
+      cursor = end
+    }
+    return `linear-gradient(to right, ${stops.join(', ')})`
+  }
+
   return (
     <div
       style={{
@@ -120,27 +194,34 @@ export default function Calendar({ data }: Props) {
           if (day === null) return <div key={`empty-${i}`} />
           const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
           const total = dataMap.get(dateStr) ?? 0
-          const isToday = new Date().toISOString().split('T')[0] === dateStr
+          const groups = dataMap.get(dateStr) ?? []
+          const todayStr = new Date().toLocaleDateString('en-CA') // en-CA gives YYYY-MM-DD format
+          const isToday = todayStr === dateStr
           return (
             <div
               key={dateStr}
               style={{
                 aspectRatio: '1',
                 borderRadius: 6,
-                background: getColor(total, maxTotal),
+                // background: getColor(total, maxTotal),
+                background: buildBackground(groups),
                 display: 'flex',
                 alignItems: 'flex-start',
                 flexWrap: 'wrap',
                 // justifyContent: 'center',
                 padding: 5,
                 fontSize: 11,
-                color: total > 0 ? 'white' : 'grey',
+                color: groups.length > 0 ? 'white' : 'grey',
                 border: isToday ? '2px solid #ac600ae0' : '0px solid transparent',
                 cursor: 'default',
                 boxSizing: 'border-box'
               }}
               onContextMenu={(e) => handleRightClick(e, dateStr)}
               onClick={closeMenu}
+              onMouseLeave={() => setHoverSummery(null)}
+              onMouseEnter={(e) =>
+                setHoverSummery({ x: e.clientX, y: e.clientY, date: dateStr, groups: groups })
+              }
             >
               {day}
               {monthlyCheckinItems &&
@@ -194,6 +275,59 @@ export default function Calendar({ data }: Props) {
               }}
             >
               Jump to this week
+            </div>
+          </div>
+        )}
+
+        {hoverSummery && hoverSummery.groups.length > 0 && (
+          <div
+            style={{
+              position: 'fixed',
+              top: hoverSummery.y + 12,
+              left: hoverSummery.x + 12,
+              background: '#1a1a1a',
+              border: '0.5px solid rgba(114, 114, 114, 0.15)',
+              borderRadius: 6,
+              padding: '8px 12px',
+              zIndex: 999,
+              fontSize: 12,
+              color: 'white',
+              pointerEvents: 'none'
+            }}
+          >
+            <div>
+              {hoverSummery.groups.map((heatmapEntry, i) => (
+                <span key={heatmapEntry.calendar_name}>
+                  {i > 0 && <span style={{ color: 'grey' }}> · </span>}
+                  <span>{heatmapEntry.calendar_name}</span>
+                </span>
+              ))}
+              {hoverSummery.groups.map((heatmapEntry) => {
+                const cumulativeTime = hoverSummery.groups.reduce(
+                  (sum, entry) => sum + entry.total,
+                  0
+                )
+                const dailyPercent = Math.round((heatmapEntry.total / cumulativeTime) * 100)
+                return (
+                  <div
+                    key={heatmapEntry.calendar_name}
+                    style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}
+                  >
+                    <div
+                      style={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: 2,
+                        background: '#e9e9e9e0' //TODO: fill this color
+                      }}
+                    />
+                    <span>{heatmapEntry.calendar_name}</span>
+                    <span style={{ marginLeft: 'auto', paddingLeft: 16, color: '#e9e9e9e0' }}>
+                      {Math.round(heatmapEntry.total / 60000)}m ({dailyPercent}%)
+                    </span>
+                  </div>
+                )
+              })}
             </div>
           </div>
         )}

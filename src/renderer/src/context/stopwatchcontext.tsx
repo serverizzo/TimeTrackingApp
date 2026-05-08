@@ -96,7 +96,7 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
           second: '2-digit',
           hour12: true
         }),
-        date: new Date().toISOString().split('T')[0],
+        date: new Date().toLocaleDateString('en-CA'),
         lapTime: elapsedLapTime,
         cumulativeTotal: elapsedGlobalTime,
         note: defaultNote
