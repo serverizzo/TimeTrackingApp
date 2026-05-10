@@ -1,5 +1,6 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 import { ActivitiesRow } from 'src/shared/databasetypes/ActivitiesRow'
+import { CalendarRows } from 'src/shared/databasetypes/calendarRows'
 import { LapRow } from 'src/shared/databasetypes/LapRow'
 import { HeatmapEntry } from 'src/shared/queryTypes/heatmapEntry'
 
@@ -36,6 +37,7 @@ declare global {
       deleteDraft: () => Promise<void>
       saveEditorState: (state: string) => Promise<void>
       getEditorState: () => Promise<string>
+      getCalendars: () => Promise<CalendarRows[]>
     }
   }
 }

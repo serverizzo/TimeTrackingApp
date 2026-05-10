@@ -10,6 +10,7 @@ import { visualizationhandlers } from './visualizationhandlers'
 import { activityhandlers } from './activityhandlers'
 import { createNotesFile } from './createNotesFile'
 import { registerNotesHandlers } from './handlers/registerNotesHandler'
+import { registerCalendarHandlers } from './handlers/calendarHandlers'
 
 function createWindow(): void {
   // Create the browser window.
@@ -58,6 +59,7 @@ app.whenReady().then(() => {
   activityhandlers()
   createNotesFile()
   registerNotesHandlers()
+  registerCalendarHandlers()
 
   protocol.handle('appicon', (request) => {
     const filePath = request.url.replace('appicon://', '/')

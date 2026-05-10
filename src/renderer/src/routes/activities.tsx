@@ -4,6 +4,7 @@ import { DebugStyles } from '@renderer/styles.ts/debugStyle'
 import { active } from 'd3'
 import React, { useEffect, useState } from 'react'
 import { ActivitiesRow } from 'src/shared/databasetypes/ActivitiesRow'
+import { CalendarRows } from 'src/shared/databasetypes/calendarRows'
 
 export default function Activities() {
   const [activities, setActivities] = useState<ActivitiesRow[]>([])
@@ -13,13 +14,25 @@ export default function Activities() {
   const [tooltipLaps, setTooltipsLaps] = useState<{ xPos: number; yPos: number } | null>(null)
   const [tooltipCheckin, setTooltipCheckin] = useState<{ xPos: number; yPos: number } | null>(null)
 
+  const [calendars, setCalendars] = useState<CalendarRows[]>([])
+
   useEffect(() => {
     const getActivities = async () => {
       const temp = await window.api.getActivities()
       setActivities(temp)
     }
     getActivities()
+
+    const getCalendars = async () => {
+      const temp = await window.api.getCalendars()
+      setCalendars(temp)
+    }
+    getCalendars()
   }, [])
+
+  useEffect(() => {
+    console.log(calendars)
+  }, [calendars])
 
   const handleChange = (
     id: number,
@@ -39,9 +52,40 @@ export default function Activities() {
     window.api.updateOrInsertActivity(activities)
   }
 
+  const setCalendarsNames = (id: number, updatedName: string) => {
+    console.log(id, updatedName)
+    setCalendars((prev) =>
+      prev.map((calendar) => (calendar.id === id ? { ...calendar, name: updatedName } : calendar))
+    )
+  }
+
   return (
     <div>
       <button onClick={saveToDatabase}>Save</button>
+      <table>
+        <thead>
+          <tr>
+            <th style={styles.cellStyle}>Calendar Name</th>
+            <th style={styles.cellStyle}>Color</th>
+          </tr>
+        </thead>
+        <tbody>
+          {calendars &&
+            calendars.map((calendar) => (
+              <tr key={calendar.id}>
+                <td style={styles.cellStyle}>
+                  <input
+                    onChange={(e) => setCalendarsNames(calendar.id, e.target.value)}
+                    value={calendar.name}
+                  />
+                </td>
+                <td style={styles.cellStyle}>{calendar.color}</td>
+              </tr>
+            ))}
+          <tr></tr>
+        </tbody>
+      </table>
+
       <table>
         <thead>
           <tr>
@@ -127,6 +171,7 @@ export default function Activities() {
           ))}
         </tbody>
       </table>
+
       {tooltipCalendar && (
         <Tooltips
           xPos={tooltipCalendar.xPos}

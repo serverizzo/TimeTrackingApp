@@ -23,6 +23,7 @@ const api = {
   getCheckedActivitiesByMonth: (dateStart: string, dateEnd: string) =>
     ipcRenderer.invoke('get-checked-activities-by-month', dateStart, dateEnd),
   getUserDataPath: () => ipcRenderer.invoke('get-user-data-path'),
+  getCalendars: () => ipcRenderer.invoke('get-calendars'),
 
   ...notesApi
 }
