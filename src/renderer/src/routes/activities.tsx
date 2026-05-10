@@ -16,6 +16,8 @@ export default function Activities() {
 
   const [calendars, setCalendars] = useState<CalendarRows[]>([])
 
+  const [dirty, setDirty] = useState<Set<string>>(new Set())
+
   useEffect(() => {
     const getActivities = async () => {
       const temp = await window.api.getActivities()
@@ -34,7 +36,7 @@ export default function Activities() {
     console.log(calendars)
   }, [calendars])
 
-  const handleChange = (
+  const handleActivityChange = (
     id: number,
     field: keyof ActivitiesRow,
     value: string | number | boolean
@@ -42,6 +44,7 @@ export default function Activities() {
     if (field === 'isTrackedInLaps' || field === 'isTrackedInCheckin') {
       value = value ? 1 : 0
     }
+    setDirty((prev) => new Set(prev).add(`activity:${id}:${field}`))
     setActivities((prev) =>
       prev?.map((activity) => (activity.id === id ? { ...activity, [field]: value } : activity))
     )
@@ -54,9 +57,14 @@ export default function Activities() {
 
   const setCalendarsNames = (id: number, updatedName: string) => {
     console.log(id, updatedName)
+    setDirty((prev) => new Set(prev).add(`calendar:${id}:name`))
     setCalendars((prev) =>
       prev.map((calendar) => (calendar.id === id ? { ...calendar, name: updatedName } : calendar))
     )
+  }
+
+  const isCellDirty = (cell: string) => {
+    return dirty.has(cell)
   }
 
   return (
@@ -73,7 +81,13 @@ export default function Activities() {
           {calendars &&
             calendars.map((calendar) => (
               <tr key={calendar.id}>
-                <td style={styles.cellStyle}>
+                <td
+                  style={
+                    isCellDirty(`calendar:${calendar.id}:name`)
+                      ? styles.dirtyCell
+                      : styles.cellStyle
+                  }
+                >
                   <input
                     onChange={(e) => setCalendarsNames(calendar.id, e.target.value)}
                     value={calendar.name}
@@ -131,37 +145,63 @@ export default function Activities() {
         <tbody>
           {activities?.sort().map((activity) => (
             <tr key={activity.id}>
-              <td style={styles.cellStyle}>
+              <td
+                style={
+                  isCellDirty(`activity:${activity.id}:name`) ? styles.dirtyCell : styles.cellStyle
+                }
+              >
                 <input
                   value={activity.name}
-                  onChange={(e) => handleChange(activity.id, 'name', e.target.value)}
+                  onChange={(e) => handleActivityChange(activity.id, 'name', e.target.value)}
                 />
               </td>
-              <td style={styles.cellStyle}>
+              <td
+                style={
+                  isCellDirty(`activity:${activity.id}:isTrackedInLaps`)
+                    ? styles.dirtyCell
+                    : styles.cellStyle
+                }
+              >
                 <input
                   onChange={(e) => {
-                    handleChange(activity.id, 'isTrackedInLaps', e.target.checked)
+                    handleActivityChange(activity.id, 'isTrackedInLaps', e.target.checked)
                   }}
                   type="checkbox"
                 />
               </td>
-              <td style={styles.cellStyle}>
+              <td
+                style={
+                  isCellDirty(`activity:${activity.id}:calendar`)
+                    ? styles.dirtyCell
+                    : styles.cellStyle
+                }
+              >
                 <input
                   defaultValue={activity.calendar}
                   onChange={(e) => {
-                    handleChange(activity.id, 'calendar', e.target.value)
+                    handleActivityChange(activity.id, 'calendar', e.target.value)
                   }}
                 />
               </td>
-              <td style={styles.cellStyle}>
+              <td
+                style={
+                  isCellDirty(`activity:${activity.id}:isTrackedInCheckin`)
+                    ? styles.dirtyCell
+                    : styles.cellStyle
+                }
+              >
                 <input
                   onChange={(e) =>
-                    handleChange(activity.id, 'isTrackedInCheckin', e.target.checked)
+                    handleActivityChange(activity.id, 'isTrackedInCheckin', e.target.checked)
                   }
                   type="checkbox"
                 />
               </td>
-              <td style={styles.cellStyle}>
+              <td
+                style={
+                  isCellDirty(`activity:${activity.id}:icon`) ? styles.dirtyCell : styles.cellStyle
+                }
+              >
                 <input type="checkbox" />
               </td>
               <td style={styles.cellStyle}>
@@ -207,6 +247,13 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderColor: 'green',
     borderStyle: 'solid',
     borderWidth: '1px',
+    textAlign: 'center',
+    padding: 10
+  },
+  dirtyCell: {
+    borderColor: '#db8514e3',
+    borderStyle: 'solid',
+    borderWidth: '3px',
     textAlign: 'center',
     padding: 10
   }
