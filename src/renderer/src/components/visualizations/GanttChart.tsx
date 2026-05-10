@@ -87,7 +87,7 @@ export default function GanttChart({ laps, windowStart, windowEnd, onPrev, onNex
   }
 
   const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault()
+    // e.preventDefault()
     const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1
     setZoom((prev) => Math.min(Math.max(prev * zoomFactor, 1), 8))
   }
