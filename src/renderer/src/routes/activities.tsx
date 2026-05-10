@@ -80,7 +80,8 @@ export default function Activities() {
               </div>
             </th>
             <th style={styles.cellStyle}>Icon</th>
-            <th style={styles.cellStyle}></th> {/* purposefully empty, left for trash icon */}
+            {/* purposefully empty, left for trash icon */}
+            <th style={styles.cellStyle}></th>
           </tr>
         </thead>
         <tbody>
