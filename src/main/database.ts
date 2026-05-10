@@ -47,6 +47,15 @@ export function initializeDatabase(): void {
             isTrackedInCheckin  INTERGER
             )
             `)
+
+  // TODO: insert a default row for default calandars (so that laps without calandars will appear on the heatmap)
+  db.exec(`
+      CREATE TABLE IF NOT EXISTS calendars (
+        id    INTEGER PRIMARY KEY AUTOINCREMENT,
+        name      TEXT NOT NULL UNIQUE,
+        color     TEXT
+      )
+    `)
 }
 
 export function getDb(): BetterSqlite3.Database {

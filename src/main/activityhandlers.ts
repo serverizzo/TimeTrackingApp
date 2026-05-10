@@ -8,9 +8,11 @@ export function activityhandlers() {
     return db
       .prepare(
         `
-        SELECT id, name, iconLocation, isTrackedInLaps, calendar, isTrackedInCheckin
-        FROM activities
-        ORDER BY name
+        SELECT a.id, a.name, a.iconLocation, a.isTrackedInLaps, 
+        COALESCE(c.name, 'Uncategorized') AS calendar, a.isTrackedInCheckin
+        FROM activities a
+        LEFT JOIN calendars c ON a.calendar = c.id
+        ORDER BY a.name
       `
       )
       .all()
