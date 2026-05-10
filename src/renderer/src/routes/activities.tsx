@@ -86,7 +86,7 @@ export default function Activities() {
         </thead>
         <tbody>
           {activities?.sort().map((activity) => (
-            <tr>
+            <tr key={activity.id}>
               <td style={styles.cellStyle}>
                 <input
                   value={activity.name}
