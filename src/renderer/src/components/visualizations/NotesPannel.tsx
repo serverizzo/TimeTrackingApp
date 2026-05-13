@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 export default function NotesPannel() {
   const [notes, setNotes] = useState<string>()
@@ -41,7 +42,7 @@ export default function NotesPannel() {
       <p style={{ fontSize: 13, color: 'grey', marginBottom: 8 }}>Journal</p>
       {/* <pre className="scroll_enabled">{notes}</pre> */}
       <div className="scroll_enabled">
-        <ReactMarkdown>{notes}</ReactMarkdown>
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>{notes}</ReactMarkdown>
       </div>
     </div>
   )

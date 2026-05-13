@@ -9,6 +9,9 @@ import { EditorState } from '@codemirror/state'
 import { EditorView } from '@codemirror/view'
 import { Prec } from '@codemirror/state'
 import { keymap } from '@codemirror/view'
+import remarkGfm from 'remark-gfm'
+import InfoIcon from '@renderer/assets/icons/infoIcon'
+import Tooltips from '../activities/Tooltips'
 
 type ViewMode = 'split' | 'edit' | 'preview'
 
@@ -19,6 +22,7 @@ export default function Journal() {
   const [mode, setMode] = useState<ViewMode>('split')
   const saveStateDebounced = useRef<NodeJS.Timeout | null>(null)
   const [textWrap, setTextWrap] = useState(true)
+  const [toolTipJournal, setToolTipJournal] = useState<{ xPos: number; yPos: number } | null>(null)
 
   const isDirty = notes !== savedNotes
 
@@ -75,6 +79,12 @@ export default function Journal() {
         <span style={{ fontSize: 12, color: isDirty ? 'orange' : 'grey' }}>
           {isDirty ? '● unsaved changes' : '● saved'}
         </span>
+        <div
+          onMouseEnter={(e) => setToolTipJournal({ xPos: e.clientX, yPos: e.clientY })}
+          onMouseLeave={() => setToolTipJournal(null)}
+        >
+          <InfoIcon size={20} />
+        </div>
         <div style={{ flex: 1 }} />
       </div>
 
@@ -149,10 +159,19 @@ export default function Journal() {
               boxSizing: 'border-box'
             }}
           >
-            <ReactMarkdown>{notes}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{notes}</ReactMarkdown>
           </div>
         )}
       </div>
+
+      {toolTipJournal && (
+        <Tooltips
+          xPos={toolTipJournal.xPos}
+          yPos={toolTipJournal.yPos}
+          offset={12}
+          message={'The Journal uses GitHub Flavored Markdown (GFM)'}
+        />
+      )}
     </div>
   )
 }
