@@ -15,9 +15,14 @@ const api = {
   getHeatmapData: () => ipcRenderer.invoke('get-heatmap-data'),
   getLapsByRange: (startDate: string, endDate: string) =>
     ipcRenderer.invoke('get-laps-by-range', startDate, endDate),
+
+  // Activities
   getActivities: () => ipcRenderer.invoke('get-activities'),
-  updateOrInsertActivity: (activities: ActivitiesRow[]) =>
-    ipcRenderer.invoke('update-or-insert-activity', activities),
+  updateActivity: (activitiesRows: ActivitiesRow[]) =>
+    ipcRenderer.invoke('update-activity', activitiesRows),
+  insertNewActivity: () => ipcRenderer.invoke('insert-new-activity'),
+  deleteActivity: (id: number) => ipcRenderer.invoke('remove-activity', id),
+
   updateCheckin: (date: string, checkedList: { id: number; isChecked: boolean }[]) =>
     ipcRenderer.invoke('update-checkins', date, checkedList),
   getCheckedActivities: (date: string) => ipcRenderer.invoke('get-checked-activities', date),

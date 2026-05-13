@@ -80,26 +80,41 @@ export function activityhandlers() {
       .all(dateStart, dateEnd)
   })
 
-  ipcMain.handle('update-or-insert-activity', (_, activities: ActivitiesRow[]) => {
+  ipcMain.handle('insert-new-activity', (_) => {
     const db = getDb()
+    return db
+      .prepare(
+        `
+        INSERT INTO activities (name, iconLocation, isTrackedInLaps, isTrackedInCheckin, calendar) 
+        VALUES ('new_activity', NULL, 0, 0, NULL)
+      `
+      )
+      .run()
+  })
 
-    const upsert = db.prepare(`
-    INSERT INTO activities (id, name, iconLocation, isTrackedInLaps, calendar, isTrackedInCheckin)
-    VALUES (@id, @name, @iconLocation, @isTrackedInLaps, @calendar, @isTrackedInCheckin)
-    ON CONFLICT(id) DO UPDATE SET
-      name = excluded.name,
-      iconLocation = excluded.iconLocation,
-      isTrackedInLaps = excluded.isTrackedInLaps,
-      calendar = excluded.calendar,
-      isTrackedInCheckin = excluded.isTrackedInCheckin
-  `)
+  ipcMain.handle('update-activity', (_, rows: ActivitiesRow[]) => {
+    const db = getDb()
+    const update = db.prepare(`
+      UPDATE activities 
+      SET name = @name, 
+        iconLocation = @iconLocation, 
+        isTrackedInLaps = @isTrackedInLaps, 
+        isTrackedInCheckin = @isTrackedInCheckin, 
+        calendar = (SELECT id FROM calendars WHERE name = @calendar)
+      WHERE id = @id  
+      `)
 
-    const upsertMany = db.transaction((rows: ActivitiesRow[]) => {
-      for (const row of rows) {
-        upsert.run(row)
-      }
-    })
+    for (const { id, name, iconLocation, isTrackedInLaps, isTrackedInCheckin, calendar } of rows) {
+      update.run({ id, name, iconLocation, isTrackedInLaps, isTrackedInCheckin, calendar })
+    }
+  })
 
-    upsertMany(activities)
+  ipcMain.handle('remove-activity', (_, id: number) => {
+    const db = getDb()
+    db.prepare(
+      `
+      DELETE FROM activities WHERE id=@id
+      `
+    ).run({ id: id })
   })
 }

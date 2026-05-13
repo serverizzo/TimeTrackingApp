@@ -52,8 +52,8 @@ export default function Activities() {
 
   const saveToDatabase = async () => {
     // window.api.saveToDatabase()
-    await window.api.updateOrInsertActivity(activities)
 
+    await window.api.updateActivity(activities)
     //TODO: Combine save calendar and save to database into one function
 
     // await window.api.updateCalendar(calendars)
@@ -83,6 +83,18 @@ export default function Activities() {
 
   const isCellDirty = (cell: string) => {
     return dirty.has(cell)
+  }
+
+  const addActivity = async () => {
+    await window.api.insertNewActivity()
+    const updated = await window.api.getActivities()
+    setActivities(updated)
+  }
+
+  const deleteActivity = async (id: number) => {
+    await window.api.deleteActivity(id)
+    const updated = await window.api.getActivities()
+    setActivities(updated)
   }
 
   return (
@@ -224,12 +236,14 @@ export default function Activities() {
               >
                 <input type="checkbox" />
               </td>
+              {/* delete */}
               <td style={styles.cellStyle}>
-                <input type="checkbox" />
+                <button onClick={() => deleteActivity(activity.id)}>Delete</button>
               </td>
             </tr>
           ))}
         </tbody>
+        <button onClick={addActivity}>Add new activity</button>
       </table>
 
       {tooltipCalendar && (

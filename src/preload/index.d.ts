@@ -16,8 +16,13 @@ declare global {
         startDate: string,
         endDate: string
       ) => Promise<{ timestarted: string; date: string; lap_time: number; note: string }[]>
+
+      // Activities
       getActivities: () => Promise<ActivitiesRow[]>
-      updateOrInsertActivity: (activities: ActivitiesRow[]) => Promise<void>
+      updateActivity: (activitiesRows: ActivitiesRow[]) => Promise<void>
+      insertNewActivity: () => Promise<void>
+      deleteActivity: (id: number) => Promise<void>
+
       updateCheckin: (
         date: string,
         checkedList: Array<{ id: number; isChecked: boolean }>
