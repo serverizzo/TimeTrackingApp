@@ -51,20 +51,14 @@ export default function Activities() {
   }
 
   const saveToDatabase = async () => {
-    // window.api.saveToDatabase()
+    await window.api.updateActivity(activities) // old calendar names still exist in DB ✓
 
-    await window.api.updateActivity(activities)
-    //TODO: Combine save calendar and save to database into one function
+    await window.api.updateCalendar(calendars) // now rename calendars
+    const updatedCalendars = await window.api.getCalendars()
+    setCalendars(updatedCalendars)
 
-    // await window.api.updateCalendar(calendars)
-    // const updated = await window.api.getActivities()
-    // setActivities(updated)
-  }
-
-  const saveCalendar = async () => {
-    await window.api.updateCalendar(calendars)
-    const updated = await window.api.getCalendars()
-    setCalendars(updated)
+    const updatedActivities = await window.api.getActivities()
+    setActivities(updatedActivities)
   }
 
   const addCalendar = async () => {
@@ -100,7 +94,6 @@ export default function Activities() {
   return (
     <div>
       <button onClick={saveToDatabase}>Save</button>
-      <button onClick={saveCalendar}>Save Calendar</button>
       <table>
         <thead>
           <tr>
@@ -209,7 +202,7 @@ export default function Activities() {
                 }
               >
                 <input
-                  defaultValue={activity.calendar}
+                  value={activity.calendar ?? ''}
                   onChange={(e) => {
                     handleActivityChange(activity.id, 'calendar', e.target.value)
                   }}
