@@ -3,6 +3,7 @@ import { electronAPI } from '@electron-toolkit/preload'
 import { LapRow } from '../shared/databasetypes/LapRow'
 import { notesApi } from './apis/notesApi'
 import { ActivitiesRow } from '../shared/databasetypes/ActivitiesRow'
+import { CalendarRows } from '../shared/databasetypes/calendarRows'
 
 // Custom APIs for renderer
 const api = {
@@ -23,7 +24,12 @@ const api = {
   getCheckedActivitiesByMonth: (dateStart: string, dateEnd: string) =>
     ipcRenderer.invoke('get-checked-activities-by-month', dateStart, dateEnd),
   getUserDataPath: () => ipcRenderer.invoke('get-user-data-path'),
+
+  // Calendars
   getCalendars: () => ipcRenderer.invoke('get-calendars'),
+  insertNewCalendar: () => ipcRenderer.invoke('insert-new-calendar'),
+  updateCalendar: (calendarRows: CalendarRows[]) =>
+    ipcRenderer.invoke('update-calendar', calendarRows),
 
   ...notesApi
 }

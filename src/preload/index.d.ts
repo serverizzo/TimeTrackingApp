@@ -37,7 +37,11 @@ declare global {
       deleteDraft: () => Promise<void>
       saveEditorState: (state: string) => Promise<void>
       getEditorState: () => Promise<string>
+
+      // Calendars
       getCalendars: () => Promise<CalendarRows[]>
+      insertNewCalendar: () => Promise<void>
+      updateCalendar: (calandarRows: CalendarRows[]) => Promise<void>
     }
   }
 }

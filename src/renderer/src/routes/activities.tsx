@@ -52,7 +52,25 @@ export default function Activities() {
 
   const saveToDatabase = async () => {
     // window.api.saveToDatabase()
-    window.api.updateOrInsertActivity(activities)
+    await window.api.updateOrInsertActivity(activities)
+
+    //TODO: Combine save calendar and save to database into one function
+
+    // await window.api.updateCalendar(calendars)
+    // const updated = await window.api.getActivities()
+    // setActivities(updated)
+  }
+
+  const saveCalendar = async () => {
+    await window.api.updateCalendar(calendars)
+    const updated = await window.api.getCalendars()
+    setCalendars(updated)
+  }
+
+  const addCalendar = async () => {
+    await window.api.insertNewCalendar()
+    const updated = await window.api.getCalendars()
+    setCalendars(updated)
   }
 
   const setCalendarsNames = (id: number, updatedName: string) => {
@@ -70,6 +88,7 @@ export default function Activities() {
   return (
     <div>
       <button onClick={saveToDatabase}>Save</button>
+      <button onClick={saveCalendar}>Save Calendar</button>
       <table>
         <thead>
           <tr>
@@ -99,6 +118,7 @@ export default function Activities() {
           <tr></tr>
         </tbody>
       </table>
+      <button onClick={addCalendar}>Add new calendar</button>
 
       <table>
         <thead>
