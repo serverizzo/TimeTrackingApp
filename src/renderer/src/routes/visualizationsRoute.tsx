@@ -78,7 +78,7 @@ export default function VisualizationsRoute() {
         style={{ display: 'flex', alignItems: 'flex-start', gap: 0 }}
       >
         <div ref={calendarRef} style={{ width: calendarWidth, flexShrink: 0 }}>
-          <Heatmap data={heatmapData} />
+          <Heatmap props={heatmapData} />
         </div>
 
         {/* adjustable bar */}

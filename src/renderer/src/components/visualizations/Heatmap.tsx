@@ -6,7 +6,7 @@ import ToolTipDateSummary from './HeatmapSubComponents/ToolTipDateSummary'
 import ContextMenu from './HeatmapSubComponents/contextMenu'
 
 interface Props {
-  data: HeatmapEntry[]
+  props: HeatmapEntry[]
 }
 
 const DAYS_OF_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -59,7 +59,7 @@ interface CheckinItem {
   iconLocation: string
 }
 
-export default function Calendar({ data }: Props) {
+export default function Calendar({ props }: Props) {
   const [viewDate, setViewDate] = useState(new Date())
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; date: string } | null>(
     null
@@ -80,15 +80,15 @@ export default function Calendar({ data }: Props) {
     groups: HeatmapEntry[]
   } | null>(null)
 
-  // const dataMap = new Map(data.map((d) => [d.date, d.total]))
-  // const monthEntries = data.filter((d) => {
+  // const dataMap = new Map(props.map((d) => [d.date, d.total]))
+  // const monthEntries = props.filter((d) => {
   //   const [y, m] = d.date.split('-').map(Number)
   //   return y === year && m === month + 1
   // })
   // const maxTotal = Math.max(...monthEntries.map((d) => d.total), 1)
 
   const dataMap = new Map<string, HeatmapEntry[]>()
-  for (const entry of data) {
+  for (const entry of props) {
     const existing = dataMap.get(entry.date) ?? []
     existing.push(entry)
     dataMap.set(entry.date, existing)
