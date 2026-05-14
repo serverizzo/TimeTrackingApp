@@ -148,10 +148,8 @@ export default function Calendar({ props }: Props) {
     const stops: string[] = []
     for (const entry of heatMapEntriesArray) {
       const end = cursor + (entry.total / dayTotal) * 100
-      let color = '#218648' // default Uncategorized color
-      if (entry.calendar_name === 'leisure') {
-        color = '#224c9b'
-      }
+      let color = entry.color ? entry.color : '#218648'
+
       stops.push(
         `${getColorAtIntensity(color, entry.total, groupMax.get(entry.calendar_name) ?? 1)} ${cursor.toFixed(1)}% ${end.toFixed(1)}%`
       )

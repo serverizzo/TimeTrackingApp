@@ -11,7 +11,8 @@ export function visualizationhandlers() {
       SELECT 
         l.date, 
         COALESCE(c.name, 'Uncategorized') AS calendar_name,
-        SUM(lap_time) as total
+        SUM(lap_time) as total,
+        c.color
       FROM laps l 
       LEFT JOIN activities a ON l.note = a.name
       LEFT JOIN calendars c ON a.calendar = c.id
