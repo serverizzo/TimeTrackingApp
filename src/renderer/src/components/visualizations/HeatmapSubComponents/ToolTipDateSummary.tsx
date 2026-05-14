@@ -50,7 +50,7 @@ export default function ToolTipDateSummary({
                   width: 8,
                   height: 8,
                   borderRadius: 2,
-                  background: '#e9e9e9e0' //TODO: fill this color
+                  background: heatmapEntry.color ? heatmapEntry.color : '#218648' //TODO: fill this color
                 }}
               />
               <span>{heatmapEntry.calendar_name}</span>
