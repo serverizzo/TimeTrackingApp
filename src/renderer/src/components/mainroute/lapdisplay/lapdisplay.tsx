@@ -1,8 +1,27 @@
 import { useStopwatch } from '@renderer/context/stopwatchcontext'
-import React from 'react'
+import React, { Activity, useEffect, useState } from 'react'
+import { ActivitiesRow } from 'src/shared/databasetypes/ActivitiesRow'
 
 export default function LapDisplay() {
   const { laps, convertToTime, millisecondsToTime, updateNote } = useStopwatch()
+
+  const [activities, setActivities] = useState<ActivitiesRow[]>()
+
+  useEffect(() => {
+    const getActivities = async () => {
+      const activities = await window.api.getActivities()
+      setActivities(activities)
+    }
+    getActivities()
+  }, [])
+
+  useEffect(() => {
+    const activitiesArray = activities
+      ?.filter((activity) => activity.isTrackedInLaps)
+      .map((activity) => activity.name)
+    console.log(activitiesArray)
+  }, [activities])
+
   return (
     <table>
       <thead>
