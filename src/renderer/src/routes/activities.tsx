@@ -188,6 +188,8 @@ export default function Activities() {
                 }
               >
                 <input
+                  style={styles.checkmarkBox}
+                  checked={activity.isTrackedInLaps}
                   onChange={(e) => {
                     handleActivityChange(activity.id, 'isTrackedInLaps', e.target.checked)
                   }}
@@ -216,6 +218,8 @@ export default function Activities() {
                 }
               >
                 <input
+                  style={styles.checkmarkBox}
+                  checked={activity.isTrackedInCheckin}
                   onChange={(e) =>
                     handleActivityChange(activity.id, 'isTrackedInCheckin', e.target.checked)
                   }
@@ -271,7 +275,7 @@ export default function Activities() {
 
 const styles: { [key: string]: React.CSSProperties } = {
   cellStyle: {
-    borderColor: 'green',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
     borderStyle: 'solid',
     borderWidth: '1px',
     textAlign: 'center',
@@ -283,5 +287,10 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderWidth: '3px',
     textAlign: 'center',
     padding: 10
+  },
+  checkmarkBox: {
+    width: '20px',
+    height: '20px',
+    cursor: 'pointer'
   }
 }
