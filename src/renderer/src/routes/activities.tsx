@@ -1,6 +1,7 @@
 import InfoIcon from '@renderer/assets/icons/infoIcon'
 import Tooltips from '@renderer/components/activities/Tooltips'
 import { DebugStyles } from '@renderer/styles.ts/debugStyle'
+import { InputStyle } from '@renderer/styles.ts/inputStyle'
 import { active } from 'd3'
 import React, { useEffect, useState } from 'react'
 import { ActivitiesRow } from 'src/shared/databasetypes/ActivitiesRow'
@@ -113,6 +114,7 @@ export default function Activities() {
                   }
                 >
                   <input
+                    style={{ ...InputStyle.darkBackground }}
                     onChange={(e) => setCalendarsNames(calendar.id, e.target.value)}
                     value={calendar.name}
                   />
@@ -176,6 +178,7 @@ export default function Activities() {
                 }
               >
                 <input
+                  style={{ ...InputStyle.darkBackground }}
                   value={activity.name}
                   onChange={(e) => handleActivityChange(activity.id, 'name', e.target.value)}
                 />
@@ -204,6 +207,7 @@ export default function Activities() {
                 }
               >
                 <input
+                  style={{ ...InputStyle.darkBackground }}
                   value={activity.calendar ?? ''}
                   onChange={(e) => {
                     handleActivityChange(activity.id, 'calendar', e.target.value)
