@@ -89,6 +89,7 @@ export default function LapDisplay() {
                           highlightedElementIndex === suggestionIndex ? '#2a2a2a' : '#1a1a1a'
                       }}
                       key={suggestionIndex}
+                      onMouseDown={(e) => e.preventDefault()}
                       onClick={() => {
                         handleNoteChange(index, s)
                         setActiveNoteSuggestion(undefined)
