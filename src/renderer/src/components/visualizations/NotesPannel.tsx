@@ -1,14 +1,21 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
 export default function NotesPannel() {
   const [notes, setNotes] = useState<string>()
+  const previewRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     window.api.getNotes().then((res) => {
       console.log(res)
       setNotes(res)
+
+      requestAnimationFrame(() => {
+        if (previewRef.current) {
+          previewRef.current.scrollTop = previewRef.current.scrollHeight
+        }
+      })
     })
   }, [])
 
@@ -41,7 +48,7 @@ export default function NotesPannel() {
       </style> */}
       <p style={{ fontSize: 13, color: 'grey', marginBottom: 8 }}>Journal</p>
       {/* <pre className="scroll_enabled">{notes}</pre> */}
-      <div className="scroll_enabled">
+      <div ref={previewRef} className="scroll_enabled">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>{notes}</ReactMarkdown>
       </div>
     </div>
