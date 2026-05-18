@@ -4,6 +4,7 @@ import { DebugStyles } from '@renderer/styles.ts/debugStyle'
 import { InputStyle } from '@renderer/styles.ts/inputStyle'
 import { active } from 'd3'
 import React, { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
 import { ActivitiesRow } from 'src/shared/databasetypes/ActivitiesRow'
 import { CalendarRows } from 'src/shared/databasetypes/calendarRows'
 
@@ -51,14 +52,28 @@ export default function Activities() {
   }
 
   const saveToDatabase = async () => {
-    await window.api.updateActivity(activities) // old calendar names still exist in DB ✓
+    try {
+      await toast.promise(
+        async () => {
+          await window.api.updateActivity(activities) // old calendar names still exist in DB ✓
+          await window.api.updateCalendar(calendars) // now rename calendars
+        },
+        {
+          loading: 'Saving...',
+          success: 'Saved!',
+          error: 'Error saving, try again'
+        }
+      )
 
-    await window.api.updateCalendar(calendars) // now rename calendars
-    const updatedCalendars = await window.api.getCalendars()
-    setCalendars(updatedCalendars)
+      const updatedCalendars = await window.api.getCalendars()
+      setCalendars(updatedCalendars)
 
-    const updatedActivities = await window.api.getActivities()
-    setActivities(updatedActivities)
+      const updatedActivities = await window.api.getActivities()
+      setActivities(updatedActivities)
+      setDirty(new Set())
+    } catch (e) {
+      // do nothing
+    }
   }
 
   const addCalendar = async () => {
