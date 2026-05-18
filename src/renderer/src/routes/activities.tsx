@@ -93,9 +93,16 @@ export default function Activities() {
 
   return (
     <div style={{ display: 'flex', height: '100vh', flexDirection: 'column' }}>
-      <div>
+      <div style={{ alignSelf: 'flex-start' }}>
+        <button onClick={saveToDatabase}>Save</button>
+      </div>
+
+      <div
+        className="scroll_enabled"
+        style={{ paddingRight: '2px', overflow: 'auto', marginBottom: 10, alignSelf: 'flex-start' }}
+      >
         <table>
-          <thead>
+          <thead style={{ position: 'sticky', top: 0, zIndex: 1, background: '#1e1e1e' }}>
             <tr>
               <th style={styles.cellStyle}>Calendar Name</th>
               <th style={styles.cellStyle}>Color</th>
@@ -127,9 +134,28 @@ export default function Activities() {
         <button onClick={addCalendar}>Add new calendar</button>
       </div>
 
-      <div style={{ overflow: 'auto' }}>
-        <table>
-          <thead>
+      <div
+        className="scroll_enabled"
+        style={{
+          paddingRight: '2px',
+          overflow: 'auto',
+          position: 'sticky',
+          top: 0,
+          zIndex: 1,
+
+          paddingBottom: '40px',
+          marginBottom: '20px'
+        }}
+      >
+        <table style={{}}>
+          <thead
+            style={{
+              position: 'sticky',
+              top: 0,
+              zIndex: 1,
+              background: '#1e1e1e'
+            }}
+          >
             <tr>
               <th style={styles.cellStyle}>Activity Name</th>
               <th style={styles.cellStyle}>
@@ -252,7 +278,6 @@ export default function Activities() {
           <button onClick={addActivity}>Add new activity</button>
         </table>
       </div>
-      <button onClick={saveToDatabase}>Save</button>
 
       {tooltipCalendar && (
         <Tooltips

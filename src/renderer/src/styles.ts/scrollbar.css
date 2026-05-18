@@ -1,6 +1,6 @@
 .scroll_enabled {
   overflow-y: scroll;
-  height: 500px;
+  /* height: 500px; */
 }
 .scroll_enabled::-webkit-scrollbar {
   width: 6px;
