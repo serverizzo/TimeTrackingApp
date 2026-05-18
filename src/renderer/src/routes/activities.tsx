@@ -16,7 +16,6 @@ export default function Activities() {
   const [tooltipCheckin, setTooltipCheckin] = useState<{ xPos: number; yPos: number } | null>(null)
 
   const [calendars, setCalendars] = useState<CalendarRows[]>([])
-
   const [dirty, setDirty] = useState<Set<string>>(new Set())
 
   useEffect(() => {
@@ -93,159 +92,167 @@ export default function Activities() {
   }
 
   return (
-    <div>
-      <button onClick={saveToDatabase}>Save</button>
-      <table>
-        <thead>
-          <tr>
-            <th style={styles.cellStyle}>Calendar Name</th>
-            <th style={styles.cellStyle}>Color</th>
-          </tr>
-        </thead>
-        <tbody>
-          {calendars &&
-            calendars.map((calendar) => (
-              <tr key={calendar.id}>
+    <div style={{ display: 'flex', height: '100vh', flexDirection: 'column' }}>
+      <div>
+        <table>
+          <thead>
+            <tr>
+              <th style={styles.cellStyle}>Calendar Name</th>
+              <th style={styles.cellStyle}>Color</th>
+            </tr>
+          </thead>
+          <tbody>
+            {calendars &&
+              calendars.map((calendar) => (
+                <tr key={calendar.id}>
+                  <td
+                    style={
+                      isCellDirty(`calendar:${calendar.id}:name`)
+                        ? styles.dirtyCell
+                        : styles.cellStyle
+                    }
+                  >
+                    <input
+                      style={{ ...InputStyle.darkBackground }}
+                      onChange={(e) => setCalendarsNames(calendar.id, e.target.value)}
+                      value={calendar.name}
+                    />
+                  </td>
+                  <td style={styles.cellStyle}>{calendar.color}</td>
+                </tr>
+              ))}
+            <tr></tr>
+          </tbody>
+        </table>
+        <button onClick={addCalendar}>Add new calendar</button>
+      </div>
+
+      <div style={{ overflow: 'auto' }}>
+        <table>
+          <thead>
+            <tr>
+              <th style={styles.cellStyle}>Activity Name</th>
+              <th style={styles.cellStyle}>
+                <div style={{ display: 'flex' }}>
+                  <p>Tracked in Laps</p>
+                  <div
+                    onMouseEnter={(e) => setTooltipsLaps({ xPos: e.clientX, yPos: e.clientY })}
+                    onMouseLeave={() => setTooltipsLaps(null)}
+                  >
+                    <InfoIcon size={20} />
+                  </div>
+                </div>
+              </th>
+              <th style={{ ...styles.cellStyle, display: 'flex', justifyContent: 'center' }}>
+                <div style={{ display: 'flex' }}>
+                  <p>Name of Calandar/Heatmap</p>
+                  <div
+                    onMouseEnter={(e) => setTooltipsCalendar({ xPos: e.clientX, yPos: e.clientY })}
+                    onMouseLeave={() => setTooltipsCalendar(null)}
+                  >
+                    <InfoIcon size={20} />
+                  </div>
+                </div>
+              </th>
+              <th style={styles.cellStyle}>
+                <div style={{ display: 'flex' }}>
+                  <p>Tracked in check-in</p>
+                  <div
+                    onMouseEnter={(e) => setTooltipCheckin({ xPos: e.clientX, yPos: e.clientY })}
+                    onMouseLeave={() => setTooltipCheckin(null)}
+                  >
+                    <InfoIcon size={20} />
+                  </div>
+                </div>
+              </th>
+              <th style={styles.cellStyle}>Icon</th>
+              {/* purposefully empty, left for trash icon */}
+              <th style={styles.cellStyle}></th>
+            </tr>
+          </thead>
+          <tbody>
+            {activities?.sort().map((activity) => (
+              <tr key={activity.id}>
                 <td
                   style={
-                    isCellDirty(`calendar:${calendar.id}:name`)
+                    isCellDirty(`activity:${activity.id}:name`)
                       ? styles.dirtyCell
                       : styles.cellStyle
                   }
                 >
                   <input
                     style={{ ...InputStyle.darkBackground }}
-                    onChange={(e) => setCalendarsNames(calendar.id, e.target.value)}
-                    value={calendar.name}
+                    value={activity.name}
+                    onChange={(e) => handleActivityChange(activity.id, 'name', e.target.value)}
                   />
                 </td>
-                <td style={styles.cellStyle}>{calendar.color}</td>
+                <td
+                  style={
+                    isCellDirty(`activity:${activity.id}:isTrackedInLaps`)
+                      ? styles.dirtyCell
+                      : styles.cellStyle
+                  }
+                >
+                  <input
+                    style={styles.checkmarkBox}
+                    checked={activity.isTrackedInLaps}
+                    onChange={(e) => {
+                      handleActivityChange(activity.id, 'isTrackedInLaps', e.target.checked)
+                    }}
+                    type="checkbox"
+                  />
+                </td>
+                <td
+                  style={
+                    isCellDirty(`activity:${activity.id}:calendar`)
+                      ? styles.dirtyCell
+                      : styles.cellStyle
+                  }
+                >
+                  <input
+                    style={{ ...InputStyle.darkBackground }}
+                    value={activity.calendar ?? ''}
+                    onChange={(e) => {
+                      handleActivityChange(activity.id, 'calendar', e.target.value)
+                    }}
+                  />
+                </td>
+                <td
+                  style={
+                    isCellDirty(`activity:${activity.id}:isTrackedInCheckin`)
+                      ? styles.dirtyCell
+                      : styles.cellStyle
+                  }
+                >
+                  <input
+                    style={styles.checkmarkBox}
+                    checked={activity.isTrackedInCheckin}
+                    onChange={(e) =>
+                      handleActivityChange(activity.id, 'isTrackedInCheckin', e.target.checked)
+                    }
+                    type="checkbox"
+                  />
+                </td>
+                <td
+                  style={
+                    isCellDirty(`activity:${activity.id}:icon`)
+                      ? styles.dirtyCell
+                      : styles.cellStyle
+                  }
+                >
+                  <input type="checkbox" />
+                </td>
+                {/* delete */}
+                <td style={styles.cellStyle}>
+                  <button onClick={() => deleteActivity(activity.id)}>Delete</button>
+                </td>
               </tr>
             ))}
-          <tr></tr>
-        </tbody>
-      </table>
-      <button onClick={addCalendar}>Add new calendar</button>
-
-      <table>
-        <thead>
-          <tr>
-            <th style={styles.cellStyle}>Activity Name</th>
-            <th style={styles.cellStyle}>
-              <div style={{ display: 'flex' }}>
-                <p>Tracked in Laps</p>
-                <div
-                  onMouseEnter={(e) => setTooltipsLaps({ xPos: e.clientX, yPos: e.clientY })}
-                  onMouseLeave={() => setTooltipsLaps(null)}
-                >
-                  <InfoIcon size={20} />
-                </div>
-              </div>
-            </th>
-            <th style={{ ...styles.cellStyle, display: 'flex', justifyContent: 'center' }}>
-              <div style={{ display: 'flex' }}>
-                <p>Name of Calandar/Heatmap</p>
-                <div
-                  onMouseEnter={(e) => setTooltipsCalendar({ xPos: e.clientX, yPos: e.clientY })}
-                  onMouseLeave={() => setTooltipsCalendar(null)}
-                >
-                  <InfoIcon size={20} />
-                </div>
-              </div>
-            </th>
-            <th style={styles.cellStyle}>
-              <div style={{ display: 'flex' }}>
-                <p>Tracked in check-in</p>
-                <div
-                  onMouseEnter={(e) => setTooltipCheckin({ xPos: e.clientX, yPos: e.clientY })}
-                  onMouseLeave={() => setTooltipCheckin(null)}
-                >
-                  <InfoIcon size={20} />
-                </div>
-              </div>
-            </th>
-            <th style={styles.cellStyle}>Icon</th>
-            {/* purposefully empty, left for trash icon */}
-            <th style={styles.cellStyle}></th>
-          </tr>
-        </thead>
-        <tbody>
-          {activities?.sort().map((activity) => (
-            <tr key={activity.id}>
-              <td
-                style={
-                  isCellDirty(`activity:${activity.id}:name`) ? styles.dirtyCell : styles.cellStyle
-                }
-              >
-                <input
-                  style={{ ...InputStyle.darkBackground }}
-                  value={activity.name}
-                  onChange={(e) => handleActivityChange(activity.id, 'name', e.target.value)}
-                />
-              </td>
-              <td
-                style={
-                  isCellDirty(`activity:${activity.id}:isTrackedInLaps`)
-                    ? styles.dirtyCell
-                    : styles.cellStyle
-                }
-              >
-                <input
-                  style={styles.checkmarkBox}
-                  checked={activity.isTrackedInLaps}
-                  onChange={(e) => {
-                    handleActivityChange(activity.id, 'isTrackedInLaps', e.target.checked)
-                  }}
-                  type="checkbox"
-                />
-              </td>
-              <td
-                style={
-                  isCellDirty(`activity:${activity.id}:calendar`)
-                    ? styles.dirtyCell
-                    : styles.cellStyle
-                }
-              >
-                <input
-                  style={{ ...InputStyle.darkBackground }}
-                  value={activity.calendar ?? ''}
-                  onChange={(e) => {
-                    handleActivityChange(activity.id, 'calendar', e.target.value)
-                  }}
-                />
-              </td>
-              <td
-                style={
-                  isCellDirty(`activity:${activity.id}:isTrackedInCheckin`)
-                    ? styles.dirtyCell
-                    : styles.cellStyle
-                }
-              >
-                <input
-                  style={styles.checkmarkBox}
-                  checked={activity.isTrackedInCheckin}
-                  onChange={(e) =>
-                    handleActivityChange(activity.id, 'isTrackedInCheckin', e.target.checked)
-                  }
-                  type="checkbox"
-                />
-              </td>
-              <td
-                style={
-                  isCellDirty(`activity:${activity.id}:icon`) ? styles.dirtyCell : styles.cellStyle
-                }
-              >
-                <input type="checkbox" />
-              </td>
-              {/* delete */}
-              <td style={styles.cellStyle}>
-                <button onClick={() => deleteActivity(activity.id)}>Delete</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-        <button onClick={addActivity}>Add new activity</button>
-      </table>
+          </tbody>
+          <button onClick={addActivity}>Add new activity</button>
+        </table>
+      </div>
+      <button onClick={saveToDatabase}>Save</button>
 
       {tooltipCalendar && (
         <Tooltips
