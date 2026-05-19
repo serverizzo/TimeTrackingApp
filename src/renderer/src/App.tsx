@@ -8,6 +8,8 @@ import Journal from './components/journal/journal'
 import { DebugStyles } from './styles.ts/debugStyle'
 import './styles.ts/scrollbar.css'
 import Activities from './routes/activities'
+import SyncToCloudRoute from './routes/SyncToCloudRoute'
+import CloudLogin from './routes/cloudLogin'
 
 function App(): React.JSX.Element {
   return (
@@ -38,6 +40,8 @@ function App(): React.JSX.Element {
           <Route path="/visualizations" element={<VisualizationsRoute />} />
           <Route path="/journal" element={<Journal />} />
           <Route path="/activities" element={<Activities />} />
+          <Route path="/syncToCloud" element={<SyncToCloudRoute />} />
+          <Route path="/loginToCloud" element={<CloudLogin />} />
         </Routes>
       </div>
       <Toaster />

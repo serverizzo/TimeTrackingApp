@@ -4,6 +4,7 @@ import { LapRow } from '../shared/databasetypes/LapRow'
 import { notesApi } from './apis/notesApi'
 import { ActivitiesRow } from '../shared/databasetypes/ActivitiesRow'
 import { CalendarRows } from '../shared/databasetypes/calendarRows'
+import { authApi } from './apis/authApi'
 
 // Custom APIs for renderer
 const api = {
@@ -35,6 +36,9 @@ const api = {
   insertNewCalendar: () => ipcRenderer.invoke('insert-new-calendar'),
   updateCalendar: (calendarRows: CalendarRows[]) =>
     ipcRenderer.invoke('update-calendar', calendarRows),
+
+  // Auth
+  ...authApi,
 
   ...notesApi
 }
