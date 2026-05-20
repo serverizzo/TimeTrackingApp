@@ -3,4 +3,5 @@ export interface HeatmapEntry {
   calendar_name: string
   total: number
   color: string
+  laps: { note: string; lap_time: number }[]
 }

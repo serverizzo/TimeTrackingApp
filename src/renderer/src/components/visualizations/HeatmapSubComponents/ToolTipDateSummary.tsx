@@ -17,8 +17,8 @@ export default function ToolTipDateSummary({
     <div
       style={{
         position: 'fixed',
-        top: y + 12,
-        left: x + 12,
+        top: y + 5,
+        left: x + 5,
         background: '#1a1a1a',
         border: '0.5px solid rgba(114, 114, 114, 0.15)',
         borderRadius: 6,
@@ -31,32 +31,51 @@ export default function ToolTipDateSummary({
     >
       <div>
         <p>{formatDate(date)}</p>
-        {groups.map((heatmapEntry, i) => (
-          <span key={heatmapEntry.calendar_name}>
-            {i > 0 && <span style={{ color: 'grey' }}> · </span>}
-            <span>{heatmapEntry.calendar_name}</span>
-          </span>
-        ))}
         {groups.map((heatmapEntry) => {
           const cumulativeTime = groups.reduce((sum, entry) => sum + entry.total, 0)
           const dailyPercent = Math.round((heatmapEntry.total / cumulativeTime) * 100)
           return (
-            <div
-              key={heatmapEntry.calendar_name}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}
-            >
+            <div>
               <div
-                style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: 2,
-                  background: heatmapEntry.color ? heatmapEntry.color : '#218648' //TODO: fill this color
-                }}
-              />
-              <span>{heatmapEntry.calendar_name}</span>
-              <span style={{ marginLeft: 'auto', paddingLeft: 16, color: '#e9e9e9e0' }}>
-                {Math.round(heatmapEntry.total / 60000)}m ({dailyPercent}%)
-              </span>
+                key={heatmapEntry.calendar_name}
+                style={{ display: 'flex', alignItems: 'center' }}
+              >
+                <div
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: 2,
+                    background: heatmapEntry.color ? heatmapEntry.color : '#218648' //TODO: fill this color
+                  }}
+                />
+                <span style={{ marginLeft: '5px' }}>{heatmapEntry.calendar_name}</span>
+                <span style={{ marginLeft: 'auto', paddingLeft: 16 }}>
+                  {Math.round(heatmapEntry.total / 60000)}m ({dailyPercent}%)
+                </span>
+              </div>
+
+              {/* by lap */}
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                {heatmapEntry.laps.map((lap) => {
+                  const cumulativeDailyLapTime = heatmapEntry.laps.reduce(
+                    (sum, entry) => sum + entry.lap_time,
+                    0
+                  )
+                  const dailyLapPercentage = Math.round(
+                    (lap.lap_time / cumulativeDailyLapTime) * 100
+                  )
+                  return (
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ paddingLeft: '1rem', marginLeft: '5px', color: '#b8b8b8e0' }}>
+                        {lap.note}
+                      </span>
+                      <span style={{ marginLeft: 'auto', paddingLeft: 16, color: '#b8b8b8e0' }}>
+                        {Math.round(lap.lap_time / 60000)}m ({dailyLapPercentage}%)
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
           )
         })}

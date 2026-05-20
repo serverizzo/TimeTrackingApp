@@ -8,20 +8,36 @@ export function visualizationhandlers() {
     return db
       .prepare(
         `
-      SELECT 
-        l.date, 
-        COALESCE(c.name, 'Uncategorized') AS calendar_name,
-        SUM(lap_time) as total,
-        c.color
-      FROM laps l 
-      LEFT JOIN activities a ON l.note = a.name
-      LEFT JOIN calendars c ON a.calendar = c.id
-      WHERE date >= date('now', '-1 year')
-      GROUP BY l.date, COALESCE(c.name, 'Uncategorized')
-      ORDER BY date
+        SELECT
+          date,
+          json_group_array(
+            json_object('note', note, 'lap_time', lap_time)
+          ) AS laps,
+          calendar_name,
+          SUM(lap_time) AS total,
+          color
+        FROM (
+          SELECT
+            l.date,
+            l.note,
+            COALESCE(c.name, 'Uncategorized') AS calendar_name,
+            SUM(l.lap_time) AS lap_time,
+            c.color
+          FROM laps l
+          LEFT JOIN activities a ON l.note = a.name
+          LEFT JOIN calendars c ON a.calendar = c.id
+          WHERE l.date >= date('now', '-1 year')
+          GROUP BY l.date, l.note, COALESCE(c.name, 'Uncategorized')
+        )
+        GROUP BY date, calendar_name
+        ORDER BY date
       `
       )
       .all()
+      .map((row: any) => ({
+        ...row,
+        laps: JSON.parse(row.laps)
+      }))
   })
 
   // Gantt — all laps for a 7 day window
