@@ -59,7 +59,7 @@ interface CheckinItem {
   iconLocation: string
 }
 
-export default function Calendar({ props }: Props) {
+export default function Heatmap({ props }: Props) {
   const [viewDate, setViewDate] = useState(new Date())
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; date: string } | null>(
     null
