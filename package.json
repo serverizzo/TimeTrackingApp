@@ -30,6 +30,7 @@
     "better-sqlite3": "^12.6.2",
     "d3": "^7.9.0",
     "electron-updater": "^6.3.9",
+    "react-colorful": "^5.7.0",
     "react-hot-toast": "^2.6.0",
     "react-markdown": "^10.1.0",
     "react-router-dom": "^7.13.1",

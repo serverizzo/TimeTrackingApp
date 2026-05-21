@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { ActivitiesRow } from 'src/shared/databasetypes/ActivitiesRow'
 import { CalendarRows } from 'src/shared/databasetypes/calendarRows'
+import { HexColorPicker } from 'react-colorful'
 
 export default function Activities() {
   const [activities, setActivities] = useState<ActivitiesRow[]>([])
@@ -18,6 +19,8 @@ export default function Activities() {
 
   const [calendars, setCalendars] = useState<CalendarRows[]>([])
   const [dirty, setDirty] = useState<Set<string>>(new Set())
+
+  const [showColorPicker, setShowColorPicker] = useState<number | null>()
 
   useEffect(() => {
     const getActivities = async () => {
@@ -106,192 +109,251 @@ export default function Activities() {
     setActivities(updated)
   }
 
+  const updateColor = (calendarId, inputColor) => {
+    setDirty((prev) => new Set(prev).add(`calendar:${calendarId}:color`))
+    setCalendars((prev) =>
+      prev.map((ele) => (ele.id === calendarId ? { ...ele, color: inputColor } : ele))
+    )
+  }
+
   return (
     <div style={{ display: 'flex', height: '100vh', flexDirection: 'column' }}>
       <div style={{ alignSelf: 'flex-start' }}>
         <button onClick={saveToDatabase}>Save</button>
       </div>
 
-      <div
-        className="scroll_enabled"
-        style={{ paddingRight: '2px', overflow: 'auto', marginBottom: 10, alignSelf: 'flex-start' }}
-      >
-        <table>
-          <thead style={{ position: 'sticky', top: 0, zIndex: 1, background: '#1e1e1e' }}>
-            <tr>
-              <th style={styles.cellStyle}>Calendar Name</th>
-              <th style={styles.cellStyle}>Color</th>
-            </tr>
-          </thead>
-          <tbody>
-            {calendars &&
-              calendars.map((calendar) => (
-                <tr key={calendar.id}>
+      <div className="scroll_enabled">
+        <div style={{ paddingBottom: '20px' }}>
+          <table>
+            <thead style={{ position: 'sticky', top: 0, zIndex: 1, background: '#1e1e1e' }}>
+              <tr>
+                <th style={styles.cellStyle}>Calendar Name</th>
+                <th style={styles.cellStyle}>Color</th>
+              </tr>
+            </thead>
+            <tbody>
+              {calendars &&
+                calendars.map((calendar) => (
+                  <tr key={calendar.id}>
+                    <td
+                      style={
+                        isCellDirty(`calendar:${calendar.id}:name`)
+                          ? styles.dirtyCell
+                          : styles.cellStyle
+                      }
+                    >
+                      <input
+                        style={{ ...InputStyle.darkBackground }}
+                        onChange={(e) => setCalendarsNames(calendar.id, e.target.value)}
+                        value={calendar.name}
+                      />
+                    </td>
+                    <td
+                      style={
+                        isCellDirty(`calendar:${calendar.id}:color`)
+                          ? styles.dirtyCell
+                          : styles.cellStyle
+                      }
+                    >
+                      {/* Color preview */}
+                      <div
+                        onClick={() => setShowColorPicker(calendar.id)}
+                        style={{
+                          backgroundColor: calendar.color,
+                          height: '20px',
+                          width: '50px',
+                          borderRadius: 5
+                        }}
+                      />
+                      <div style={{ position: 'relative' }}>
+                        {showColorPicker === calendar.id && (
+                          // transparent overlay to hide picker on click
+                          <>
+                            <div
+                              onClick={() => {
+                                setShowColorPicker(null)
+                              }}
+                              style={{
+                                position: 'fixed',
+                                top: 0,
+                                left: 0,
+                                height: '100vh',
+                                width: '100vw',
+                                zIndex: 1
+                              }}
+                            />
+                            <div
+                              style={{
+                                position: 'absolute',
+                                left: 55 // the width of the swatch + 5 px
+                              }}
+                            >
+                              <HexColorPicker
+                                style={{ zIndex: 2 }}
+                                color={calendar.color}
+                                onChangeEnd={(color) => updateColor(calendar.id, color)}
+                              />
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              <tr></tr>
+            </tbody>
+          </table>
+          <button onClick={addCalendar}>Add new calendar</button>
+        </div>
+
+        {/* TODO */}
+
+        <div
+          className="scroll_enabled"
+          style={{
+            paddingRight: '2px',
+            overflow: 'auto',
+            position: 'sticky',
+            top: 0,
+            zIndex: 1,
+
+            paddingBottom: '40px',
+            marginBottom: '20px'
+          }}
+        >
+          <table style={{}}>
+            <thead
+              style={{
+                position: 'sticky',
+                top: 0,
+                zIndex: 1,
+                background: '#1e1e1e'
+              }}
+            >
+              <tr>
+                <th style={styles.cellStyle}>Activity Name</th>
+                <th style={styles.cellStyle}>
+                  <div style={{ display: 'flex' }}>
+                    <p>Tracked in Laps</p>
+                    <div
+                      onMouseEnter={(e) => setTooltipsLaps({ xPos: e.clientX, yPos: e.clientY })}
+                      onMouseLeave={() => setTooltipsLaps(null)}
+                    >
+                      <InfoIcon size={20} />
+                    </div>
+                  </div>
+                </th>
+                <th style={{ ...styles.cellStyle, display: 'flex', justifyContent: 'center' }}>
+                  <div style={{ display: 'flex' }}>
+                    <p>Name of Calandar/Heatmap</p>
+                    <div
+                      onMouseEnter={(e) =>
+                        setTooltipsCalendar({ xPos: e.clientX, yPos: e.clientY })
+                      }
+                      onMouseLeave={() => setTooltipsCalendar(null)}
+                    >
+                      <InfoIcon size={20} />
+                    </div>
+                  </div>
+                </th>
+                <th style={styles.cellStyle}>
+                  <div style={{ display: 'flex' }}>
+                    <p>Tracked in check-in</p>
+                    <div
+                      onMouseEnter={(e) => setTooltipCheckin({ xPos: e.clientX, yPos: e.clientY })}
+                      onMouseLeave={() => setTooltipCheckin(null)}
+                    >
+                      <InfoIcon size={20} />
+                    </div>
+                  </div>
+                </th>
+                <th style={styles.cellStyle}>Icon</th>
+                {/* purposefully empty, left for trash icon */}
+                <th style={styles.cellStyle}></th>
+              </tr>
+            </thead>
+            <tbody>
+              {activities?.sort().map((activity) => (
+                <tr key={activity.id}>
                   <td
                     style={
-                      isCellDirty(`calendar:${calendar.id}:name`)
+                      isCellDirty(`activity:${activity.id}:name`)
                         ? styles.dirtyCell
                         : styles.cellStyle
                     }
                   >
                     <input
                       style={{ ...InputStyle.darkBackground }}
-                      onChange={(e) => setCalendarsNames(calendar.id, e.target.value)}
-                      value={calendar.name}
+                      value={activity.name}
+                      onChange={(e) => handleActivityChange(activity.id, 'name', e.target.value)}
                     />
                   </td>
-                  <td style={styles.cellStyle}>{calendar.color}</td>
+                  <td
+                    style={
+                      isCellDirty(`activity:${activity.id}:isTrackedInLaps`)
+                        ? styles.dirtyCell
+                        : styles.cellStyle
+                    }
+                  >
+                    <input
+                      style={styles.checkmarkBox}
+                      checked={activity.isTrackedInLaps}
+                      onChange={(e) => {
+                        handleActivityChange(activity.id, 'isTrackedInLaps', e.target.checked)
+                      }}
+                      type="checkbox"
+                    />
+                  </td>
+                  <td
+                    style={
+                      isCellDirty(`activity:${activity.id}:calendar`)
+                        ? styles.dirtyCell
+                        : styles.cellStyle
+                    }
+                  >
+                    <input
+                      style={{ ...InputStyle.darkBackground }}
+                      value={activity.calendar ?? ''}
+                      onChange={(e) => {
+                        handleActivityChange(activity.id, 'calendar', e.target.value)
+                      }}
+                    />
+                  </td>
+                  <td
+                    style={
+                      isCellDirty(`activity:${activity.id}:isTrackedInCheckin`)
+                        ? styles.dirtyCell
+                        : styles.cellStyle
+                    }
+                  >
+                    <input
+                      style={styles.checkmarkBox}
+                      checked={activity.isTrackedInCheckin}
+                      onChange={(e) =>
+                        handleActivityChange(activity.id, 'isTrackedInCheckin', e.target.checked)
+                      }
+                      type="checkbox"
+                    />
+                  </td>
+                  <td
+                    style={
+                      isCellDirty(`activity:${activity.id}:icon`)
+                        ? styles.dirtyCell
+                        : styles.cellStyle
+                    }
+                  >
+                    <input type="checkbox" />
+                  </td>
+                  {/* delete */}
+                  <td style={styles.cellStyle}>
+                    <button onClick={() => deleteActivity(activity.id)}>Delete</button>
+                  </td>
                 </tr>
               ))}
-            <tr></tr>
-          </tbody>
-        </table>
-        <button onClick={addCalendar}>Add new calendar</button>
-      </div>
-
-      <div
-        className="scroll_enabled"
-        style={{
-          paddingRight: '2px',
-          overflow: 'auto',
-          position: 'sticky',
-          top: 0,
-          zIndex: 1,
-
-          paddingBottom: '40px',
-          marginBottom: '20px'
-        }}
-      >
-        <table style={{}}>
-          <thead
-            style={{
-              position: 'sticky',
-              top: 0,
-              zIndex: 1,
-              background: '#1e1e1e'
-            }}
-          >
-            <tr>
-              <th style={styles.cellStyle}>Activity Name</th>
-              <th style={styles.cellStyle}>
-                <div style={{ display: 'flex' }}>
-                  <p>Tracked in Laps</p>
-                  <div
-                    onMouseEnter={(e) => setTooltipsLaps({ xPos: e.clientX, yPos: e.clientY })}
-                    onMouseLeave={() => setTooltipsLaps(null)}
-                  >
-                    <InfoIcon size={20} />
-                  </div>
-                </div>
-              </th>
-              <th style={{ ...styles.cellStyle, display: 'flex', justifyContent: 'center' }}>
-                <div style={{ display: 'flex' }}>
-                  <p>Name of Calandar/Heatmap</p>
-                  <div
-                    onMouseEnter={(e) => setTooltipsCalendar({ xPos: e.clientX, yPos: e.clientY })}
-                    onMouseLeave={() => setTooltipsCalendar(null)}
-                  >
-                    <InfoIcon size={20} />
-                  </div>
-                </div>
-              </th>
-              <th style={styles.cellStyle}>
-                <div style={{ display: 'flex' }}>
-                  <p>Tracked in check-in</p>
-                  <div
-                    onMouseEnter={(e) => setTooltipCheckin({ xPos: e.clientX, yPos: e.clientY })}
-                    onMouseLeave={() => setTooltipCheckin(null)}
-                  >
-                    <InfoIcon size={20} />
-                  </div>
-                </div>
-              </th>
-              <th style={styles.cellStyle}>Icon</th>
-              {/* purposefully empty, left for trash icon */}
-              <th style={styles.cellStyle}></th>
-            </tr>
-          </thead>
-          <tbody>
-            {activities?.sort().map((activity) => (
-              <tr key={activity.id}>
-                <td
-                  style={
-                    isCellDirty(`activity:${activity.id}:name`)
-                      ? styles.dirtyCell
-                      : styles.cellStyle
-                  }
-                >
-                  <input
-                    style={{ ...InputStyle.darkBackground }}
-                    value={activity.name}
-                    onChange={(e) => handleActivityChange(activity.id, 'name', e.target.value)}
-                  />
-                </td>
-                <td
-                  style={
-                    isCellDirty(`activity:${activity.id}:isTrackedInLaps`)
-                      ? styles.dirtyCell
-                      : styles.cellStyle
-                  }
-                >
-                  <input
-                    style={styles.checkmarkBox}
-                    checked={activity.isTrackedInLaps}
-                    onChange={(e) => {
-                      handleActivityChange(activity.id, 'isTrackedInLaps', e.target.checked)
-                    }}
-                    type="checkbox"
-                  />
-                </td>
-                <td
-                  style={
-                    isCellDirty(`activity:${activity.id}:calendar`)
-                      ? styles.dirtyCell
-                      : styles.cellStyle
-                  }
-                >
-                  <input
-                    style={{ ...InputStyle.darkBackground }}
-                    value={activity.calendar ?? ''}
-                    onChange={(e) => {
-                      handleActivityChange(activity.id, 'calendar', e.target.value)
-                    }}
-                  />
-                </td>
-                <td
-                  style={
-                    isCellDirty(`activity:${activity.id}:isTrackedInCheckin`)
-                      ? styles.dirtyCell
-                      : styles.cellStyle
-                  }
-                >
-                  <input
-                    style={styles.checkmarkBox}
-                    checked={activity.isTrackedInCheckin}
-                    onChange={(e) =>
-                      handleActivityChange(activity.id, 'isTrackedInCheckin', e.target.checked)
-                    }
-                    type="checkbox"
-                  />
-                </td>
-                <td
-                  style={
-                    isCellDirty(`activity:${activity.id}:icon`)
-                      ? styles.dirtyCell
-                      : styles.cellStyle
-                  }
-                >
-                  <input type="checkbox" />
-                </td>
-                {/* delete */}
-                <td style={styles.cellStyle}>
-                  <button onClick={() => deleteActivity(activity.id)}>Delete</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-          <button onClick={addActivity}>Add new activity</button>
-        </table>
+            </tbody>
+            <button onClick={addActivity}>Add new activity</button>
+          </table>
+        </div>
       </div>
 
       {tooltipCalendar && (
