@@ -4,9 +4,10 @@ import Modal from '../general/checkinModal'
 import CheckinCheckBoxes from '../general/checkinCheckBoxes'
 import ToolTipDateSummary from './HeatmapSubComponents/ToolTipDateSummary'
 import ContextMenu from './HeatmapSubComponents/contextMenu'
+import { CalendarRows } from 'src/shared/databasetypes/calendarRows'
 
 interface Props {
-  props: HeatmapEntry[]
+  heatmapInput: HeatmapEntry[]
 }
 
 const DAYS_OF_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -32,10 +33,10 @@ function hexToHue(hex: string): number {
   return Math.round(h * 60 + 360) % 360
 }
 
-function getColorAtIntensity(baseColor: string, total: number, max: number): string {
-  if (total === 0 || max === 0) return 'rgba(128,128,128,0.1)'
+function getColorAtIntensity(baseColor: string, sum: number, max: number): string {
+  if (sum === 0 || max === 0) return 'rgba(128,128,128,0.1)'
   const hue = hexToHue(baseColor)
-  const intensity = total / max
+  const intensity = sum / max
   // if (intensity < 0.25) return `hsl(${hue}, 80%, 25%)`
   // if (intensity < 0.75) return `hsl(${hue}, 55%, 58%)`
   // if (intensity < 0.5) return `hsl(${hue}, 70%, 37%)`
@@ -59,7 +60,7 @@ interface CheckinItem {
   iconLocation: string
 }
 
-export default function Heatmap({ props }: Props) {
+export default function Heatmap({ heatmapInput }: Props) {
   const [viewDate, setViewDate] = useState(new Date())
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; date: string } | null>(
     null
@@ -69,6 +70,8 @@ export default function Heatmap({ props }: Props) {
   const [monthlyCheckinItems, setMonthlyCheckinItems] = useState<CheckinItem[]>([])
   const [userDataPath, setUserDataPath] = useState<string>('')
   const [rerender, setRerender] = useState<boolean>(false)
+
+  const [calendars, setCalendars] = useState<CalendarRows[]>()
 
   const year = viewDate.getFullYear()
   const month = viewDate.getMonth()
@@ -80,29 +83,42 @@ export default function Heatmap({ props }: Props) {
     groups: HeatmapEntry[]
   } | null>(null)
 
-  // const dataMap = new Map(props.map((d) => [d.date, d.total]))
-  // const monthEntries = props.filter((d) => {
+  // const dateToHeatmapEntry = new Map(heatmapInput.map((d) => [d.date, d.total]))
+  // const monthEntries = heatmapInput.filter((d) => {
   //   const [y, m] = d.date.split('-').map(Number)
   //   return y === year && m === month + 1
   // })
   // const maxTotal = Math.max(...monthEntries.map((d) => d.total), 1)
 
-  const dataMap = new Map<string, HeatmapEntry[]>()
-  for (const entry of props) {
-    const existing = dataMap.get(entry.date) ?? []
+  const dateToHeatmapEntry = new Map<string, HeatmapEntry[]>()
+  for (const entry of heatmapInput) {
+    const existing = dateToHeatmapEntry.get(entry.date) ?? []
     existing.push(entry)
-    dataMap.set(entry.date, existing)
+    dateToHeatmapEntry.set(entry.date, existing)
   }
 
   const groupMax = new Map<string, number>()
-  for (const calandar of dataMap.values()) {
-    for (const entry of calandar) {
+  for (const heatmapEntryArr of dateToHeatmapEntry.values()) {
+    for (const entry of heatmapEntryArr) {
       groupMax.set(
         entry.calendar_name,
         Math.max(groupMax.get(entry.calendar_name) ?? 0, entry.total)
       )
     }
   }
+
+  // fetch calendars
+  useEffect(() => {
+    const getCalendars = async () => {
+      const temp = await window.api.getCalendars()
+      setCalendars(temp)
+    }
+    getCalendars()
+  }, [])
+
+  useEffect(() => {
+    console.log(calendars)
+  }, [calendars])
 
   const firstDay = new Date(year, month, 1).getDay()
   const daysInMonth = new Date(year, month + 1, 0).getDate()
@@ -128,6 +144,7 @@ export default function Heatmap({ props }: Props) {
     setOpenModal(true)
   }
 
+  // TODO: remove toISOString
   useEffect(() => {
     window.api.getUserDataPath().then(setUserDataPath)
     const startDate = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1)
@@ -192,8 +209,8 @@ export default function Heatmap({ props }: Props) {
         {cells.map((day, i) => {
           if (day === null) return <div key={`empty-${i}`} />
           const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-          const total = dataMap.get(dateStr) ?? 0
-          const groups = dataMap.get(dateStr) ?? []
+          const total = dateToHeatmapEntry.get(dateStr) ?? 0
+          const groups = dateToHeatmapEntry.get(dateStr) ?? []
           const todayStr = new Date().toLocaleDateString('en-CA') // en-CA gives YYYY-MM-DD format
           const isToday = todayStr === dateStr
           return (
@@ -250,6 +267,60 @@ export default function Heatmap({ props }: Props) {
         </Modal>
       )}
 
+      {calendars && (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            width: '100%',
+            flexWrap: 'wrap',
+            marginTop: '10px'
+          }}
+        >
+          {calendars.map((calendar) => (
+            <div
+              key={calendar.id}
+              style={{
+                fontSize: 11,
+                display: 'flex',
+                flexDirection: 'column',
+                marginRight: '15px'
+              }}
+            >
+              <div style={{ display: 'flex', flexDirection: 'row', gap: 6 }}>
+                <p>{calendar.name}</p>
+                {/* <p>Less</p> */}
+                <div
+                  style={{
+                    ...styles.swatch,
+                    backgroundColor: getColorAtIntensity(calendar.color, 5, 100)
+                  }}
+                />
+                <div
+                  style={{
+                    ...styles.swatch,
+                    backgroundColor: getColorAtIntensity(calendar.color, 35, 100)
+                  }}
+                />
+                <div
+                  style={{
+                    ...styles.swatch,
+                    backgroundColor: getColorAtIntensity(calendar.color, 55, 100)
+                  }}
+                />
+                <div
+                  style={{
+                    ...styles.swatch,
+                    backgroundColor: getColorAtIntensity(calendar.color, 80, 100)
+                  }}
+                />
+                {/* <p>More</p> */}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       <div
         style={{
           display: 'flex',
@@ -268,4 +339,12 @@ export default function Heatmap({ props }: Props) {
       </div>
     </div>
   )
+}
+
+const styles: { [key: string]: React.CSSProperties } = {
+  swatch: {
+    width: 13,
+    height: 13,
+    borderRadius: 3
+  }
 }
