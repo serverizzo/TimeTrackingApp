@@ -8,7 +8,7 @@ export default function NotesPannel() {
 
   useEffect(() => {
     window.api.getNotes().then((res) => {
-      console.log(res)
+      // console.log(res)
       setNotes(res)
 
       requestAnimationFrame(() => {
