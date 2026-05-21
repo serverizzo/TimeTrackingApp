@@ -29,6 +29,7 @@ export function activityhandlers() {
           LEFT JOIN daily_activities da
             ON a.id = da.activity_id
             AND da.date = ?
+          WHERE a.isTrackedInCheckin = 1
           ORDER BY a.name
         `
       )

@@ -54,10 +54,12 @@ export default function CheckinCheckBoxes({ date, setOpen, setRerender }: Props)
             {activity.name}
           </label>
         ))}
-      <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
-        <input type="checkbox" />
-        Some option
-      </label>
+      {checkedActivities.length === 0 && (
+        <p>
+          Enable "Tracked in check-in" on some activites in the activites route to add elements to
+          the calendar!
+        </p>
+      )}
       <button onClick={saveCheckinCheckBoxes}>Save</button>
     </div>
   )
