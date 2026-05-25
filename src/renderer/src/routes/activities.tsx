@@ -21,6 +21,8 @@ export default function Activities() {
 
   const [showColorPicker, setShowColorPicker] = useState<number | null>()
 
+  const [userDataPath, setUserDataPath] = useState<string>('')
+
   useEffect(() => {
     const getActivities = async () => {
       const temp = await window.api.getActivities()
@@ -35,9 +37,13 @@ export default function Activities() {
     getCalendars()
   }, [])
 
+  // set datapath to get icons
   useEffect(() => {
-    console.log(calendars)
-  }, [calendars])
+    const getPath = async () => {
+      await window.api.getUserDataPath().then(setUserDataPath)
+    }
+    getPath()
+  }, [])
 
   const handleActivityChange = (
     id: number,
@@ -209,8 +215,6 @@ export default function Activities() {
           <button onClick={addCalendar}>Add new calendar</button>
         </div>
 
-        {/* TODO */}
-
         <div
           className="scroll_enabled"
           style={{
@@ -270,7 +274,7 @@ export default function Activities() {
                     </div>
                   </div>
                 </th>
-                <th style={styles.cellStyle}>Icon</th>
+                <th style={styles.cellStyle}>Change Icon</th>
                 {/* purposefully empty, left for trash icon */}
                 <th style={styles.cellStyle}></th>
               </tr>
@@ -338,15 +342,36 @@ export default function Activities() {
                       type="checkbox"
                     />
                   </td>
-                  <td
-                    style={
-                      isCellDirty(`activity:${activity.id}:icon`)
-                        ? styles.dirtyCell
-                        : styles.cellStyle
-                    }
-                  >
-                    <button onClick={() => openDialog(activity.id)}>Open Dialog</button>
-                    <img src={activity.iconLocation} />
+                  <td style={{ ...styles.cellStyle, display: 'flex', justifyContent: 'center' }}>
+                    <div
+                      style={{
+                        background: '#383838',
+                        borderRadius: 3,
+                        height: 40,
+                        width: 40,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'background 0.15s ease'
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = '#4a4a4a')}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = '#383838')}
+                      onMouseDown={(e) => (e.currentTarget.style.background = '#2a2a2a')}
+                      onMouseUp={(e) => (e.currentTarget.style.background = '#4a4a4a')}
+                      onClick={() => openDialog(activity.id)}
+                    >
+                      {activity.iconLocation && (
+                        <img
+                          style={{ padding: 5 }}
+                          src={
+                            activity.iconLocation
+                              ? `appicon://${userDataPath}/icons/${activity.iconLocation}`
+                              : ''
+                          }
+                        />
+                      )}
+                    </div>
                   </td>
                   {/* delete */}
                   <td style={styles.cellStyle}>
