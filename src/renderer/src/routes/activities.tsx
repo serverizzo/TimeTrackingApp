@@ -2,7 +2,6 @@ import InfoIcon from '@renderer/assets/icons/infoIcon'
 import Tooltips from '@renderer/components/activities/Tooltips'
 import { DebugStyles } from '@renderer/styles.ts/debugStyle'
 import { InputStyle } from '@renderer/styles.ts/inputStyle'
-import { active } from 'd3'
 import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { ActivitiesRow } from 'src/shared/databasetypes/ActivitiesRow'
@@ -114,6 +113,10 @@ export default function Activities() {
     setCalendars((prev) =>
       prev.map((ele) => (ele.id === calendarId ? { ...ele, color: inputColor } : ele))
     )
+  }
+
+  const openDialog = (id: number) => {
+    window.api.openDialog(id)
   }
 
   return (
@@ -342,7 +345,8 @@ export default function Activities() {
                         : styles.cellStyle
                     }
                   >
-                    <input type="checkbox" />
+                    <button onClick={() => openDialog(activity.id)}>Open Dialog</button>
+                    <img src={activity.iconLocation} />
                   </td>
                   {/* delete */}
                   <td style={styles.cellStyle}>

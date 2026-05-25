@@ -52,6 +52,9 @@ declare global {
       getToken: () => Promise<string | null>
       saveToken: (token: string) => Promise<{ success: boolean }>
       deleteToken: () => Promise<{ success: boolean }>
+
+      //icons
+      openDialog: (id: number) => Promise<null>
     }
   }
 }

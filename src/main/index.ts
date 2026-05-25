@@ -4,7 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import fs from 'fs'
 import { initializeDatabase } from './database'
-import { createIconDirectory } from './createIconDirectory'
+import { IconHandlers } from './handlers/iconHandlers'
 import { lapHandlers } from './laphandlers'
 import { visualizationhandlers } from './visualizationhandlers'
 import { activityhandlers } from './activityhandlers'
@@ -54,7 +54,7 @@ protocol.registerSchemesAsPrivileged([
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   initializeDatabase()
-  createIconDirectory()
+  IconHandlers()
   lapHandlers()
   visualizationhandlers()
   activityhandlers()

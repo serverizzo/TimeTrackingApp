@@ -37,6 +37,9 @@ const api = {
   updateCalendar: (calendarRows: CalendarRows[]) =>
     ipcRenderer.invoke('update-calendar', calendarRows),
 
+  // Icon handlers
+  openDialog: (id: number) => ipcRenderer.invoke('open-dialog', id),
+
   // Auth
   ...authApi,
 
