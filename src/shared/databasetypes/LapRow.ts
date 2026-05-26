@@ -5,4 +5,6 @@ export interface LapRow {
   lapTime: number
   note: string
   cumulativeTotal: number
+  calendar: string
+  calendarId: number
 }

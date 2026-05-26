@@ -36,6 +36,8 @@ const api = {
   insertNewCalendar: () => ipcRenderer.invoke('insert-new-calendar'),
   updateCalendar: (calendarRows: CalendarRows[]) =>
     ipcRenderer.invoke('update-calendar', calendarRows),
+  getCalendarByActivity: (activityName: string) =>
+    ipcRenderer.invoke('get-calendar-by-activity', activityName),
 
   // Icon handlers
   openDialog: (id: number) => ipcRenderer.invoke('open-dialog', id),

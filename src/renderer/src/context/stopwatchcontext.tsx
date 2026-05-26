@@ -15,6 +15,7 @@ interface StopwatchContextType {
   convertToTime: (time: StopWatchTime) => React.JSX.Element
   updateNote: (index: number, note: string) => void
   saveToCSV: () => Promise<void>
+  updateCalendar: (index: number, note: string) => void
 }
 
 export interface StopWatchTime {
@@ -99,7 +100,9 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
         date: new Date().toLocaleDateString('en-CA'),
         lapTime: elapsedLapTime,
         cumulativeTotal: elapsedGlobalTime,
-        note: defaultNote
+        note: defaultNote,
+        calendar: '',
+        calendarId: -1
       }
     ])
     lapCountRef.current = lapCountRef.current + 1
@@ -109,6 +112,13 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
 
   const updateNote = (index: number, note: string) => {
     setLaps((prev) => prev.map((lap, i) => (i === index ? { ...lap, note } : lap)))
+  }
+
+  const updateCalendar = async (index: number, activityName: string) => {
+    const res = await window.api.getCalendarByActivity(activityName)
+    setLaps((prev) =>
+      prev.map((lap, i) => (i === index ? { ...lap, calendar: res.name, calendarId: res.id } : lap))
+    )
   }
 
   const convertToTime = (time: StopWatchTime): React.JSX.Element => {
@@ -147,7 +157,8 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
         lap,
         convertToTime,
         updateNote,
-        saveToCSV
+        saveToCSV,
+        updateCalendar
       }}
     >
       {children}

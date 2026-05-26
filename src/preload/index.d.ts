@@ -47,6 +47,7 @@ declare global {
       getCalendars: () => Promise<CalendarRows[]>
       insertNewCalendar: () => Promise<void>
       updateCalendar: (calandarRows: CalendarRows[]) => Promise<void>
+      getCalendarByActivity: (activityName: string) => Promise<{ name: string; id: number }>
 
       // Auth
       getToken: () => Promise<string | null>

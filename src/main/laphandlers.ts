@@ -8,8 +8,8 @@ export function lapHandlers() {
       const db = getDb()
 
       const insertCommand = db.prepare(`
-            INSERT OR IGNORE INTO laps (timestarted, date, lap_time, note)
-            VALUES (@timestarted, @date, @lapTime, @note)
+            INSERT OR IGNORE INTO laps (timestarted, date, lap_time, note, calendar)
+            VALUES (@timestarted, @date, @lapTime, @note, @calendarId)
             `)
 
       const insertMany = db.transaction((laps) => {

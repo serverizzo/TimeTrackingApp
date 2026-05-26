@@ -38,4 +38,22 @@ export function registerCalendarHandlers() {
       update.run({ id, name, color })
     }
   })
+
+  ipcMain.handle('get-calendar-by-activity', (_, activityName: string) => {
+    const db = getDb()
+
+    const row = db
+      .prepare(
+        `
+        SELECT c.name, c.id
+        FROM calendars c
+        JOIN activities a
+        ON a.calendar = c.id
+        WHERE a.name = ?
+      `
+      )
+      .get(activityName) as { name: string; id: number }
+
+    return row ? row : { name: '', id: -1 }
+  })
 }
