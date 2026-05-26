@@ -5,7 +5,14 @@ import { ActivitiesRow } from 'src/shared/databasetypes/ActivitiesRow'
 import { CalendarRows } from 'src/shared/databasetypes/calendarRows'
 
 export default function LapDisplay() {
-  const { laps, convertToTime, millisecondsToTime, updateNote, updateCalendar } = useStopwatch()
+  const {
+    laps,
+    convertToTime,
+    millisecondsToTime,
+    updateNote,
+    updateCalendar,
+    updateCalendarDirect
+  } = useStopwatch()
 
   const [activities, setActivities] = useState<ActivitiesRow[]>()
   const activityTrie = useRef<Trie>(new Trie())
@@ -54,9 +61,9 @@ export default function LapDisplay() {
     setHighlightedElementIndex(index)
   }
 
-  const handleDropdownSelection = (calendarId) => {
-    const calendar = calendars.find((c) => c.id === calendarId)
-    console.log(calendar)
+  const handleDropdownSelection = (index: number, calendarId: number) => {
+    const selected = calendars.find((c) => c.id === calendarId)
+    updateCalendarDirect(index, selected?.id ?? -1, selected?.name ?? '')
   }
 
   return (
@@ -123,9 +130,10 @@ export default function LapDisplay() {
             </td>
             {/* TODO -- Calendar */}
             <td style={styles.cellStyle}>
-              <input value={ele.calendar}></input>
+              {/* <input value={ele.calendarId}></input> */}
               <select
-                onChange={(e) => handleDropdownSelection(Number(e.target.value))}
+                onChange={(e) => handleDropdownSelection(index, Number(e.target.value))}
+                value={ele.calendarId}
                 disabled={ele.calendarId > -1}
               >
                 {calendars.map((c) => (
