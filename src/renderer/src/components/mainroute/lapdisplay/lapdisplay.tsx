@@ -41,7 +41,6 @@ export default function LapDisplay() {
     const activitiesArray = activities
       ?.filter((activity) => activity.isTrackedInLaps)
       .map((activity) => activity.name)
-    console.log(activitiesArray)
     if (activitiesArray) {
       for (let activity of activitiesArray) {
         activityTrie.current.insert(activity)
