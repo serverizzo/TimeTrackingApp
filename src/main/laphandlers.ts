@@ -7,20 +7,25 @@ export function lapHandlers() {
     try {
       const db = getDb()
 
-      const insertCommand = db.prepare(`
-            INSERT OR IGNORE INTO laps (timestarted, date, lap_time, note, calendar)
-            VALUES (@timestarted, @date, @lapTime, @note, @calendarId)
-            `)
+      const upsertCommand = db.prepare(`
+      INSERT INTO laps (timestarted, date, lap_time, note, calendar)
+      VALUES (@timestarted, @date, @lapTime, @note, @calendarId)
+      ON CONFLICT(timestarted, date) DO UPDATE SET
+        lap_time   = excluded.lap_time,
+        note       = excluded.note,
+        calendar   = excluded.calendar
+    `)
 
-      const insertMany = db.transaction((laps) => {
+      const upsertMany = db.transaction((laps: LapRow[]) => {
         for (const lap of laps) {
-          insertCommand.run(lap)
+          upsertCommand.run(lap)
         }
       })
 
-      insertMany(laps)
+      upsertMany(laps)
       return { success: true }
-    } catch {
+    } catch (err) {
+      console.log(err)
       throw new Error('failed to save laps')
     }
   })
