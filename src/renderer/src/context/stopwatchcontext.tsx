@@ -16,7 +16,7 @@ interface StopwatchContextType {
   updateNote: (index: number, note: string) => void
   saveToCSV: () => Promise<void>
   updateCalendar: (index: number, note: string) => void
-  updateCalendarDirect: (index: number, calendarId: number, calendarName: string) => void
+  updateCalendarInLaps: (index: number, calendarId: number, calendarName: string) => void
 }
 
 export interface StopWatchTime {
@@ -144,7 +144,7 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
     await window.api.saveCsv(header + rows, dateStr)
   }
 
-  const updateCalendarDirect = (index: number, calendarId: number, calendarName: string) => {
+  const updateCalendarInLaps = (index: number, calendarId: number, calendarName: string) => {
     setLaps((prev) =>
       prev.map((lap, i) => (i === index ? { ...lap, calendar: calendarName, calendarId } : lap))
     )
@@ -166,7 +166,7 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
         updateNote,
         saveToCSV,
         updateCalendar,
-        updateCalendarDirect
+        updateCalendarInLaps
       }}
     >
       {children}

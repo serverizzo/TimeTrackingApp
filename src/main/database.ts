@@ -47,6 +47,12 @@ export function initializeDatabase(): void {
         color     TEXT
       )
     `)
+
+  // add defualt "Uncategorized" calendar
+  db.exec(`
+    INSERT OR IGNORE INTO calendars (id, name, color)
+    VALUES (-1, 'uncategorized', '#00FF00')
+  `)
 }
 
 export function getDb(): BetterSqlite3.Database {

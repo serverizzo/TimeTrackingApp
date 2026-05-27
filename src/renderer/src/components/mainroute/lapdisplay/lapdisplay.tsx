@@ -11,7 +11,7 @@ export default function LapDisplay() {
     millisecondsToTime,
     updateNote,
     updateCalendar,
-    updateCalendarDirect
+    updateCalendarInLaps
   } = useStopwatch()
 
   const [activities, setActivities] = useState<ActivitiesRow[]>()
@@ -62,7 +62,7 @@ export default function LapDisplay() {
 
   const handleDropdownSelection = (index: number, calendarId: number) => {
     const selected = calendars.find((c) => c.id === calendarId)
-    updateCalendarDirect(index, selected?.id ?? -1, selected?.name ?? '')
+    updateCalendarInLaps(index, selected?.id ?? -1, selected?.name ?? '')
   }
 
   return (
