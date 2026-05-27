@@ -20,14 +20,15 @@ export function visualizationhandlers() {
           SELECT
             l.date,
             l.note,
-            COALESCE(c.name, 'Uncategorized') AS calendar_name,
+            COALESCE(direct_c.name, activity_c.name, 'Uncategorized') AS calendar_name,
             SUM(l.lap_time) AS lap_time,
-            c.color
+            COALESCE(direct_c.color, activity_c.color) AS color
           FROM laps l
-          LEFT JOIN activities a ON l.note = a.name
-          LEFT JOIN calendars c ON a.calendar = c.id
+          LEFT JOIN calendars direct_c ON l.calendar = direct_c.id
+          LEFT JOIN activities a ON l.note = a.name AND l.calendar IS NULL
+          LEFT JOIN calendars activity_c ON a.calendar = activity_c.id
           WHERE l.date >= date('now', '-1 year')
-          GROUP BY l.date, l.note, COALESCE(c.name, 'Uncategorized')
+          GROUP BY l.date, l.note, COALESCE(direct_c.name, activity_c.name, 'Uncategorized')
         )
         GROUP BY date, calendar_name
         ORDER BY date
