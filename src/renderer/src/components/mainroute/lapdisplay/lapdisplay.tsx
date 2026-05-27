@@ -138,7 +138,6 @@ export default function LapDisplay() {
                 {calendars.map((c) => (
                   <option value={c.id}>{c.name}</option>
                 ))}
-                <option value={-1}>Uncategorized </option>
               </select>
             </td>
           </tr>

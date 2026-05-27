@@ -51,7 +51,7 @@ export function initializeDatabase(): void {
   // add defualt "Uncategorized" calendar
   db.exec(`
     INSERT OR IGNORE INTO calendars (id, name, color)
-    VALUES (-1, 'uncategorized', '#00FF00')
+    VALUES (-1, 'Uncategorized', '#00FF00')
   `)
 }
 
