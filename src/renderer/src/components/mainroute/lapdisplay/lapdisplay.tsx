@@ -1,5 +1,6 @@
 import { useStopwatch } from '@renderer/context/stopwatchcontext'
 import { Trie } from '@renderer/helperFunctions/trie/trie'
+import { InputStyle } from '@renderer/styles.ts/inputStyle'
 import React, { useEffect, useRef, useState } from 'react'
 import { ActivitiesRow } from 'src/shared/databasetypes/ActivitiesRow'
 import { CalendarRows } from 'src/shared/databasetypes/calendarRows'
@@ -92,6 +93,7 @@ export default function LapDisplay() {
             </td>
             <td style={{ ...styles.cellStyle, position: 'relative' }}>
               <input
+                style={{ ...InputStyle.darkBackground }}
                 value={ele.note}
                 onClick={() => {
                   handleNoteChange(index, ele.note)
@@ -147,7 +149,9 @@ export default function LapDisplay() {
               </select>
             </td>
             <td style={styles.cellStyle}>
-              <input
+              <textarea
+                style={{ ...InputStyle.darkBackground }}
+                rows={5}
                 value={ele.comments}
                 onChange={(e) => handleCommentChange(index, e.target.value)}
               />
