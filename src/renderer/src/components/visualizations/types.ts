@@ -3,4 +3,5 @@ export interface LapEntry {
   date: string
   lap_time: number
   note: string
+  comments: string
 }

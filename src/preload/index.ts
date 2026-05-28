@@ -13,6 +13,8 @@ const api = {
   insertLaps: (laps: LapRow[]) => ipcRenderer.invoke('insert-laps', laps),
   updateLapNote: (timeStarted: string, date: string, note: string) =>
     ipcRenderer.invoke('update-lap', timeStarted, date, note),
+  updateLapComments: (timeStarted: string, date: string, note: string) =>
+    ipcRenderer.invoke('update-lap-comments', timeStarted, date, note),
   getHeatmapData: () => ipcRenderer.invoke('get-heatmap-data'),
   getLapsByRange: (startDate: string, endDate: string) =>
     ipcRenderer.invoke('get-laps-by-range', startDate, endDate),

@@ -20,6 +20,8 @@ export default function VisualizationsRoute() {
   const isDragging = useRef<boolean>(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
+  const [ganttRefresh, setGanttRefresh] = useState<boolean>(false)
+
   const handleMouseDown = () => {
     isDragging.current = true
   }
@@ -54,7 +56,7 @@ export default function VisualizationsRoute() {
 
   useEffect(() => {
     window.api.getLapsByRange(formatDate(windowStart), formatDate(windowEnd)).then(setLaps)
-  }, [windowStart])
+  }, [windowStart, ganttRefresh])
 
   return (
     <div

@@ -1,4 +1,5 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
+import { LapEntry } from '@renderer/components/visualizations/types'
 import { ActivitiesRow } from 'src/shared/databasetypes/ActivitiesRow'
 import { CalendarRows } from 'src/shared/databasetypes/calendarRows'
 import { LapRow } from 'src/shared/databasetypes/LapRow'
@@ -11,11 +12,11 @@ declare global {
       saveCsv: (csvContent: string, dateStr: string) => Promise<void>
       insertLaps: (laps: LapRow[]) => Promise<{ success: boolean }>
       updateLapNote: (timeStarted: string, date: string, note: string) => Promise<void>
+      updateLapComments: (timeStarted: string, date: string, comments: string) => Promise<void>
       getHeatmapData: () => Promise<HeatmapEntry[]>
-      getLapsByRange: (
-        startDate: string,
-        endDate: string
-      ) => Promise<{ timestarted: string; date: string; lap_time: number; note: string }[]>
+
+      //TODO: fix this
+      getLapsByRange: (startDate: string, endDate: string) => Promise<LapEntry[]>
 
       // Activities
       getActivities: () => Promise<ActivitiesRow[]>

@@ -47,7 +47,7 @@ export function visualizationhandlers() {
     return db
       .prepare(
         `
-        SELECT timestarted, date, lap_time, note
+        SELECT timestarted, date, lap_time, note, comments
         FROM laps
         WHERE date BETWEEN ? AND ?
         ORDER BY date, timestarted

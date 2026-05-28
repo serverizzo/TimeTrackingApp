@@ -40,4 +40,14 @@ export function lapHandlers() {
       AND date = ?`
     ).run(note, timeStarted, date)
   })
+
+  ipcMain.handle('update-lap-comments', (_, timeStarted, date, comments) => {
+    const db = getDb()
+    db.prepare(
+      `UPDATE laps
+      SET comments = ?
+      WHERE timestarted = ? 
+      AND date = ?`
+    ).run(comments, timeStarted, date)
+  })
 }

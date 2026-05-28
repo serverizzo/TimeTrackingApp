@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { LapEntry } from './types'
+import { InputStyle } from '@renderer/styles.ts/inputStyle'
 
 interface Props {
   laps: LapEntry[]
@@ -50,6 +51,7 @@ export default function GanttChart({ laps, windowStart, windowEnd, onPrev, onNex
   const [showToolTip, setShowToolTip] = useState<boolean>(false)
   const [editingNote, setEditingNote] = useState<string>('')
   const [isEditing, setIsEditing] = useState<boolean>(false)
+  const [editingComment, setEditingComment] = useState<string>('')
 
   const days: Date[] = []
   for (let i = 0; i < 7; i++) {
@@ -113,12 +115,18 @@ export default function GanttChart({ laps, windowStart, windowEnd, onPrev, onNex
 
   const handleSaveNote = async () => {
     if (!tooltip) return
-    console.log(tooltip.lap.timestarted)
 
     await window.api.updateLapNote(tooltip.lap.timestarted, tooltip.lap.date, editingNote)
     setIsEditing(false)
     setTooltip(null)
-    // onLapUpdated()
+  }
+
+  const handleSaveComment = async () => {
+    if (!tooltip) return
+
+    await window.api.updateLapComments(tooltip.lap.timestarted, tooltip.lap.date, editingComment)
+    setIsEditing(false)
+    setTooltip(null)
   }
 
   return (
@@ -202,6 +210,7 @@ export default function GanttChart({ laps, windowStart, windowEnd, onPrev, onNex
                       onMouseLeave={() => setShowToolTip(false)}
                       onDoubleClick={() => {
                         setEditingNote(lap.note || '')
+                        setEditingComment(lap.comments)
                         setIsEditing(true)
                         setTooltip({ x: 0, y: 0, lap })
                       }}
@@ -254,6 +263,9 @@ export default function GanttChart({ laps, windowStart, windowEnd, onPrev, onNex
           <p style={{ margin: 0, color: 'grey' }}>
             Duration: {Math.round(tooltip.lap.lap_time / 60000)}m
           </p>
+
+          <p>Comments:</p>
+          <p style={{ marginLeft: '10px' }}>{tooltip.lap.comments}</p>
           <p style={{ margin: '4px 0 0', color: 'grey', fontStyle: 'italic' }}>
             Double click to edit
           </p>
@@ -277,12 +289,15 @@ export default function GanttChart({ laps, windowStart, windowEnd, onPrev, onNex
             minWidth: 280
           }}
         >
-          <p style={{ margin: '0 0 8px', fontWeight: 500 }}>Edit note:</p>
-          <p>{`${tooltip.lap.note}`}</p>
+          <p style={{ margin: '0 0 8px', fontWeight: 500 }}>Edit note comments:</p>
+          <p>{`Activity: ${tooltip.lap.note}`}</p>
           <p style={{ margin: '0 0 8px', fontSize: 11, color: 'grey' }}>
             {tooltip.lap.timestarted} — {Math.round(tooltip.lap.lap_time / 60000)}m
           </p>
-          <input
+          <p>Previous comments:</p>
+          <p style={{ marginLeft: '10px', marginBottom: 10 }}>{tooltip.lap.comments}</p>
+          {/* Remove the ability to change the name of the lap */}
+          {/* <input
             autoFocus
             value={editingNote}
             onChange={(e) => setEditingNote(e.target.value)}
@@ -293,18 +308,15 @@ export default function GanttChart({ laps, windowStart, windowEnd, onPrev, onNex
                 setTooltip(null)
               }
             }}
-            style={{
-              width: '100%',
-              padding: '6px 8px',
-              borderRadius: 4,
-              border: '0.5px solid grey',
-              background: 'transparent',
-              color: 'inherit',
-              fontSize: 13,
-              boxSizing: 'border-box',
-              marginBottom: 8,
-              outline: 'none'
-            }}
+            style={styles.inputStyle}
+          /> */}
+          {/* Edit comments on lap */}
+          <textarea
+            autoFocus
+            value={editingComment}
+            onChange={(e) => setEditingComment(e.target.value)}
+            style={styles.inputStyle}
+            rows={5}
           />
           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
             <button
@@ -315,10 +327,25 @@ export default function GanttChart({ laps, windowStart, windowEnd, onPrev, onNex
             >
               Cancel
             </button>
-            <button onClick={handleSaveNote}>Save</button>
+            <button onClick={handleSaveComment}>Save</button>
           </div>
         </div>
       )}
     </div>
   )
+}
+
+const styles: { [key: string]: React.CSSProperties } = {
+  inputStyle: {
+    width: '100%',
+    padding: '6px 8px',
+    borderRadius: 4,
+    border: '0.5px solid grey',
+    background: 'transparent',
+    color: 'inherit',
+    fontSize: 13,
+    boxSizing: 'border-box',
+    marginBottom: 8,
+    outline: 'none'
+  }
 }
