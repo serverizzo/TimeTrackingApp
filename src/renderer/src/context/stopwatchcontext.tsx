@@ -17,6 +17,7 @@ interface StopwatchContextType {
   saveToCSV: () => Promise<void>
   updateCalendar: (index: number, note: string) => void
   updateCalendarInLaps: (index: number, calendarId: number, calendarName: string) => void
+  updateLapComment: (index: number, comment: string) => void
 }
 
 export interface StopWatchTime {
@@ -103,7 +104,8 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
         cumulativeTotal: elapsedGlobalTime,
         note: defaultNote,
         calendar: '',
-        calendarId: -1
+        calendarId: -1,
+        comments: ''
       }
     ])
     lapCountRef.current = lapCountRef.current + 1
@@ -150,6 +152,10 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
     )
   }
 
+  const updateLapComment = (index: number, comments: string) => {
+    setLaps((prev) => prev.map((lap, i) => (i === index ? { ...lap, comments } : lap)))
+  }
+
   return (
     <StopwatchContext.Provider
       value={{
@@ -166,7 +172,8 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
         updateNote,
         saveToCSV,
         updateCalendar,
-        updateCalendarInLaps
+        updateCalendarInLaps,
+        updateLapComment
       }}
     >
       {children}

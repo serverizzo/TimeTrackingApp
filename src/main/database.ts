@@ -23,7 +23,11 @@ export function initializeDatabase(): void {
             lap_time          INTEGER,
             cumulative_total  INTEGER,
             note              TEXT,
-            PRIMARY KEY (timestarted, date)
+            source            TEXT, 
+            calendar          INTEGER, 
+            comments          TEXT,
+            PRIMARY KEY (timestarted, date),
+            FOREIGN KEY (calendar) REFERENCES calendars(id)
             )
             `)
 

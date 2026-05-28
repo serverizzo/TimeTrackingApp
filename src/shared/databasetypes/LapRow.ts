@@ -7,4 +7,5 @@ export interface LapRow {
   cumulativeTotal: number
   calendar: string
   calendarId: number
+  comments: string
 }

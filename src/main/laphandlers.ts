@@ -8,12 +8,13 @@ export function lapHandlers() {
       const db = getDb()
 
       const upsertCommand = db.prepare(`
-      INSERT INTO laps (timestarted, date, lap_time, note, calendar)
-      VALUES (@timestarted, @date, @lapTime, @note, @calendarId)
+      INSERT INTO laps (timestarted, date, lap_time, note, calendar, comments)
+      VALUES (@timestarted, @date, @lapTime, @note, @calendarId, @comments)
       ON CONFLICT(timestarted, date) DO UPDATE SET
         lap_time   = excluded.lap_time,
         note       = excluded.note,
-        calendar   = excluded.calendar
+        calendar   = excluded.calendar,
+        comments   = excluded.comments
     `)
 
       const upsertMany = db.transaction((laps: LapRow[]) => {

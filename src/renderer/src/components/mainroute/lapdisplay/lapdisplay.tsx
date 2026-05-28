@@ -1,6 +1,6 @@
 import { useStopwatch } from '@renderer/context/stopwatchcontext'
 import { Trie } from '@renderer/helperFunctions/trie/trie'
-import React, { Activity, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { ActivitiesRow } from 'src/shared/databasetypes/ActivitiesRow'
 import { CalendarRows } from 'src/shared/databasetypes/calendarRows'
 
@@ -11,7 +11,8 @@ export default function LapDisplay() {
     millisecondsToTime,
     updateNote,
     updateCalendar,
-    updateCalendarInLaps
+    updateCalendarInLaps,
+    updateLapComment
   } = useStopwatch()
 
   const [activities, setActivities] = useState<ActivitiesRow[]>()
@@ -65,6 +66,10 @@ export default function LapDisplay() {
     updateCalendarInLaps(index, selected?.id ?? -1, selected?.name ?? '')
   }
 
+  const handleCommentChange = (index: number, comment: string) => {
+    updateLapComment(index, comment)
+  }
+
   return (
     <table>
       <thead>
@@ -74,6 +79,7 @@ export default function LapDisplay() {
           <th style={styles.cellStyle}>Cumulative Total</th>
           <th style={styles.cellStyle}>Notes</th>
           <th style={styles.cellStyle}>Calendar</th>
+          <th style={styles.cellStyle}>Comments</th>
         </tr>
       </thead>
       <tbody>
@@ -139,6 +145,12 @@ export default function LapDisplay() {
                   <option value={c.id}>{c.name}</option>
                 ))}
               </select>
+            </td>
+            <td style={styles.cellStyle}>
+              <input
+                value={ele.comments}
+                onChange={(e) => handleCommentChange(index, e.target.value)}
+              />
             </td>
           </tr>
         ))}
