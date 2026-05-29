@@ -27,7 +27,6 @@ export function visualizationhandlers() {
           LEFT JOIN calendars direct_c ON l.calendar = direct_c.id
           LEFT JOIN activities a ON l.note = a.name AND l.calendar IS NULL
           LEFT JOIN calendars activity_c ON a.calendar = activity_c.id
-          WHERE l.date >= date('now', '-1 year')
           GROUP BY l.date, l.note, COALESCE(direct_c.name, activity_c.name, 'Uncategorized')
         )
         GROUP BY date, calendar_name
