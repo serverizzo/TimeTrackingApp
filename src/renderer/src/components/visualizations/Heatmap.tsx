@@ -6,10 +6,7 @@ import ContextMenu from './HeatmapSubComponents/contextMenu'
 import { CalendarRows } from 'src/shared/databasetypes/calendarRows'
 import { CheckinItem } from 'src/shared/queryTypes/CheckinItem'
 import { HeatmapDataByDayAndCalendar } from 'src/shared/queryTypes/heatmapByDayAndCalendar'
-
-interface Props {
-  heatmapInput: HeatmapDataByDayAndCalendar[]
-}
+import { CheckinItemByDay } from 'src/shared/queryTypes/checkinItemByDay'
 
 const DAYS_OF_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
@@ -38,23 +35,19 @@ function getColorAtIntensity(baseColor: string, sum: number, max: number): strin
   if (sum === 0 || max === 0) return 'rgba(128,128,128,0.1)'
   const hue = hexToHue(baseColor)
   const intensity = sum / max
-  // if (intensity < 0.25) return `hsl(${hue}, 80%, 25%)`
-  // if (intensity < 0.75) return `hsl(${hue}, 55%, 58%)`
-  // if (intensity < 0.5) return `hsl(${hue}, 70%, 37%)`
-  // return `hsl(${hue}, 65%, 76%)`
 
   if (intensity < 0.25) return `hsl(${hue}, 50%, 35%)` // darkest — least active
   if (intensity < 0.5) return `hsl(${hue}, 60%, 38%)`
   if (intensity < 0.75) return `hsl(${hue}, 77%, 45%)`
   return `hsl(${hue}, 85%, 63%)` // brightest — most active
-
-  // if (intensity < 0.25) return `hsl(${hue}, 80%, 28%)` // darkest — least active
-  // if (intensity < 0.5) return `hsl(${hue}, 75%, 42%)`
-  // if (intensity < 0.75) return `hsl(${hue}, 65%, 62%)`
-  // return `hsl(${hue}, 60%, 82%)` // lightest — most active
 }
 
-export default function Heatmap({ heatmapInput }: Props) {
+interface Props {
+  heatmapInput: HeatmapDataByDayAndCalendar[]
+  checkinItems: CheckinItemByDay[]
+}
+
+export default function Heatmap({ heatmapInput, checkinItems }: Props) {
   const [viewDate, setViewDate] = useState(new Date())
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; date: string } | null>(
     null
@@ -110,6 +103,11 @@ export default function Heatmap({ heatmapInput }: Props) {
     getCalendars()
   }, [])
 
+  //get userdatapath:
+  useEffect(() => {
+    window.api.getUserDataPath().then(setUserDataPath)
+  })
+
   const firstDay = new Date(year, month, 1).getDay()
   const daysInMonth = new Date(year, month + 1, 0).getDate()
 
@@ -130,20 +128,6 @@ export default function Heatmap({ heatmapInput }: Props) {
     setOpenModal(true)
   }
 
-  // TODO: remove toISOString
-  useEffect(() => {
-    window.api.getUserDataPath().then(setUserDataPath)
-    const startDate = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1)
-      .toISOString()
-      .split('T')[0]
-    const endDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0)
-      .toISOString()
-      .split('T')[0]
-    window.api.getCheckedActivitiesByMonth(startDate, endDate).then(setMonthlyCheckinItems)
-
-    // todo: have this trigger on exiting modal (use trigger refresh)
-  }, [rerender])
-
   function buildBackground(heatMapEntriesArray: HeatmapDataByDayAndCalendar[]): string {
     if (heatMapEntriesArray.length === 0) return 'rgba(128,128,128,0.1)'
     const dayTotal = heatMapEntriesArray.reduce((sum, entry) => sum + entry.total, 0)
@@ -159,6 +143,13 @@ export default function Heatmap({ heatmapInput }: Props) {
       cursor = end
     }
     return `linear-gradient(to right, ${stops.join(', ')})`
+  }
+
+  const dateCheckinArrMap = new Map<string, CheckinItemByDay[]>()
+  for (const item of checkinItems) {
+    const existing = dateCheckinArrMap.get(item.date) ?? []
+    existing.push(item)
+    dateCheckinArrMap.set(item.date, existing)
   }
 
   return (
@@ -218,17 +209,14 @@ export default function Heatmap({ heatmapInput }: Props) {
               }
             >
               {day}
-              {monthlyCheckinItems &&
-                monthlyCheckinItems
-                  .filter((ele) => ele.date === dateStr)
-                  .map((ele) => (
-                    <img
-                      key={ele.id}
-                      src={`appicon://${userDataPath}/icons/${ele.iconLocation}`}
-                      alt={ele.name}
-                      width={'30%'}
-                    />
-                  ))}
+              {(dateCheckinArrMap.get(dateStr) ?? []).map((ele) => (
+                <img
+                  key={ele.id}
+                  src={`appicon://${userDataPath}/icons/${ele.iconLocation}`}
+                  alt={ele.name}
+                  width={'30%'}
+                />
+              ))}
             </div>
           )
         })}

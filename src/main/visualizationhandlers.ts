@@ -39,7 +39,17 @@ export function visualizationhandlers() {
         laps: JSON.parse(row.laps)
       }))
 
-    return { heatmapDataByDayAndCalendarArr: heatmapDataByDayAndCalendarArr }
+    const checkinItemByDayArr = db
+      .prepare(
+        `
+        SELECT da.date, a.id, a.name, a.iconLocation
+        FROM daily_activities da
+        JOIN activities a ON a.id = da.activity_id
+      `
+      )
+      .all()
+
+    return { heatmapDataByDayAndCalendarArr, checkinItemByDayArr }
   })
 
   // Gantt — all laps for a 7 day window

@@ -4,11 +4,13 @@ import NotesPannel from '@renderer/components/visualizations/NotesPannel'
 import SummaryPanel from '@renderer/components/visualizations/summaryPannel'
 import { LapEntry } from '@renderer/components/visualizations/types'
 import { useEffect, useRef, useState } from 'react'
+import { CheckinItemByDay } from 'src/shared/queryTypes/checkinItemByDay'
 import { HeatmapDataByDayAndCalendar } from 'src/shared/queryTypes/heatmapByDayAndCalendar'
 import { HeatmapData } from 'src/shared/queryTypes/heatMapData'
 
 export default function VisualizationsRoute() {
   const [heatmapData, setHeatmapData] = useState<HeatmapDataByDayAndCalendar[]>([])
+  const [checkinItems, setCheckinItems] = useState<CheckinItemByDay[]>([])
   const [laps, setLaps] = useState<LapEntry[]>([])
   const [windowStart, setWindowStart] = useState<Date>(() => {
     const d = new Date()
@@ -54,8 +56,8 @@ export default function VisualizationsRoute() {
   useEffect(() => {
     const getData = async () => {
       const heatMapData = await window.api.getHeatmapData()
-      console.log(heatMapData)
       setHeatmapData(heatMapData.heatmapDataByDayAndCalendarArr)
+      setCheckinItems(heatMapData.checkinItemByDayArr)
     }
     getData()
   }, [])
@@ -86,7 +88,7 @@ export default function VisualizationsRoute() {
         style={{ display: 'flex', alignItems: 'flex-start', gap: 0 }}
       >
         <div ref={calendarRef} style={{ width: calendarWidth, flexShrink: 0 }}>
-          <Heatmap heatmapInput={heatmapData} />
+          <Heatmap heatmapInput={heatmapData} checkinItems={checkinItems} />
         </div>
 
         {/* adjustable bar */}
