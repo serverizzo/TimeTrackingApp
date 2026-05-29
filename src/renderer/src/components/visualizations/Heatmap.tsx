@@ -5,6 +5,7 @@ import CheckinCheckBoxes from '../general/checkinCheckBoxes'
 import ToolTipDateSummary from './HeatmapSubComponents/ToolTipDateSummary'
 import ContextMenu from './HeatmapSubComponents/contextMenu'
 import { CalendarRows } from 'src/shared/databasetypes/calendarRows'
+import { CheckinItem } from 'src/shared/queryTypes/CheckinItem'
 
 interface Props {
   heatmapInput: HeatmapEntry[]
@@ -51,13 +52,6 @@ function getColorAtIntensity(baseColor: string, sum: number, max: number): strin
   // if (intensity < 0.5) return `hsl(${hue}, 75%, 42%)`
   // if (intensity < 0.75) return `hsl(${hue}, 65%, 62%)`
   // return `hsl(${hue}, 60%, 82%)` // lightest — most active
-}
-
-interface CheckinItem {
-  date: string
-  id: number
-  name: string
-  iconLocation: string
 }
 
 export default function Heatmap({ heatmapInput }: Props) {
@@ -124,10 +118,6 @@ export default function Heatmap({ heatmapInput }: Props) {
     ...Array.from({ length: daysInMonth }, (_, i) => i + 1)
   ]
 
-  const shiftMonth = (delta: number) => {
-    setViewDate((prev) => new Date(prev.getFullYear(), prev.getMonth() + delta, 1))
-  }
-
   const handleRightClick = (e: React.MouseEvent, date: string) => {
     // e.preventDefault() // prevents the browser's default right click menu
     setContextMenu({ x: e.clientX, y: e.clientY, date })
@@ -180,14 +170,6 @@ export default function Heatmap({ heatmapInput }: Props) {
         // ,...DebugStyles.divOutline
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-        <button onClick={() => shiftMonth(-1)}>←</button>
-        <span style={{ fontSize: 13, color: 'grey', minWidth: 120, textAlign: 'center' }}>
-          {viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-        </span>
-        <button onClick={() => shiftMonth(1)}>→</button>
-      </div>
-
       <div
         style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4, marginBottom: 4 }}
       >
