@@ -4,10 +4,11 @@ import NotesPannel from '@renderer/components/visualizations/NotesPannel'
 import SummaryPanel from '@renderer/components/visualizations/summaryPannel'
 import { LapEntry } from '@renderer/components/visualizations/types'
 import { useEffect, useRef, useState } from 'react'
-import { HeatmapEntry } from 'src/shared/queryTypes/heatmapEntry'
+import { HeatmapDataByDayAndCalendar } from 'src/shared/queryTypes/heatmapByDayAndCalendar'
+import { HeatmapData } from 'src/shared/queryTypes/heatMapData'
 
 export default function VisualizationsRoute() {
-  const [heatmapData, setHeatmapData] = useState<HeatmapEntry[]>([])
+  const [heatmapData, setHeatmapData] = useState<HeatmapDataByDayAndCalendar[]>([])
   const [laps, setLaps] = useState<LapEntry[]>([])
   const [windowStart, setWindowStart] = useState<Date>(() => {
     const d = new Date()
@@ -51,7 +52,12 @@ export default function VisualizationsRoute() {
   windowEnd.setDate(windowStart.getDate() + 6)
 
   useEffect(() => {
-    window.api.getHeatmapData().then(setHeatmapData)
+    const getData = async () => {
+      const heatMapData = await window.api.getHeatmapData()
+      console.log(heatMapData)
+      setHeatmapData(heatMapData.heatmapDataByDayAndCalendarArr)
+    }
+    getData()
   }, [])
 
   useEffect(() => {

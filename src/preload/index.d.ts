@@ -3,7 +3,7 @@ import { LapEntry } from '@renderer/components/visualizations/types'
 import { ActivitiesRow } from 'src/shared/databasetypes/ActivitiesRow'
 import { CalendarRows } from 'src/shared/databasetypes/calendarRows'
 import { LapRow } from 'src/shared/databasetypes/LapRow'
-import { HeatmapEntry } from 'src/shared/queryTypes/heatmapEntry'
+import { HeatmapData } from 'src/shared/queryTypes/heatMapData'
 
 declare global {
   interface Window {
@@ -13,7 +13,7 @@ declare global {
       insertLaps: (laps: LapRow[]) => Promise<{ success: boolean }>
       updateLapNote: (timeStarted: string, date: string, note: string) => Promise<void>
       updateLapComments: (timeStarted: string, date: string, comments: string) => Promise<void>
-      getHeatmapData: () => Promise<HeatmapEntry[]>
+      getHeatmapData: () => Promise<HeatmapData>
 
       //TODO: fix this
       getLapsByRange: (startDate: string, endDate: string) => Promise<LapEntry[]>

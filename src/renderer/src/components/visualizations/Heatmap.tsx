@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react'
-import { HeatmapEntry } from 'src/shared/queryTypes/heatmapEntry'
 import Modal from '../general/checkinModal'
 import CheckinCheckBoxes from '../general/checkinCheckBoxes'
 import ToolTipDateSummary from './HeatmapSubComponents/ToolTipDateSummary'
 import ContextMenu from './HeatmapSubComponents/contextMenu'
 import { CalendarRows } from 'src/shared/databasetypes/calendarRows'
 import { CheckinItem } from 'src/shared/queryTypes/CheckinItem'
+import { HeatmapDataByDayAndCalendar } from 'src/shared/queryTypes/heatmapByDayAndCalendar'
 
 interface Props {
-  heatmapInput: HeatmapEntry[]
+  heatmapInput: HeatmapDataByDayAndCalendar[]
 }
 
 const DAYS_OF_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -74,7 +74,7 @@ export default function Heatmap({ heatmapInput }: Props) {
     x: number
     y: number
     date: string
-    groups: HeatmapEntry[]
+    groups: HeatmapDataByDayAndCalendar[]
   } | null>(null)
 
   // const dateToHeatmapEntry = new Map(heatmapInput.map((d) => [d.date, d.total]))
@@ -84,7 +84,7 @@ export default function Heatmap({ heatmapInput }: Props) {
   // })
   // const maxTotal = Math.max(...monthEntries.map((d) => d.total), 1)
 
-  const dateToHeatmapEntry = new Map<string, HeatmapEntry[]>()
+  const dateToHeatmapEntry = new Map<string, HeatmapDataByDayAndCalendar[]>()
   for (const entry of heatmapInput) {
     const existing = dateToHeatmapEntry.get(entry.date) ?? []
     existing.push(entry)
@@ -144,7 +144,7 @@ export default function Heatmap({ heatmapInput }: Props) {
     // todo: have this trigger on exiting modal (use trigger refresh)
   }, [rerender])
 
-  function buildBackground(heatMapEntriesArray: HeatmapEntry[]): string {
+  function buildBackground(heatMapEntriesArray: HeatmapDataByDayAndCalendar[]): string {
     if (heatMapEntriesArray.length === 0) return 'rgba(128,128,128,0.1)'
     const dayTotal = heatMapEntriesArray.reduce((sum, entry) => sum + entry.total, 0)
     let cursor = 0

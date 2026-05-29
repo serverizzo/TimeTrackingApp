@@ -5,7 +5,7 @@ export function visualizationhandlers() {
   // Heatmap — aggregated daily totals for the past year
   ipcMain.handle('get-heatmap-data', () => {
     const db = getDb()
-    const heatMapDataByDayAndCalendar = db
+    const heatmapDataByDayAndCalendarArr = db
       .prepare(
         `
         SELECT
@@ -39,7 +39,7 @@ export function visualizationhandlers() {
         laps: JSON.parse(row.laps)
       }))
 
-    return heatMapDataByDayAndCalendar
+    return { heatmapDataByDayAndCalendarArr: heatmapDataByDayAndCalendarArr }
   })
 
   // Gantt — all laps for a 7 day window

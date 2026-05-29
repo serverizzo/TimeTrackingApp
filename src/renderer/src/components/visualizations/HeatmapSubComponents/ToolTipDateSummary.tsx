@@ -1,6 +1,6 @@
 import { formatDate } from '@renderer/helperFunctions/date/date'
 import React from 'react'
-import { HeatmapEntry } from 'src/shared/queryTypes/heatmapEntry'
+import { HeatmapDataByDayAndCalendar } from 'src/shared/queryTypes/heatmapByDayAndCalendar'
 
 export default function ToolTipDateSummary({
   x,
@@ -11,7 +11,7 @@ export default function ToolTipDateSummary({
   x: number
   y: number
   date: string
-  groups: HeatmapEntry[]
+  groups: HeatmapDataByDayAndCalendar[]
 }) {
   return (
     <div

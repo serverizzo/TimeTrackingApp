@@ -1,4 +1,4 @@
-export interface heatmapDataByDayAndCalendar {
+export interface HeatmapDataByDayAndCalendar {
   date: string
   calendar_name: string
   total: number

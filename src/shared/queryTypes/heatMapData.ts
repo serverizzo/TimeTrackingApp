@@ -1,7 +1,7 @@
 import { CheckinItemByDay } from './checkinItemByDay'
-import { heatmapDataByDayAndCalendar } from './heatmapByDayAndCalendar'
+import { HeatmapDataByDayAndCalendar } from './heatmapByDayAndCalendar'
 
 export interface HeatmapData {
-  heatmapDataByDayAndCalendarArr: heatmapDataByDayAndCalendar[]
+  heatmapDataByDayAndCalendarArr: HeatmapDataByDayAndCalendar[]
   checkinItemByDayArr: CheckinItemByDay[]
 }
