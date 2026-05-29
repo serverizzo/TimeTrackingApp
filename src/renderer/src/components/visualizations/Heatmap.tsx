@@ -54,7 +54,6 @@ export default function Heatmap({ heatmapInput, checkinItems }: Props) {
   )
   const [openModal, setOpenModal] = useState(false)
   const [selectedDate, setSelectedDate] = useState<string>('')
-  const [monthlyCheckinItems, setMonthlyCheckinItems] = useState<CheckinItem[]>([])
   const [userDataPath, setUserDataPath] = useState<string>('')
   const [rerender, setRerender] = useState<boolean>(false)
 
@@ -152,15 +151,27 @@ export default function Heatmap({ heatmapInput, checkinItems }: Props) {
     dateCheckinArrMap.set(item.date, existing)
   }
 
+  const months: { year: number; month: number }[] = []
+  if (heatmapInput.length > 0) {
+    const [startYear, startMonth] = heatmapInput[0].date.split('-').map(Number)
+    const now = new Date()
+    const endYear = now.getFullYear()
+    const endMonth = now.getMonth() + 1
+
+    let y = startYear
+    let m = startMonth
+    while (y < endYear || (y === endYear && m <= endMonth)) {
+      months.push({ year: y, month: m })
+      m++
+      if (m > 12) {
+        m = 1
+        y++
+      }
+    }
+  }
+
   return (
-    <div
-      style={{
-        marginBottom: '1.5rem',
-        width: '100%'
-        // width: 500 // this is the width of the calandar
-        // ,...DebugStyles.divOutline
-      }}
-    >
+    <div style={{ marginBottom: '1.5rem', width: '100%' }}>
       <div
         style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4, marginBottom: 4 }}
       >
@@ -174,58 +185,69 @@ export default function Heatmap({ heatmapInput, checkinItems }: Props) {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 }}>
-        {cells.map((day, i) => {
-          if (day === null) return <div key={`empty-${i}`} />
-          const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-          const total = dateToHeatmapEntry.get(dateStr) ?? 0
-          const groups = dateToHeatmapEntry.get(dateStr) ?? []
-          const todayStr = new Date().toLocaleDateString('en-CA') // en-CA gives YYYY-MM-DD format
-          const isToday = todayStr === dateStr
-          return (
-            <div
-              key={dateStr}
-              style={{
-                aspectRatio: '1',
-                borderRadius: 6,
-                // background: getColor(total, maxTotal),
-                background: buildBackground(groups),
-                display: 'flex',
-                alignItems: 'flex-start',
-                flexWrap: 'wrap',
-                // justifyContent: 'center',
-                padding: 5,
-                fontSize: 11,
-                color: groups.length > 0 ? 'white' : 'grey',
-                border: isToday ? '2px solid #ac600ae0' : '0px solid transparent',
-                cursor: 'default',
-                boxSizing: 'border-box'
-              }}
-              onContextMenu={(e) => handleRightClick(e, dateStr)}
-              onClick={closeMenu}
-              onMouseLeave={() => setHoverSummery(null)}
-              onMouseEnter={(e) =>
-                setHoverSummery({ x: e.clientX, y: e.clientY, date: dateStr, groups: groups })
-              }
-            >
-              {day}
-              {(dateCheckinArrMap.get(dateStr) ?? []).map((ele) => (
-                <img
-                  key={ele.id}
-                  src={`appicon://${userDataPath}/icons/${ele.iconLocation}`}
-                  alt={ele.name}
-                  width={'30%'}
-                />
-              ))}
-            </div>
-          )
-        })}
-        {contextMenu && (
-          <ContextMenu {...contextMenu} closeMenu={closeMenu} openCheckinModal={openCheckinModal} />
-        )}
+      {months.map(({ year, month }) => {
+        const firstDay = new Date(year, month - 1, 1).getDay()
+        const daysInMonth = new Date(year, month, 0).getDate()
+        const cells: (number | null)[] = [
+          ...Array(firstDay).fill(null),
+          ...Array.from({ length: daysInMonth }, (_, i) => i + 1)
+        ]
 
-        {hoverSummery && hoverSummery.groups.length > 0 && <ToolTipDateSummary {...hoverSummery} />}
-      </div>
+        return (
+          <div key={`${year}-${month}`} style={{ marginBottom: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 }}>
+              {cells.map((day, i) => {
+                if (day === null) return <div key={`empty-${i}`} />
+                const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+                const groups = dateToHeatmapEntry.get(dateStr) ?? []
+                const todayStr = new Date().toLocaleDateString('en-CA')
+                const isToday = todayStr === dateStr
+                return (
+                  <div
+                    key={dateStr}
+                    style={{
+                      aspectRatio: '1',
+                      borderRadius: 6,
+                      background: buildBackground(groups),
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      flexWrap: 'wrap',
+                      padding: 5,
+                      fontSize: 11,
+                      color: groups.length > 0 ? 'white' : 'grey',
+                      border: isToday ? '2px solid #ac600ae0' : '0px solid transparent',
+                      cursor: 'default',
+                      boxSizing: 'border-box'
+                    }}
+                    onContextMenu={(e) => handleRightClick(e, dateStr)}
+                    onClick={closeMenu}
+                    onMouseLeave={() => setHoverSummery(null)}
+                    onMouseEnter={(e) =>
+                      setHoverSummery({ x: e.clientX, y: e.clientY, date: dateStr, groups })
+                    }
+                  >
+                    {day}
+                    {(dateCheckinArrMap.get(dateStr) ?? []).map((ele) => (
+                      <img
+                        key={ele.id}
+                        src={`appicon://${userDataPath}/icons/${ele.iconLocation}`}
+                        alt={ele.name}
+                        width={'30%'}
+                      />
+                    ))}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )
+      })}
+
+      {contextMenu && (
+        <ContextMenu {...contextMenu} closeMenu={closeMenu} openCheckinModal={openCheckinModal} />
+      )}
+
+      {hoverSummery && hoverSummery.groups.length > 0 && <ToolTipDateSummary {...hoverSummery} />}
 
       {openModal && (
         <Modal onClose={() => setOpenModal(false)}>
@@ -255,7 +277,6 @@ export default function Heatmap({ heatmapInput, checkinItems }: Props) {
             >
               <div style={{ display: 'flex', flexDirection: 'row', gap: 6 }}>
                 <p>{calendar.name}</p>
-                {/* <p>Less</p> */}
                 <div
                   style={{
                     ...styles.swatch,
@@ -280,7 +301,6 @@ export default function Heatmap({ heatmapInput, checkinItems }: Props) {
                     backgroundColor: getColorAtIntensity(calendar.color, 80, 100)
                   }}
                 />
-                {/* <p>More</p> */}
               </div>
             </div>
           ))}
