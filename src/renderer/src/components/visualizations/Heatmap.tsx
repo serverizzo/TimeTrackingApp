@@ -116,10 +116,6 @@ export default function Heatmap({ heatmapInput }: Props) {
     getCalendars()
   }, [])
 
-  useEffect(() => {
-    console.log(calendars)
-  }, [calendars])
-
   const firstDay = new Date(year, month, 1).getDay()
   const daysInMonth = new Date(year, month + 1, 0).getDate()
 
