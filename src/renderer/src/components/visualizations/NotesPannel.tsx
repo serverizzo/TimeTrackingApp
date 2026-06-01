@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import Timeline from './NotesPannelSubComponents/Timeline'
+import { HeatmapData } from 'src/shared/queryTypes/heatMapData'
 
 export default function NotesPannel() {
   const [notes, setNotes] = useState<string>()
@@ -69,7 +71,7 @@ export default function NotesPannel() {
 
         {notePannelView === 'Timeline' && (
           <div>
-            <p>TimelineView</p>
+            <Timeline />
           </div>
         )}
         {notePannelView === 'Journal' && (

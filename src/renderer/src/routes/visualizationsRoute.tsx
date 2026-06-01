@@ -113,7 +113,7 @@ export default function VisualizationsRoute() {
             paddingLeft: 20
           }}
         >
-          <NotesPannel />
+          <NotesPannel heatmapData={heatmapData} />
         </div>
       </div>
 

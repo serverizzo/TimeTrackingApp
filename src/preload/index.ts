@@ -47,6 +47,9 @@ const api = {
   // Auth
   ...authApi,
 
+  // Timeline
+  getTimeLineData: () => ipcRenderer.invoke('get-timeline-data'),
+
   ...notesApi
 }
 

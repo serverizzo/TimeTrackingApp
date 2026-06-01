@@ -4,6 +4,7 @@ import { ActivitiesRow } from 'src/shared/databasetypes/ActivitiesRow'
 import { CalendarRows } from 'src/shared/databasetypes/calendarRows'
 import { LapRow } from 'src/shared/databasetypes/LapRow'
 import { HeatmapData } from 'src/shared/queryTypes/heatMapData'
+import { TimelineData } from 'src/shared/queryTypes/timelineData'
 
 declare global {
   interface Window {
@@ -54,6 +55,9 @@ declare global {
       getToken: () => Promise<string | null>
       saveToken: (token: string) => Promise<{ success: boolean }>
       deleteToken: () => Promise<{ success: boolean }>
+
+      // Timeline
+      getTimeLineData: () => Promise<TimelineData>
 
       //icons
       openDialog: (id: number) => Promise<null>
