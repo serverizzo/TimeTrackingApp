@@ -6,6 +6,7 @@ export interface TimelineData {
     lap_time: number
     timestarted: string
     note: string
+    comments: string
   }[]
   activities:
     | {

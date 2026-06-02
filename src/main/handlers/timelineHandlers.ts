@@ -22,7 +22,10 @@ export function registerTimelineHandlers() {
         lapsByDay AS (
           SELECT l.date, l.timestarted, 
           json_group_array(
-            json_object('timestarted',l.timestarted, 'note', l.note, 'lap_time', l.lap_time, 'calendarcolor', c.color, 'calendarname', c.name)
+            json_object(
+            'timestarted',l.timestarted, 'note', l.note, 'lap_time', l.lap_time, 
+            'calendarcolor', c.color, 'calendarname', c.name, 'comments', l.comments
+            )
           ) AS laparray
           FROM laps l
           LEFT JOIN calendars c

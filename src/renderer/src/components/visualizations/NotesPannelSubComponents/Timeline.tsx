@@ -1,7 +1,12 @@
 import { image } from 'd3'
 import React, { useEffect, useRef, useState } from 'react'
 import { TimelineData } from 'src/shared/queryTypes/timelineData'
-import { msToMins, formatDateWithDay } from '@renderer/helperFunctions/date/date'
+import {
+  msToMins,
+  formatDateWithDay,
+  removeSeconds,
+  getEndTime
+} from '@renderer/helperFunctions/date/date'
 
 export default function Timeline() {
   const [timelineData, setTimelineData] = useState<TimelineData[]>([])
@@ -82,8 +87,10 @@ export default function Timeline() {
                     <p>{lap.note}</p>
                     <div style={{ marginLeft: 5 }}>
                       <p style={{ fontStyle: 'italic', color: '#7e7e7e' }}>
-                        {lap.timestarted} - {lap.timestarted} ({msToMins(lap.lap_time)})
+                        {removeSeconds(lap.timestarted)} -{' '}
+                        {getEndTime(lap.timestarted, lap.lap_time)} ({msToMins(lap.lap_time)})
                       </p>
+                      <p>{lap.comments}</p>
                     </div>
                   </div>
                 </div>
