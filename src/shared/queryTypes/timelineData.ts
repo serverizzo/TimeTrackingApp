@@ -1,12 +1,17 @@
 export interface TimelineData {
-  timestarted: string
   date: string
-  activities: {
-    location: string
-    icon_name: string
-  }
-  note: string
-  lap_time: number
-  color: string
-  calendar_name: string
+  laparray: {
+    timestarted: string
+    date: string
+    note: string
+    lap_time: number
+    color: string
+    calendar_name: string
+  }[]
+  activities:
+    | {
+        location: string
+        icon_name: string
+      }[]
+    | null
 }

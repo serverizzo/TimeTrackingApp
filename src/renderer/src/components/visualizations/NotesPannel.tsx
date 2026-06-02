@@ -23,52 +23,36 @@ export default function NotesPannel() {
 
   return (
     <div>
-      {/* <style>
-        {`
-          .scroll_enabled {
-              overflow-y: scroll;
-              height: 500px;
-            }
-
-            .scroll_enabled::-webkit-scrollbar {
-              width: 6px;
-            }
-
-            .scroll_enabled::-webkit-scrollbar-track {
-              background: transparent;
-            }
-
-            .scroll_enabled::-webkit-scrollbar-thumb {
-              background-color: #444;
-              border-radius: 6px;
-            }
-
-            .scroll_enabled::-webkit-scrollbar-thumb:hover {
-              background-color: #666;
-            }
-        `}
-      </style> */}
-      <div>
-        {/* Button tabs */}
-        <div style={{ display: 'flex', gap: 5 }}>
-          <div
-            onMouseEnter={(e) => (e.currentTarget.style.background = '#4a4a4a')}
-            onMouseLeave={(e) => (e.currentTarget.style.background = '#383838')}
-            style={{ ...styles.tabStyles }}
-            onClick={() => setNotePannelView('Timeline')}
-          >
-            <p>Timeline</p>
-          </div>
-          <div
-            onMouseEnter={(e) => (e.currentTarget.style.background = '#4a4a4a')}
-            onMouseLeave={(e) => (e.currentTarget.style.background = '#383838')}
-            style={{ ...styles.tabStyles }}
-            onClick={() => setNotePannelView('Journal')}
-          >
-            <p>Journal</p>
-          </div>
+      {/* Button tabs */}
+      <div
+        style={{
+          display: 'flex',
+          gap: 5,
+          position: 'sticky',
+          top: 0,
+          backgroundColor: '#1e1e1e',
+          paddingBottom: 10
+        }}
+      >
+        <div
+          onMouseEnter={(e) => (e.currentTarget.style.background = '#4a4a4a')}
+          onMouseLeave={(e) => (e.currentTarget.style.background = '#383838')}
+          style={{ ...styles.tabStyles }}
+          onClick={() => setNotePannelView('Timeline')}
+        >
+          <p>Timeline</p>
         </div>
+        <div
+          onMouseEnter={(e) => (e.currentTarget.style.background = '#4a4a4a')}
+          onMouseLeave={(e) => (e.currentTarget.style.background = '#383838')}
+          style={{ ...styles.tabStyles }}
+          onClick={() => setNotePannelView('Journal')}
+        >
+          <p>Journal</p>
+        </div>
+      </div>
 
+      <div>
         {notePannelView === 'Timeline' && (
           <div>
             <Timeline />

@@ -57,7 +57,7 @@ declare global {
       deleteToken: () => Promise<{ success: boolean }>
 
       // Timeline
-      getTimeLineData: () => Promise<TimelineData>
+      getTimeLineData: () => Promise<TimelineData[]>
 
       //icons
       openDialog: (id: number) => Promise<null>

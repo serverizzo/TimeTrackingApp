@@ -106,14 +106,15 @@ export default function VisualizationsRoute() {
         />
 
         <div
+          className="scroll_enabled"
           style={{
             flex: 1,
             height: calendarHeight,
             overflowY: 'auto',
-            paddingLeft: 20
+            paddingRight: 5
           }}
         >
-          <NotesPannel heatmapData={heatmapData} />
+          <NotesPannel />
         </div>
       </div>
 

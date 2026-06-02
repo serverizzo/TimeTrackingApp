@@ -7,3 +7,7 @@ export const formatDate = (dateStr: string): string => {
     day: 'numeric'
   })
 }
+
+export const msToMins = (millisecondsInput: number): string => {
+  return String(Math.round(millisecondsInput / 60000)) + 'm'
+}
