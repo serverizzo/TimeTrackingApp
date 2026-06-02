@@ -207,50 +207,60 @@ export default function Heatmap({ heatmapInput, checkinItems }: Props) {
           ]
 
           return (
-            <div key={`${year}-${month}`} style={{ marginBottom: 16 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 }}>
-                {cells.map((day, i) => {
-                  if (day === null) return <div key={`empty-${i}`} />
-                  const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-                  const groups = dateToHeatmapEntry.get(dateStr) ?? []
-                  const todayStr = new Date().toLocaleDateString('en-CA')
-                  const isToday = todayStr === dateStr
-                  return (
-                    <div
-                      key={dateStr}
-                      style={{
-                        aspectRatio: '1',
-                        borderRadius: 6,
-                        background: buildBackground(groups),
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        flexWrap: 'wrap',
-                        padding: 5,
-                        fontSize: 11,
-                        color: groups.length > 0 ? 'white' : 'grey',
-                        border: isToday ? '2px solid #ac600ae0' : '0px solid transparent',
-                        cursor: 'default',
-                        boxSizing: 'border-box'
-                      }}
-                      onContextMenu={(e) => handleRightClick(e, dateStr)}
-                      onClick={closeMenu}
-                      onMouseLeave={() => setHoverSummery(null)}
-                      onMouseEnter={(e) =>
-                        setHoverSummery({ x: e.clientX, y: e.clientY, date: dateStr, groups })
-                      }
-                    >
-                      {day}
-                      {(dateCheckinArrMap.get(dateStr) ?? []).map((ele) => (
-                        <img
-                          key={ele.id}
-                          src={`appicon://${userDataPath}/icons/${ele.iconLocation}`}
-                          alt={ele.name}
-                          width={'30%'}
-                        />
-                      ))}
-                    </div>
-                  )
-                })}
+            <div style={{ display: 'flex', flexDirection: 'row-reverse' }}>
+              <div style={{ paddingLeft: 10 }}>
+                <p>
+                  {new Date(year, month - 1).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short'
+                  })}
+                </p>
+              </div>
+              <div key={`${year}-${month}`} style={{ marginBottom: 16, width: '100%' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 }}>
+                  {cells.map((day, i) => {
+                    if (day === null) return <div key={`empty-${i}`} />
+                    const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+                    const groups = dateToHeatmapEntry.get(dateStr) ?? []
+                    const todayStr = new Date().toLocaleDateString('en-CA')
+                    const isToday = todayStr === dateStr
+                    return (
+                      <div
+                        key={dateStr}
+                        style={{
+                          aspectRatio: '1',
+                          borderRadius: 6,
+                          background: buildBackground(groups),
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          flexWrap: 'wrap',
+                          padding: 5,
+                          fontSize: 11,
+                          color: groups.length > 0 ? 'white' : 'grey',
+                          border: isToday ? '2px solid #ac600ae0' : '0px solid transparent',
+                          cursor: 'default',
+                          boxSizing: 'border-box'
+                        }}
+                        onContextMenu={(e) => handleRightClick(e, dateStr)}
+                        onClick={closeMenu}
+                        onMouseLeave={() => setHoverSummery(null)}
+                        onMouseEnter={(e) =>
+                          setHoverSummery({ x: e.clientX, y: e.clientY, date: dateStr, groups })
+                        }
+                      >
+                        {day}
+                        {(dateCheckinArrMap.get(dateStr) ?? []).map((ele) => (
+                          <img
+                            key={ele.id}
+                            src={`appicon://${userDataPath}/icons/${ele.iconLocation}`}
+                            alt={ele.name}
+                            width={'30%'}
+                          />
+                        ))}
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
             </div>
           )
