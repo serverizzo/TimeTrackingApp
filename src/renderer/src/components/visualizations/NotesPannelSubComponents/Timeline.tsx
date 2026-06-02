@@ -1,7 +1,7 @@
 import { image } from 'd3'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { TimelineData } from 'src/shared/queryTypes/timelineData'
-import { msToMins } from '@renderer/helperFunctions/date/date'
+import { msToMins, formatDateWithDay } from '@renderer/helperFunctions/date/date'
 
 export default function Timeline() {
   const [timelineData, setTimelineData] = useState<TimelineData[]>([])
@@ -33,9 +33,10 @@ export default function Timeline() {
               marginBottom: 10,
               paddingLeft: 10,
               borderRadius: 6
+              // padding: 10
             }}
           >
-            <h2>{entry.date}</h2>
+            <h2>{formatDateWithDay(entry.date)}</h2>
             {/* daily checkins */}
             {entry.activities?.map((activity) => (
               <img
@@ -49,13 +50,24 @@ export default function Timeline() {
 
             {/* Laps */}
             {entry.laparray.map((lap) => {
-              const x = 0
               return (
-                <div>
-                  <p>{lap.note}</p>
-                  <p>
-                    {lap.timestarted} - {lap.timestarted} ({msToMins(lap.lap_time)})
-                  </p>
+                <div style={{ display: 'flex', marginBottom: 5 }}>
+                  <div
+                    style={{
+                      height: '50px',
+                      width: '10px',
+                      backgroundColor: lap.calendarcolor,
+                      marginRight: 10
+                    }}
+                  />
+                  <div>
+                    <p>{lap.note}</p>
+                    <div style={{ marginLeft: 5 }}>
+                      <p>
+                        {lap.timestarted} - {lap.timestarted} ({msToMins(lap.lap_time)})
+                      </p>
+                    </div>
+                  </div>
                 </div>
               )
             })}
