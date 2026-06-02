@@ -73,6 +73,14 @@ export default function VisualizationsRoute() {
     window.api.getLapsByRange(formatDate(windowStart), formatDate(windowEnd)).then(setLaps)
   }, [windowStart, ganttRefresh])
 
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    }
+  }, [laps])
+
   return (
     <div
       className="scroll_enabled"
@@ -114,6 +122,7 @@ export default function VisualizationsRoute() {
         />
 
         <div
+          ref={scrollRef}
           className="scroll_enabled"
           style={{
             flex: 1,
