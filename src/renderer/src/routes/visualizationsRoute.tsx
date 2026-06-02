@@ -70,6 +70,7 @@ export default function VisualizationsRoute() {
     <div
       className="scroll_enabled"
       style={{
+        width: '100vw',
         height: '100vh',
         overflowY: 'auto',
         paddingBottom: 100,
