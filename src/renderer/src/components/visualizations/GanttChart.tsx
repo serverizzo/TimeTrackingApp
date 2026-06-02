@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react'
 import { LapEntry } from './types'
 import { InputStyle } from '@renderer/styles.ts/inputStyle'
 
+import { getEndTime, removeSeconds } from '@renderer/helperFunctions/date/date'
+
 interface Props {
   laps: LapEntry[]
   windowStart: Date
@@ -259,11 +261,16 @@ export default function GanttChart({ laps, windowStart, windowEnd, onPrev, onNex
           }}
         >
           <p style={{ margin: '0 0 4px', fontWeight: 500 }}>{tooltip.lap.note || 'Timer paused'}</p>
-          <p style={{ margin: '0 0 2px', color: 'grey' }}>Started: {tooltip.lap.timestarted}</p>
+          <p style={{ margin: '0 0 2px', color: 'grey' }}>
+            Start: {`${removeSeconds(tooltip.lap.timestarted)}`}
+          </p>
+          <p style={{ margin: '0 0 2px', color: 'grey' }}>
+            End: {`${getEndTime(tooltip.lap.timestarted, tooltip.lap.lap_time)}`}
+          </p>
+
           <p style={{ margin: 0, color: 'grey' }}>
             Duration: {Math.round(tooltip.lap.lap_time / 60000)}m
           </p>
-
           <p>Comments:</p>
           <p style={{ marginLeft: '10px' }}>{tooltip.lap.comments}</p>
           <p style={{ margin: '4px 0 0', color: 'grey', fontStyle: 'italic' }}>
