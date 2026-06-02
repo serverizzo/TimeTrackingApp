@@ -43,10 +43,17 @@ export default function VisualizationsRoute() {
   }
 
   useEffect(() => {
-    if (calendarRef.current) {
-      setCalendarHeight(calendarRef.current.offsetHeight)
-    }
-  }, [heatmapData])
+    if (!calendarRef.current) return
+
+    const observer = new ResizeObserver(() => {
+      if (calendarRef.current) {
+        setCalendarHeight(calendarRef.current.offsetHeight)
+      }
+    })
+
+    observer.observe(calendarRef.current)
+    return () => observer.disconnect()
+  }, []) // no dependency needed — ResizeObserver handles all size changes
 
   const formatDate = (d: Date) => d.toISOString().split('T')[0]
 
