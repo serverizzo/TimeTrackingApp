@@ -16,7 +16,7 @@ import { registerTimelineHandlers } from './handlers/timelineHandlers'
 
 // Fix for Wayland/X11 compatibility on Linux
 if (process.platform === 'linux') {
-  app.commandLine.appendSwitch('ozone-platform-hint', 'auto')
+  app.commandLine.appendSwitch('ozone-platform-hint', 'x11')
 }
 
 function createWindow(): void {

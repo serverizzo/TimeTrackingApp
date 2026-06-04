@@ -35,6 +35,9 @@ linux:
     - deb
   maintainer: electronjs.org
   category: Utility
+deb:
+  depends:
+    - libxss1
 appImage:
   artifactName: ${name}-${version}.${ext}
 npmRebuild: false
