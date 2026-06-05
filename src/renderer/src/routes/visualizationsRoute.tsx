@@ -1,3 +1,4 @@
+import PanelResizeIcon from '@renderer/assets/icons/dragIcon'
 import GanttChart from '@renderer/components/visualizations/GanttChart'
 import Heatmap from '@renderer/components/visualizations/Heatmap'
 import NotesPannel from '@renderer/components/visualizations/NotesPannel'
@@ -117,9 +118,14 @@ export default function VisualizationsRoute() {
             alignSelf: 'stretch',
             borderRadius: 3,
             margin: '0 4px',
-            flexShrink: 0
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}
-        />
+        >
+          <PanelResizeIcon size={32} style={{ flexShrink: 0, zIndex: 10 }} />
+        </div>
 
         <div
           ref={scrollRef}
