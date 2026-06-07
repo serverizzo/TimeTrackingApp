@@ -4,6 +4,7 @@ import { ActivitiesRow } from 'src/shared/databasetypes/ActivitiesRow'
 import { CalendarRows } from 'src/shared/databasetypes/calendarRows'
 import { LapRow } from 'src/shared/databasetypes/LapRow'
 import { HeatmapData } from 'src/shared/queryTypes/heatMapData'
+import { LinechartData } from 'src/shared/queryTypes/linechartData'
 import { TimelineData } from 'src/shared/queryTypes/timelineData'
 
 declare global {
@@ -14,7 +15,10 @@ declare global {
       insertLaps: (laps: LapRow[]) => Promise<{ success: boolean }>
       updateLapNote: (timeStarted: string, date: string, note: string) => Promise<void>
       updateLapComments: (timeStarted: string, date: string, comments: string) => Promise<void>
+
+      // Visualizations
       getHeatmapData: () => Promise<HeatmapData>
+      getLineChartData: () => Promise<LinechartData[]>
 
       //TODO: fix this
       getLapsByRange: (startDate: string, endDate: string) => Promise<LapEntry[]>
