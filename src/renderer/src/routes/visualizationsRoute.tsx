@@ -1,6 +1,7 @@
 import PanelResizeIcon from '@renderer/assets/icons/dragIcon'
 import GanttChart from '@renderer/components/visualizations/GanttChart'
 import Heatmap from '@renderer/components/visualizations/Heatmap'
+import Linechart from '@renderer/components/visualizations/linechart'
 import NotesPannel from '@renderer/components/visualizations/NotesPannel'
 import SummaryPanel from '@renderer/components/visualizations/summaryPannel'
 import { LapEntry } from '@renderer/components/visualizations/types'
@@ -161,6 +162,7 @@ export default function VisualizationsRoute() {
         }
       />
       <SummaryPanel laps={laps} />
+      <Linechart />
     </div>
   )
 }

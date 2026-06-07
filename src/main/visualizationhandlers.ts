@@ -66,4 +66,20 @@ export function visualizationhandlers() {
       )
       .all(startDate, endDate)
   })
+
+  // Linechart
+  // TODO: update this to get a range of data
+  ipcMain.handle('get-linechart-data', (_) => {
+    const db = getDb()
+    return db
+      .prepare(
+        `
+        SELECT l.date, l.note, c.name, l.lap_time
+        FROM laps l
+        LEFT JOIN calendars c 
+        ON l.calendar = c.id 
+      `
+      )
+      .all()
+  })
 }

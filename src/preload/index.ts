@@ -15,9 +15,12 @@ const api = {
     ipcRenderer.invoke('update-lap', timeStarted, date, note),
   updateLapComments: (timeStarted: string, date: string, note: string) =>
     ipcRenderer.invoke('update-lap-comments', timeStarted, date, note),
+
+  // visualizations
   getHeatmapData: () => ipcRenderer.invoke('get-heatmap-data'),
   getLapsByRange: (startDate: string, endDate: string) =>
     ipcRenderer.invoke('get-laps-by-range', startDate, endDate),
+  getLineChartData: () => ipcRenderer.invoke('get-linechart-data'),
 
   // Activities
   getActivities: () => ipcRenderer.invoke('get-activities'),
