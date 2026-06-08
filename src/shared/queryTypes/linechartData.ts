@@ -1,6 +1,7 @@
 export interface LinechartData {
   date: string
   note: string
-  name: string
+  calendarName: string
+  calendarColor: string
   lap_time: number
 }
