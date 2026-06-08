@@ -74,7 +74,7 @@ export function visualizationhandlers() {
     return db
       .prepare(
         `
-        SELECT l.date, l.note, c.name, l.lap_time
+        SELECT l.date, l.note, c.name as calendarName, c.color as calendarColor, l.lap_time
         FROM laps l
         LEFT JOIN calendars c 
         ON l.calendar = c.id 
