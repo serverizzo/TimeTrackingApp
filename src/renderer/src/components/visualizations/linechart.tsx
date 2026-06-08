@@ -99,6 +99,16 @@ export default function Linechart() {
     }
   ]
 
+  const toggleLine = (lineName: string) => {
+    setActiveLines((prev) =>
+      prev.includes(lineName) ? prev.filter((entry) => entry !== lineName) : [...prev, lineName]
+    )
+  }
+
+  useEffect(() => {
+    console.log(activeLines)
+  }, [activeLines])
+
   return (
     <div>
       <LineChart
@@ -114,7 +124,7 @@ export default function Linechart() {
       </LineChart>
 
       {/* all chip */}
-      <div onClick={() => setAllButton((prev) => !prev)} style={{ display: 'flex' }}>
+      <div onClick={() => setActiveLines([])} style={{ display: 'flex' }}>
         <div style={styles.chip}>
           <div
             style={{
@@ -134,7 +144,7 @@ export default function Linechart() {
             <div
               key={calendar.calendarName}
               style={styles.chip}
-              onClick={() => addToCalendarFilter(calendar.calendarName)}
+              onClick={() => toggleLine(calendar.calendarName)}
               onMouseEnter={(e) => (e.currentTarget.style.background = '#2e2e2e')}
               onMouseLeave={(e) => (e.currentTarget.style.background = 'unset')}
             >
@@ -157,7 +167,11 @@ export default function Linechart() {
         data={chartData}
       >
         <CartesianGrid />
-        <Line dataKey="total_time" />
+        {activeLines.length === 0 ? (
+          <Line dataKey="total_time" />
+        ) : (
+          activeLines.map((lineName) => <Line key={lineName} dataKey={lineName} />)
+        )}
         <XAxis dataKey="date" />
         <YAxis label={{ value: 'Time (m)', angle: -90, position: 'insideLeft' }} />
         <Tooltip
