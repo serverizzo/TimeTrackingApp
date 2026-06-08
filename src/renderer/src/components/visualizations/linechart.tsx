@@ -1,30 +1,23 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import { LapEntry } from './types'
 import { LinechartData } from 'src/shared/queryTypes/linechartData'
-import {
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis
-} from 'recharts'
+// import { RechartsDevtools } from '@recharts/devtools'
+import { CartesianGrid, Legend, Line, LineChart, XAxis, YAxis, Tooltip } from 'recharts'
+import { msToMins } from '@renderer/helperFunctions/date/date'
 
 interface LinechartEntry {
   date: string
   total_time: number
 }
 
-interface Calendar {
-  calendarName: string
-  calendarColor: string
-}
-
 export default function Linechart() {
+  const [currLinechartData, setCurrLinechartData] = useState<LinechartEntry[]>([])
   const [rawLinechartData, setRawLinechartData] = useState<LinechartData[]>([])
-  const [selectedCalendars, setSelectedCalendars] = useState<string[]>([])
+  const [calendars, setCalendars] = useState<{ calendarName: string; calendarColor: string }[]>([])
+  const [allButton, setAllButton] = useState<boolean>(false)
+  const [activeLines, setActiveLines] = useState<string[]>([])
 
+  // fetch linechart data
   useEffect(() => {
     const getData = async () => {
       const result: LinechartData[] = await window.api.getLineChartData()
@@ -33,94 +26,149 @@ export default function Linechart() {
     getData()
   }, [])
 
-  const calendars: Calendar[] = useMemo(() => {
-    const seen = new Map<string, string>()
+  // setLinechartData
+  const chartData = useMemo(() => {
+    const grouped = new Map<string, Record<string, number>>()
+
     rawLinechartData.forEach((row) => {
-      if (!seen.has(row.calendarName)) seen.set(row.calendarName, row.calendarColor)
+      if (!grouped.has(row.date)) grouped.set(row.date, {})
+      const day = grouped.get(row.date)!
+
+      //total_time
+      day['total_time'] = (day['total_time'] ?? 0) + Math.round(row.lap_time / 60000)
+
+      // calendar level sum
+      day[row.calendarName] = (day[row.calendarName] ?? 0) + Math.round(row.lap_time / 60000)
+
+      // lap level sum
+      day[row.note] = (day[row.note] ?? 0) + Math.round(row.lap_time / 60000)
     })
-    return Array.from(seen, ([calendarName, calendarColor]) => ({ calendarName, calendarColor }))
+    console.log(grouped)
+    return Array.from(grouped, ([date, values]) => ({ date, ...values }))
   }, [rawLinechartData])
 
-  const currLinechartData: LinechartEntry[] = useMemo(() => {
-    const filtered =
-      selectedCalendars.length === 0
-        ? rawLinechartData
-        : rawLinechartData.filter((row) => selectedCalendars.includes(row.calendarName))
+  // createListOfCalendars
+  useEffect(() => {
+    const calendarsArr: { calendarName: string; calendarColor: string }[] = []
+    const calendarsSet = new Set()
+    for (const ele of rawLinechartData) {
+      if (!calendarsSet.has(ele.calendarName)) {
+        calendarsSet.add(ele.calendarName)
+        calendarsArr.push({ calendarName: ele.calendarName, calendarColor: ele.calendarColor })
+      }
+    }
+    setCalendars(calendarsArr)
+  }, [rawLinechartData])
 
-    const grouped = new Map<string, number>()
-    filtered.forEach((row) => {
-      const current = grouped.get(row.date) ?? 0
-      grouped.set(row.date, current + Math.round(row.lap_time / 60000))
-    })
-
-    return Array.from(grouped, ([date, total_time]) => ({ date, total_time }))
-  }, [rawLinechartData, selectedCalendars])
-
-  const toggleCalendar = (name: string) => {
-    setSelectedCalendars((prev) =>
-      prev.includes(name) ? prev.filter((c) => c !== name) : [...prev, name]
-    )
-  }
-
-  const formatDate = (date: string) => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    }).format(new Date(date + 'T00:00:00'))
-  }
+  const data = [
+    {
+      name: 'Page A',
+      uv: 400,
+      pv: 2400,
+      amt: 2400
+    },
+    {
+      name: 'Page B',
+      uv: 300,
+      pv: 4567,
+      amt: 2400
+    },
+    {
+      name: 'Page C',
+      uv: 320,
+      pv: 1398,
+      amt: 2400
+    },
+    {
+      name: 'Page D',
+      uv: 200,
+      pv: 9800,
+      amt: 2400
+    },
+    {
+      name: 'Page E',
+      uv: 278,
+      pv: 3908,
+      amt: 2400
+    },
+    {
+      name: 'Page F',
+      uv: 189,
+      pv: 4800,
+      amt: 2400
+    }
+  ]
 
   return (
     <div>
-      {/* filter chips */}
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
-        <div
-          style={{
-            ...styles.chip,
-            borderColor: selectedCalendars.length === 0 ? '#fff' : '#555'
-          }}
-          onClick={() => setSelectedCalendars([])}
-          onMouseEnter={(e) => (e.currentTarget.style.background = '#2e2e2e')}
-          onMouseLeave={(e) => (e.currentTarget.style.background = 'unset')}
-        >
-          <div style={{ ...styles.dot, backgroundColor: '#c4c4c4' }} />
+      <LineChart
+        style={{ width: '100%', aspectRatio: 1.618, maxWidth: 600 }}
+        responsive
+        data={data}
+      >
+        <CartesianGrid />
+        <Line dataKey="uv" />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Legend />
+      </LineChart>
+
+      {/* all chip */}
+      <div onClick={() => setAllButton((prev) => !prev)} style={{ display: 'flex' }}>
+        <div style={styles.chip}>
+          <div
+            style={{
+              height: 15,
+              width: 15,
+              backgroundColor: '#c4c4c4',
+              borderRadius: 10
+            }}
+          />
           <p>All</p>
         </div>
-
-        {calendars.map((calendar) => (
-          <div
-            key={calendar.calendarName}
-            style={{
-              ...styles.chip,
-              borderColor: selectedCalendars.includes(calendar.calendarName) ? '#fff' : '#555'
-            }}
-            onClick={() => toggleCalendar(calendar.calendarName)}
-            onMouseEnter={(e) => (e.currentTarget.style.background = '#2e2e2e')}
-            onMouseLeave={(e) => (e.currentTarget.style.background = 'unset')}
-          >
-            <div style={{ ...styles.dot, backgroundColor: calendar.calendarColor }} />
-            <p>{calendar.calendarName}</p>
-          </div>
-        ))}
+      </div>
+      {/* calendar chips */}
+      <div style={{ display: 'flex' }}>
+        {calendars &&
+          calendars.map((calendar) => (
+            <div
+              key={calendar.calendarName}
+              style={styles.chip}
+              onClick={() => addToCalendarFilter(calendar.calendarName)}
+              onMouseEnter={(e) => (e.currentTarget.style.background = '#2e2e2e')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'unset')}
+            >
+              <div
+                style={{
+                  height: 15,
+                  width: 15,
+                  backgroundColor: calendar.calendarColor,
+                  borderRadius: 10
+                }}
+              />
+              <p>{calendar.calendarName}</p>
+            </div>
+          ))}
       </div>
 
-      {/* chart */}
-      <ResponsiveContainer width="100%" aspect={1.618}>
-        <LineChart data={currLinechartData}>
-          <CartesianGrid />
-          <Line dataKey="total_time" />
-          <XAxis dataKey="date" tickFormatter={formatDate} />
-          <YAxis label={{ value: 'Time (m)', angle: -90, position: 'insideLeft' }} />
-          <Tooltip
-            contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }}
-            labelStyle={{ color: '#fff' }}
-            itemStyle={{ color: '#ccc' }}
-            labelFormatter={(label) => formatDate(label)}
-            formatter={(value) => [`${value} mins`, 'Total Time']}
-          />
-          <Legend />
-        </LineChart>
-      </ResponsiveContainer>
+      <LineChart
+        style={{ width: '100%', aspectRatio: 1.618, maxWidth: 600 }}
+        responsive
+        data={chartData}
+      >
+        <CartesianGrid />
+        <Line dataKey="total_time" />
+        <XAxis dataKey="date" />
+        <YAxis label={{ value: 'Time (m)', angle: -90, position: 'insideLeft' }} />
+        <Tooltip
+          contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }}
+          labelStyle={{ color: '#fff' }}
+          itemStyle={{ color: '#ccc' }}
+          labelFormatter={(label) => `Date: ${new Date(label).toDateString()}`}
+          formatter={(value) => [`${value} mins`, 'Total Time']}
+        />
+        <Legend />
+      </LineChart>
     </div>
   )
 }
@@ -130,18 +178,11 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    border: '1px solid',
+    border: '1px solid white',
     borderRadius: 15,
     gap: 5,
     paddingLeft: 10,
     paddingRight: 10,
-    cursor: 'pointer',
-    transition: 'background 0.15s'
-  },
-  dot: {
-    height: 15,
-    width: 15,
-    borderRadius: 10,
-    flexShrink: 0
+    cursor: 'pointer'
   }
 }
