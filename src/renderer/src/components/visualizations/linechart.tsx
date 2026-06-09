@@ -172,13 +172,16 @@ export default function Linechart() {
         ) : (
           activeLines.map((lineName) => <Line key={lineName} dataKey={lineName} />)
         )}
-        <XAxis dataKey="date" />
+        <XAxis
+          dataKey="date"
+          tickFormatter={(date) => new Date(date + 'T00:00:00').toLocaleDateString()}
+        />
         <YAxis label={{ value: 'Time (m)', angle: -90, position: 'insideLeft' }} />
         <Tooltip
           contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }}
           labelStyle={{ color: '#fff' }}
           itemStyle={{ color: '#ccc' }}
-          labelFormatter={(label) => `Date: ${new Date(label).toDateString()}`}
+          labelFormatter={(label) => `Date: ${new Date(label + 'T00:00:00').toDateString()}`}
           formatter={(value) => [`${value} mins`, 'Total Time']}
         />
         <Legend />
