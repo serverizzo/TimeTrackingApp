@@ -14,6 +14,7 @@ export default function Linechart() {
   const [currLinechartData, setCurrLinechartData] = useState<LinechartEntry[]>([])
   const [rawLinechartData, setRawLinechartData] = useState<LinechartData[]>([])
   const [calendars, setCalendars] = useState<{ calendarName: string; calendarColor: string }[]>([])
+  const [tasks, setTasks] = useState<string[]>([])
   const [allButton, setAllButton] = useState<boolean>(false)
   const [activeLines, setActiveLines] = useState<string[]>([])
 
@@ -59,6 +60,19 @@ export default function Linechart() {
     }
     setCalendars(calendarsArr)
   }, [rawLinechartData])
+
+  // createListOfTasks
+  useEffect(() => {
+    const listArr: string[] = []
+    const listSet = new Set()
+    for (const ele of rawLinechartData) {
+      if (!listSet.has(ele.note)) {
+        listSet.add(ele.note)
+        listArr.push(ele.note)
+      }
+    }
+    setTasks(listArr)
+  })
 
   const data = [
     {
@@ -166,11 +180,13 @@ export default function Linechart() {
         responsive
         data={chartData}
       >
-        <CartesianGrid />
+        <CartesianGrid strokeDasharray="3 3" stroke="#888888" />
         {activeLines.length === 0 ? (
           <Line dataKey="total_time" />
         ) : (
-          activeLines.map((lineName) => <Line key={lineName} dataKey={lineName} />)
+          activeLines.map((lineName) => (
+            <Line type="monotone" strokeWidth={2} key={lineName} dataKey={lineName} />
+          ))
         )}
         <XAxis
           dataKey="date"
