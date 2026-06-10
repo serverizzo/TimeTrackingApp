@@ -207,7 +207,10 @@ export default function Linechart() {
             labelStyle={{ color: '#fff' }}
             itemStyle={{ color: '#ccc' }}
             labelFormatter={(label) => `Date: ${new Date(label + 'T00:00:00').toDateString()}`}
-            formatter={(value) => [`${value} mins`, 'Total Time']}
+            formatter={(value, name) => [
+              `${Math.floor(value / 60)}h ${value % 60}m (${value} mins)`,
+              name
+            ]}
           />
           <Legend />
         </LineChart>
