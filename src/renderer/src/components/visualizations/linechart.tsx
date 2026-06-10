@@ -2,7 +2,16 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { LapEntry } from './types'
 import { LinechartData } from 'src/shared/queryTypes/linechartData'
 // import { RechartsDevtools } from '@recharts/devtools'
-import { CartesianGrid, Legend, Line, LineChart, XAxis, YAxis, Tooltip } from 'recharts'
+import {
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer
+} from 'recharts'
 import { msToMins } from '@renderer/helperFunctions/date/date'
 
 interface LinechartEntry {
@@ -124,93 +133,77 @@ export default function Linechart() {
   }, [activeLines])
 
   return (
-    <div>
-      <LineChart
-        style={{ width: '100%', aspectRatio: 1.618, maxWidth: 600 }}
-        responsive
-        data={data}
-      >
-        <CartesianGrid />
-        <Line dataKey="uv" />
-        <XAxis dataKey="name" />
-        <YAxis />
-        <Legend />
-      </LineChart>
-
-      {/* all chip */}
-      <div onClick={() => setActiveLines([])} style={{ display: 'flex' }}>
-        <div style={styles.chip}>
-          <div
-            style={{
-              height: 15,
-              width: 15,
-              backgroundColor: '#c4c4c4',
-              borderRadius: 10
-            }}
-          />
+    <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+      {/* chips row */}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+        {/* all chip */}
+        <div
+          style={styles.chip}
+          onClick={() => setActiveLines([])}
+          onMouseEnter={(e) => (e.currentTarget.style.background = '#2e2e2e')}
+          onMouseLeave={(e) => (e.currentTarget.style.background = 'unset')}
+        >
+          <div style={{ height: 15, width: 15, backgroundColor: '#c4c4c4', borderRadius: 10 }} />
           <p>All</p>
         </div>
-      </div>
-      {/* calendar chips */}
-      <div style={{ display: 'flex' }}>
-        {calendars &&
-          calendars.map((calendar) => (
+
+        {/* calendar chips */}
+        {calendars.map((calendar) => (
+          <div
+            key={calendar.calendarName}
+            style={styles.chip}
+            onClick={() => toggleLine(calendar.calendarName)}
+            onMouseEnter={(e) => (e.currentTarget.style.background = '#2e2e2e')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'unset')}
+          >
             <div
-              key={calendar.calendarName}
-              style={styles.chip}
-              onClick={() => toggleLine(calendar.calendarName)}
-              onMouseEnter={(e) => (e.currentTarget.style.background = '#2e2e2e')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'unset')}
-            >
-              <div
-                style={{
-                  height: 15,
-                  width: 15,
-                  backgroundColor: calendar.calendarColor,
-                  borderRadius: 10
-                }}
-              />
-              <p>{calendar.calendarName}</p>
-            </div>
-          ))}
+              style={{
+                height: 15,
+                width: 15,
+                backgroundColor: calendar.calendarColor,
+                borderRadius: 10
+              }}
+            />
+            <p>{calendar.calendarName}</p>
+          </div>
+        ))}
       </div>
 
-      <LineChart
-        style={{ width: '100%', aspectRatio: 1.618, maxWidth: 600 }}
-        responsive
-        data={chartData}
-      >
-        <CartesianGrid strokeDasharray="3 3" stroke="#888888" />
-        {activeLines.length === 0 ? (
-          <Line dataKey="total_time" />
-        ) : (
-          activeLines.map((lineName) => {
-            const color = calendars.find((c) => c.calendarName === lineName)?.calendarColor
-            return (
-              <Line
-                type="monotone"
-                strokeWidth={2}
-                stroke={color}
-                key={lineName}
-                dataKey={lineName}
-              />
-            )
-          })
-        )}
-        <XAxis
-          dataKey="date"
-          tickFormatter={(date) => new Date(date + 'T00:00:00').toLocaleDateString()}
-        />
-        <YAxis label={{ value: 'Time (m)', angle: -90, position: 'insideLeft' }} />
-        <Tooltip
-          contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }}
-          labelStyle={{ color: '#fff' }}
-          itemStyle={{ color: '#ccc' }}
-          labelFormatter={(label) => `Date: ${new Date(label + 'T00:00:00').toDateString()}`}
-          formatter={(value) => [`${value} mins`, 'Total Time']}
-        />
-        <Legend />
-      </LineChart>
+      {/* chart */}
+      <ResponsiveContainer width="80%" aspect={1.618}>
+        <LineChart data={chartData}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#888888" />
+          {activeLines.length === 0 ? (
+            <Line dataKey="total_time" stroke="#c4c4c4" strokeWidth={2} />
+          ) : (
+            activeLines.map((lineName) => {
+              const color = calendars.find((c) => c.calendarName === lineName)?.calendarColor
+              return (
+                <Line
+                  type="monotone"
+                  strokeWidth={2}
+                  stroke={color}
+                  key={lineName}
+                  dataKey={lineName}
+                />
+              )
+            })
+          )}
+          <XAxis
+            dataKey="date"
+            tickFormatter={(date) => new Date(date + 'T00:00:00').toLocaleDateString()}
+          />
+          <YAxis label={{ value: 'Time (m)', angle: -90, position: 'insideLeft' }} />
+          <Tooltip
+            contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }}
+            labelStyle={{ color: '#fff' }}
+            itemStyle={{ color: '#ccc' }}
+            labelFormatter={(label) => `Date: ${new Date(label + 'T00:00:00').toDateString()}`}
+            formatter={(value) => [`${value} mins`, 'Total Time']}
+          />
+          <Legend />
+        </LineChart>
+      </ResponsiveContainer>
     </div>
   )
 }
