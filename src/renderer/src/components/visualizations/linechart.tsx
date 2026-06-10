@@ -148,13 +148,20 @@ export default function Linechart() {
         </div>
 
         {/* calendar chips */}
-        {calendars.map((calendar) => (
+        {calendars.map((calendar) => {
+          const isActive = activeLines.includes(calendar.calendarName)
+          const isHovered = hoveredCalendar === calendar.calendarName
+
+          return (
           <div
             key={calendar.calendarName}
-            style={styles.chip}
+              style={{
+                ...styles.chip,
+                backgroundColor: isActive ? '#7e7e7e' : isHovered ? '#2e2e2e' : 'unset'
+              }}
             onClick={() => toggleLine(calendar.calendarName)}
-            onMouseEnter={(e) => (e.currentTarget.style.background = '#2e2e2e')}
-            onMouseLeave={(e) => (e.currentTarget.style.background = 'unset')}
+              onMouseEnter={() => setHoveredCalendar(calendar.calendarName)}
+              onMouseLeave={() => setHoveredCalendar(null)}
           >
             <div
               style={{
@@ -166,7 +173,8 @@ export default function Linechart() {
             />
             <p>{calendar.calendarName}</p>
           </div>
-        ))}
+          )
+        })}
       </div>
 
       {/* chart */}
