@@ -27,52 +27,52 @@ export default function Linechart() {
     getData()
   }, [])
 
-  // setLinechartData
   const chartData = useMemo(() => {
-    const grouped = new Map<string, Record<string, number>>()
-
+    // first pass - collect all keys
+    const allCalendars = new Set<string>()
+    const allNotes = new Set<string>()
     rawLinechartData.forEach((row) => {
-      if (!grouped.has(row.date)) grouped.set(row.date, {})
-      const day = grouped.get(row.date)!
-
-      //total_time
-      day['total_time'] = (day['total_time'] ?? 0) + Math.round(row.lap_time / 60000)
-
-      // calendar level sum
-      day[row.calendarName] = (day[row.calendarName] ?? 0) + Math.round(row.lap_time / 60000)
-
-      // lap level sum
-      day[row.note] = (day[row.note] ?? 0) + Math.round(row.lap_time / 60000)
+      allCalendars.add(row.calendarName)
+      allNotes.add(row.note)
     })
-    console.log(grouped)
+
+    // build the zero-initialized template
+    const template: Record<string, number> = { total_time: 0 }
+    allCalendars.forEach((c) => (template[c] = 0))
+    allNotes.forEach((n) => (template[n] = 0))
+
+    // second pass - group and sum
+    const grouped = new Map<string, Record<string, number>>()
+    rawLinechartData.forEach((row) => {
+      if (!grouped.has(row.date)) grouped.set(row.date, { ...template }) // spread so each day gets its own copy
+      const day = grouped.get(row.date)!
+      day['total_time'] += Math.round(row.lap_time / 60000)
+      day[row.calendarName] += Math.round(row.lap_time / 60000)
+      day[row.note] += Math.round(row.lap_time / 60000)
+    })
+
     return Array.from(grouped, ([date, values]) => ({ date, ...values }))
   }, [rawLinechartData])
 
-  // createListOfCalendars
+  // createListOfCalendars and listOfTasks
   useEffect(() => {
     const calendarsArr: { calendarName: string; calendarColor: string }[] = []
     const calendarsSet = new Set()
+    const listArr: string[] = []
+    const listSet = new Set()
     for (const ele of rawLinechartData) {
       if (!calendarsSet.has(ele.calendarName)) {
         calendarsSet.add(ele.calendarName)
         calendarsArr.push({ calendarName: ele.calendarName, calendarColor: ele.calendarColor })
       }
-    }
-    setCalendars(calendarsArr)
-  }, [rawLinechartData])
-
-  // createListOfTasks
-  useEffect(() => {
-    const listArr: string[] = []
-    const listSet = new Set()
-    for (const ele of rawLinechartData) {
       if (!listSet.has(ele.note)) {
         listSet.add(ele.note)
         listArr.push(ele.note)
       }
     }
+    setCalendars(calendarsArr)
     setTasks(listArr)
-  })
+  }, [rawLinechartData])
 
   const data = [
     {
@@ -184,9 +184,18 @@ export default function Linechart() {
         {activeLines.length === 0 ? (
           <Line dataKey="total_time" />
         ) : (
-          activeLines.map((lineName) => (
-            <Line type="monotone" strokeWidth={2} key={lineName} dataKey={lineName} />
-          ))
+          activeLines.map((lineName) => {
+            const color = calendars.find((c) => c.calendarName === lineName)?.calendarColor
+            return (
+              <Line
+                type="monotone"
+                strokeWidth={2}
+                stroke={color}
+                key={lineName}
+                dataKey={lineName}
+              />
+            )
+          })
         )}
         <XAxis
           dataKey="date"
