@@ -25,7 +25,8 @@ export default function Linechart() {
   const [calendars, setCalendars] = useState<{ calendarName: string; calendarColor: string }[]>([])
   const [tasks, setTasks] = useState<string[]>([])
   const [allButton, setAllButton] = useState<boolean>(false)
-  const [activeLines, setActiveLines] = useState<string[]>([])
+  const [hoveredCalendar, setHoveredCalendar] = useState<string | null>(null)
+  const [selectedCalendars, setSelectedCalendars] = useState<Map<string, string[]>>(new Map())
 
   // fetch linechart data
   useEffect(() => {
@@ -128,6 +129,58 @@ export default function Linechart() {
     )
   }
 
+  const toggleCalendar = (calendarName: string) => {
+    setSelectedCalendars((prev) => {
+      const next = new Map(prev)
+      if (next.has(calendarName)) {
+        next.delete(calendarName)
+      } else {
+        next.set(calendarName, [])
+      }
+      return next
+    })
+  }
+
+  const toggleTask = (calendarName: string, taskName: string) => {
+    setSelectedCalendars((prev) => {
+      const next = new Map(prev)
+      const tasks = next.get(calendarName) ?? []
+      if (tasks.includes(taskName)) {
+        next.set(
+          calendarName,
+          tasks.filter((t) => t !== taskName)
+        )
+      } else {
+        next.set(calendarName, [...tasks, taskName])
+      }
+      return next
+    })
+  }
+
+  const activeLines = useMemo(() => {
+    if (selectedCalendars.size === 0) return ['total_time']
+
+    const lines: string[] = []
+    selectedCalendars.forEach((tasks, calendarName) => {
+      if (tasks.length === 0) {
+        lines.push(calendarName)
+      } else {
+        lines.push(...tasks)
+      }
+    })
+    return lines
+  }, [selectedCalendars])
+
+  const tasksByCalendar = useMemo(() => {
+    const map = new Map<string, string[]>()
+    rawLinechartData.forEach((row) => {
+      if (!map.has(row.calendarName)) map.set(row.calendarName, [])
+      const tasks = map.get(row.calendarName)!
+      if (!tasks.includes(row.note)) tasks.push(row.note)
+    })
+    return map
+  }, [rawLinechartData])
+
   useEffect(() => {
     console.log(activeLines)
   }, [activeLines])
@@ -148,55 +201,115 @@ export default function Linechart() {
         </div>
 
         {/* calendar chips */}
-        {calendars.map((calendar) => {
-          const isActive = activeLines.includes(calendar.calendarName)
-          const isHovered = hoveredCalendar === calendar.calendarName
-
-          return (
-          <div
-            key={calendar.calendarName}
-              style={{
-                ...styles.chip,
-                backgroundColor: isActive ? '#7e7e7e' : isHovered ? '#2e2e2e' : 'unset'
-              }}
-            onClick={() => toggleLine(calendar.calendarName)}
-              onMouseEnter={() => setHoveredCalendar(calendar.calendarName)}
-              onMouseLeave={() => setHoveredCalendar(null)}
-          >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
+          {/* top row - all + calendar chips */}
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <div
               style={{
-                height: 15,
-                width: 15,
-                backgroundColor: calendar.calendarColor,
-                borderRadius: 10
+                ...styles.chip,
+                backgroundColor: selectedCalendars.size === 0 ? '#a3a3a3' : 'unset'
               }}
-            />
-            <p>{calendar.calendarName}</p>
+              onClick={() => setSelectedCalendars(new Map())}
+              onMouseEnter={() => setHoveredCalendar('__all__')}
+              onMouseLeave={() => setHoveredCalendar(null)}
+            >
+              <div
+                style={{ height: 15, width: 15, backgroundColor: '#c4c4c4', borderRadius: 10 }}
+              />
+              <p>All</p>
+            </div>
+
+            {calendars.map((calendar) => {
+              const isActive = selectedCalendars.has(calendar.calendarName)
+              const isHovered = hoveredCalendar === calendar.calendarName
+              return (
+                <div
+                  key={calendar.calendarName}
+                  style={{
+                    ...styles.chip,
+                    backgroundColor: isActive ? '#a3a3a3' : isHovered ? '#2e2e2e' : 'unset'
+                  }}
+                  onClick={() => toggleCalendar(calendar.calendarName)}
+                  onMouseEnter={() => setHoveredCalendar(calendar.calendarName)}
+                  onMouseLeave={() => setHoveredCalendar(null)}
+                >
+                  <div
+                    style={{
+                      height: 15,
+                      width: 15,
+                      backgroundColor: calendar.calendarColor,
+                      borderRadius: 10
+                    }}
+                  />
+                  <p>{calendar.calendarName}</p>
+                </div>
+              )
+            })}
           </div>
-          )
-        })}
+
+          {/* task chips - only show for expanded calendars */}
+          {Array.from(selectedCalendars.entries()).map(([calendarName, selectedTasks]) => {
+            const calendarColor = calendars.find(
+              (c) => c.calendarName === calendarName
+            )?.calendarColor
+            const tasks = tasksByCalendar.get(calendarName) ?? []
+            return (
+              <div
+                key={calendarName}
+                style={{ display: 'flex', gap: 6, flexWrap: 'wrap', paddingLeft: 16 }}
+              >
+                <span style={{ color: '#888', fontSize: 12, alignSelf: 'center' }}>
+                  {calendarName}:
+                </span>
+                {tasks.map((task) => {
+                  const isActive = selectedTasks.includes(task)
+                  return (
+                    <div
+                      key={task}
+                      style={{
+                        ...styles.chip,
+                        fontSize: 12,
+                        backgroundColor: isActive ? calendarColor : 'unset',
+                        borderColor: calendarColor
+                      }}
+                      onClick={() => toggleTask(calendarName, task)}
+                    >
+                      <p>{task}</p>
+                    </div>
+                  )
+                })}
+              </div>
+            )
+          })}
+        </div>
       </div>
 
       {/* chart */}
-      <ResponsiveContainer width="80%" aspect={1.618}>
+      <ResponsiveContainer width="90%" aspect={1.618}>
         <LineChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" stroke="#888888" />
-          {activeLines.length === 0 ? (
-            <Line dataKey="total_time" stroke="#c4c4c4" strokeWidth={2} />
-          ) : (
-            activeLines.map((lineName) => {
-              const color = calendars.find((c) => c.calendarName === lineName)?.calendarColor
-              return (
-                <Line
-                  type="monotone"
-                  strokeWidth={2}
-                  stroke={color}
-                  key={lineName}
-                  dataKey={lineName}
-                />
-              )
-            })
-          )}
+          {activeLines.map((lineName) => {
+            const calColor = calendars.find((c) => c.calendarName === lineName)?.calendarColor
+            // for tasks, find which calendar they belong to
+            const taskCalendar = Array.from(tasksByCalendar.entries()).find(([, tasks]) =>
+              tasks.includes(lineName)
+            )
+            const color =
+              lineName === 'total_time'
+                ? '#c4c4c4'
+                : (calColor ??
+                  calendars.find((c) => c.calendarName === taskCalendar?.[0])?.calendarColor)
+            return (
+              <Line
+                type="monotone"
+                strokeWidth={2}
+                stroke={color}
+                key={lineName}
+                dataKey={lineName}
+                dot={false}
+              />
+            )
+          })}
           <XAxis
             dataKey="date"
             tickFormatter={(date) => new Date(date + 'T00:00:00').toLocaleDateString()}
