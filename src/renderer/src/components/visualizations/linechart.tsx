@@ -84,51 +84,6 @@ export default function Linechart() {
     setTasks(listArr)
   }, [rawLinechartData])
 
-  const data = [
-    {
-      name: 'Page A',
-      uv: 400,
-      pv: 2400,
-      amt: 2400
-    },
-    {
-      name: 'Page B',
-      uv: 300,
-      pv: 4567,
-      amt: 2400
-    },
-    {
-      name: 'Page C',
-      uv: 320,
-      pv: 1398,
-      amt: 2400
-    },
-    {
-      name: 'Page D',
-      uv: 200,
-      pv: 9800,
-      amt: 2400
-    },
-    {
-      name: 'Page E',
-      uv: 278,
-      pv: 3908,
-      amt: 2400
-    },
-    {
-      name: 'Page F',
-      uv: 189,
-      pv: 4800,
-      amt: 2400
-    }
-  ]
-
-  const toggleLine = (lineName: string) => {
-    setActiveLines((prev) =>
-      prev.includes(lineName) ? prev.filter((entry) => entry !== lineName) : [...prev, lineName]
-    )
-  }
-
   const toggleCalendar = (calendarName: string) => {
     setSelectedCalendars((prev) => {
       const next = new Map(prev)
@@ -190,15 +145,6 @@ export default function Linechart() {
       {/* chips row */}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
         {/* all chip */}
-        <div
-          style={styles.chip}
-          onClick={() => setActiveLines([])}
-          onMouseEnter={(e) => (e.currentTarget.style.background = '#2e2e2e')}
-          onMouseLeave={(e) => (e.currentTarget.style.background = 'unset')}
-        >
-          <div style={{ height: 15, width: 15, backgroundColor: '#c4c4c4', borderRadius: 10 }} />
-          <p>All</p>
-        </div>
 
         {/* calendar chips */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
@@ -221,6 +167,7 @@ export default function Linechart() {
 
             {calendars.map((calendar) => {
               const isActive = selectedCalendars.has(calendar.calendarName)
+
               const isHovered = hoveredCalendar === calendar.calendarName
               return (
                 <div
