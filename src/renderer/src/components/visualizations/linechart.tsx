@@ -10,7 +10,10 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  ResponsiveContainer
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  LabelList
 } from 'recharts'
 
 interface LinechartEntry {
@@ -166,6 +169,14 @@ export default function Linechart() {
     console.log(activeLines)
   }, [activeLines])
 
+  const withAlpha = (color: string | undefined, alpha: number) => {
+    if (!color) return undefined
+    const hex = Math.round(alpha * 255)
+      .toString(16)
+      .padStart(2, '0')
+    return `${color}${hex}`
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
       {/* chips row */}
@@ -299,11 +310,10 @@ export default function Linechart() {
 
       {/* chart */}
       <ResponsiveContainer width="90%" aspect={1.618}>
-        <LineChart data={chartData}>
+        <BarChart data={chartData} layout="vertical">
           <CartesianGrid strokeDasharray="3 3" stroke="#888888" />
           {activeLines.map((lineName) => {
             const calColor = calendars.find((c) => c.calendarName === lineName)?.calendarColor
-            // for tasks, find which calendar they belong to
             const taskCalendar = Array.from(tasksByCalendar.entries()).find(([, tasks]) =>
               tasks.includes(lineName)
             )
@@ -313,33 +323,68 @@ export default function Linechart() {
                 : (calColor ??
                   calendars.find((c) => c.calendarName === taskCalendar?.[0])?.calendarColor)
             return (
-              <Line
-                type="monotone"
-                strokeWidth={2}
-                stroke={color}
-                key={lineName}
-                dataKey={lineName}
-                dot={false}
-              />
+              <Bar key={lineName} dataKey={lineName} fill={withAlpha(color, 0.7)} strokeWidth={1}>
+                <LabelList
+                  dataKey={lineName}
+                  position="inside"
+                  content={({ x, y, width, height, value }) => {
+                    if (!value || Number(value) === 0) return null
+                    const label = `${Math.floor(Number(value) / 60)}h ${Number(value) % 60}m`
+                    const cx = Number(x) + Number(width) / 2
+                    const cy = Number(y) + Number(height) / 2
+                    return (
+                      <g>
+                        <text
+                          x={cx}
+                          y={cy}
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                          fontSize={11}
+                          stroke="#000"
+                          strokeWidth={3}
+                          strokeLinejoin="round"
+                        >
+                          {label}
+                        </text>
+                        <text
+                          x={cx}
+                          y={cy}
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                          fontSize={11}
+                          fill="#fff"
+                        >
+                          {label}
+                        </text>
+                      </g>
+                    )
+                  }}
+                />
+              </Bar>
             )
           })}
           <XAxis
+            type="number"
+            label={{ value: 'Time (m)', position: 'insideBottom', offset: -5 }}
+          />
+          <YAxis
+            type="category"
             dataKey="date"
             tickFormatter={(date) => new Date(date + 'T00:00:00').toLocaleDateString()}
+            width={80}
           />
-          <YAxis label={{ value: 'Time (m)', angle: -90, position: 'insideLeft' }} />
           <Tooltip
             contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }}
             labelStyle={{ color: '#fff' }}
             itemStyle={{ color: '#ccc' }}
             labelFormatter={(label) => `Date: ${new Date(label + 'T00:00:00').toDateString()}`}
             formatter={(value, name) => [
-              `${Math.floor(value / 60)}h ${value % 60}m (${value} mins)`,
+              `${Math.floor(Number(value) / 60)}h ${Number(value) % 60}m (${value} mins)`,
               name
             ]}
           />
           <Legend />
-        </LineChart>
+        </BarChart>
       </ResponsiveContainer>
     </div>
   )
