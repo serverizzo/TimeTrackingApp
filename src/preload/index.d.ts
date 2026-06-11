@@ -18,7 +18,7 @@ declare global {
 
       // Visualizations
       getHeatmapData: () => Promise<HeatmapData>
-      getLineChartData: () => Promise<LinechartData[]>
+      getLineChartData: (startDate: string | null) => Promise<LinechartData[]>
 
       //TODO: fix this
       getLapsByRange: (startDate: string, endDate: string) => Promise<LapEntry[]>

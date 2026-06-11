@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { LapEntry } from './types'
 import { LinechartData } from 'src/shared/queryTypes/linechartData'
 // import { RechartsDevtools } from '@recharts/devtools'
@@ -12,7 +12,6 @@ import {
   Tooltip,
   ResponsiveContainer
 } from 'recharts'
-import { msToMins } from '@renderer/helperFunctions/date/date'
 
 interface LinechartEntry {
   date: string
@@ -27,15 +26,42 @@ export default function Linechart() {
   const [allButton, setAllButton] = useState<boolean>(false)
   const [hoveredCalendar, setHoveredCalendar] = useState<string | null>(null)
   const [selectedCalendars, setSelectedCalendars] = useState<Map<string, string[]>>(new Map())
+  const [dateString, setDateString] = useState<string>('All Time')
+  const [dateNumber, setDateNumber] = useState<number>(1)
+  const presentedDate = useRef<string>('All Dates Shown')
 
-  // fetch linechart data
+  // fetch linechart data -- will run once on load
   useEffect(() => {
+    let startDateStr: string | null = null
+
+    if (dateString !== 'All Time') {
+      const startDate = new Date()
+      switch (dateString) {
+        case 'Weeks':
+          startDate.setDate(startDate.getDate() - dateNumber * 7)
+          break
+        case 'Months':
+          startDate.setMonth(startDate.getMonth() - dateNumber)
+          break
+        case 'Years':
+          startDate.setFullYear(startDate.getFullYear() - dateNumber)
+          break
+      }
+      const pad = (n: number) => String(n).padStart(2, '0')
+      startDateStr = `${startDate.getFullYear()}-${pad(startDate.getMonth() + 1)}-${pad(startDate.getDate())}`
+      presentedDate.current = startDate.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      })
+    }
+
     const getData = async () => {
-      const result: LinechartData[] = await window.api.getLineChartData()
+      const result: LinechartData[] = await window.api.getLineChartData(startDateStr)
       setRawLinechartData(result)
     }
     getData()
-  }, [])
+  }, [dateString, dateNumber])
 
   const chartData = useMemo(() => {
     // first pass - collect all keys
@@ -228,6 +254,46 @@ export default function Linechart() {
               </div>
             )
           })}
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        {/* Date range */}
+        <p style={{ fontSize: 12, color: 'var(--color-text-tertiary)' }}>DATE RANGE</p>
+        <div style={{ display: 'flex', flexDirection: 'row' }}>
+          <p style={{ marginRight: 20, fontSize: 12, color: 'var(--color-text-tertiary)' }}>Last</p>
+          <select
+            onChange={(e) => setDateNumber(Number(e.target.value))}
+            name={dateNumber.toString()}
+            style={{ marginRight: 10 }}
+          >
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((ele) => (
+              <option>{ele}</option>
+            ))}
+          </select>
+          <select
+            onChange={(e) => setDateString(e.target.value)}
+            name={dateString}
+            defaultValue={'All Time'}
+          >
+            {['Weeks', 'Months', 'Years', 'All Time'].map((ele) => (
+              <option>{ele}</option>
+            ))}
+          </select>
+        </div>
+        <div
+          style={{
+            fontSize: 12,
+            color: 'var(--color-text-tertiary)',
+            background: 'var(--color-background-secondary)',
+            borderRadius: 8,
+            border: '0.5px solid var(--color-border-tertiary)',
+            display: 'inline-block'
+          }}
+        >
+          {dateString === 'All Time'
+            ? 'All Dates Shown'
+            : `${presentedDate.current} — ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`}
         </div>
       </div>
 
