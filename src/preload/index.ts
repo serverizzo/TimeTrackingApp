@@ -20,7 +20,7 @@ const api = {
   getHeatmapData: () => ipcRenderer.invoke('get-heatmap-data'),
   getLapsByRange: (startDate: string, endDate: string) =>
     ipcRenderer.invoke('get-laps-by-range', startDate, endDate),
-  getLineChartData: () => ipcRenderer.invoke('get-linechart-data'),
+  getLineChartData: (startDate: Date) => ipcRenderer.invoke('get-linechart-data', startDate),
 
   // Activities
   getActivities: () => ipcRenderer.invoke('get-activities'),

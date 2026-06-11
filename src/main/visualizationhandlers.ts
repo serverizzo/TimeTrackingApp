@@ -69,17 +69,32 @@ export function visualizationhandlers() {
 
   // Linechart
   // TODO: update this to get a range of data
-  ipcMain.handle('get-linechart-data', (_) => {
+  ipcMain.handle('get-linechart-data', (_, startDate: string | null) => {
     const db = getDb()
+
+    if (!startDate) {
+      return db
+        .prepare(
+          `
+      SELECT l.date, l.note, c.name as calendarName, c.color as calendarColor, l.lap_time
+      FROM laps l
+      LEFT JOIN calendars c 
+      ON l.calendar = c.id
+    `
+        )
+        .all()
+    }
+
     return db
       .prepare(
         `
-        SELECT l.date, l.note, c.name as calendarName, c.color as calendarColor, l.lap_time
-        FROM laps l
-        LEFT JOIN calendars c 
-        ON l.calendar = c.id 
-      `
+    SELECT l.date, l.note, c.name as calendarName, c.color as calendarColor, l.lap_time
+    FROM laps l
+    LEFT JOIN calendars c 
+    ON l.calendar = c.id 
+    WHERE l.date >= ?
+  `
       )
-      .all()
+      .all(startDate)
   })
 }
