@@ -24,6 +24,7 @@ jobs:
       - name: Build Linux package
         env:
           ELECTRON_BUILDER_PUBLISH: never
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run build:linux
 
       - name: Install app
