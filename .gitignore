@@ -8,3 +8,6 @@ out
 
 # playwright tests
 test-results*
+
+# my readme
+MyReadme.md
