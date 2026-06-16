@@ -25,7 +25,7 @@ jobs:
       - name: Build and publish Linux
         run: npx electron-vite build && npx electron-builder --linux --publish always
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.RELEASE_REPO_TOKEN }}
 
   release-windows:
     runs-on: windows-latest
@@ -43,4 +43,4 @@ jobs:
       - name: Build and publish Windows
         run: npx electron-vite build && npx electron-builder --win --publish always
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.RELEASE_REPO_TOKEN }}

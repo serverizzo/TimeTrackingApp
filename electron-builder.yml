@@ -45,4 +45,4 @@ npmRebuild: false
 publish:
   provider: github
   owner: serverizzo
-  repo: TimeTrackingApp
+  repo: TimeTrackingApp-releases
