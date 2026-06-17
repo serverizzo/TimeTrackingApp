@@ -22,10 +22,7 @@ jobs:
         run: npm ci
 
       - name: Build Linux package
-        env:
-          ELECTRON_BUILDER_PUBLISH: never
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run build:linux
+        run: npx electron-vite build && npx electron-builder --linux --publish never
 
       - name: Install app
         run: sudo apt install -y ./dist/timetrackingapp_*.deb
