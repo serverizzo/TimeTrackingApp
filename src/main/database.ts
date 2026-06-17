@@ -43,6 +43,14 @@ export function initializeDatabase(): void {
             )
             `)
 
+  // Create the laps table if it doesn't exist
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS daily_activities (
+       date     TEXT,
+       activity_id    INTEGER
+        )
+    `)
+
   // TODO: insert a default row for default calandars (so that laps without calandars will appear on the heatmap)
   db.exec(`
       CREATE TABLE IF NOT EXISTS calendars (
