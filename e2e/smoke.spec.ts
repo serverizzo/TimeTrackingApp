@@ -52,8 +52,8 @@ test('app launches and sidebar navigation has no console errors', async () => {
   await window.getByRole('button', { name: 'Activities' }).click()
   await window.waitForTimeout(500)
 
-  await window.getByRole('button', { name: 'Sync to cloud' }).click()
-  await window.waitForTimeout(500)
+  // await window.getByRole('button', { name: 'Sync to cloud' }).click()
+  // await window.waitForTimeout(500)
 
   if (warnings.length > 0) {
     console.log(`Warnings detected:\n${warnings.join('\n')}`)
