@@ -43,14 +43,14 @@ export default function ContextMenu({
         Update checkins
       </div>
       <hr style={{ margin: '4px 0', borderColor: 'rgba(128,128,128,0.2)' }} />
-      <div
+      {/* <div
         style={{ padding: '8px 12px', fontSize: 13, color: 'gray', cursor: 'pointer' }}
         onClick={() => {
           console.log('Jump to', date)
         }}
       >
         Jump to this week
-      </div>
+      </div> */}
     </div>
   )
 }

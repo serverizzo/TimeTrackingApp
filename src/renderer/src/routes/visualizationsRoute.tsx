@@ -161,7 +161,7 @@ export default function VisualizationsRoute() {
           })
         }
       />
-      <SummaryPanel laps={laps} />
+      {/* <SummaryPanel laps={laps} /> */}
       <Linechart />
     </div>
   )

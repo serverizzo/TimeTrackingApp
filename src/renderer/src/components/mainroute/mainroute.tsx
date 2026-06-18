@@ -5,13 +5,13 @@ import CollapseableTimeDisplay from './collapseabletimedisplay/collapseabletimed
 
 export default function MainRoute() {
   return (
-    <div style={{ border: '2px', borderColor: 'green', borderStyle: 'solid' }}>
+    <div style={{ border: '2px', borderColor: '#7c7c7c31', borderStyle: 'solid', borderRadius: 4 }}>
       <div
         style={{
           display: 'flex',
           flexDirection: 'row',
           border: '2px',
-          borderColor: 'red',
+          borderColor: '#7c7c7c31',
           borderStyle: 'solid'
         }}
       >
