@@ -40,7 +40,7 @@ function App(): React.JSX.Element {
           <Route path="/visualizations" element={<VisualizationsRoute />} />
           <Route path="/journal" element={<Journal />} />
           <Route path="/activities" element={<Activities />} />
-          <Route path="/syncToCloud" element={<SyncToCloudRoute />} />
+          {/* <Route path="/syncToCloud" element={<SyncToCloudRoute />} /> */}
           <Route path="/loginToCloud" element={<CloudLogin />} />
         </Routes>
       </div>
