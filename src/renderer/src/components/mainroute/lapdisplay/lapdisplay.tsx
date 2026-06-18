@@ -165,7 +165,7 @@ export default function LapDisplay() {
 
 const styles: { [key: string]: React.CSSProperties } = {
   cellStyle: {
-    borderColor: 'green',
+    borderColor: '#7c7c7c31',
     borderStyle: 'solid',
     borderWidth: '1px',
     margin: 5

@@ -10,7 +10,8 @@ export default function Tooltips({ xPos, yPos, offset, message }) {
         background: '#1a1a1a',
         border: '0.5px solid rgba(114, 114, 114, 0.15)',
         borderRadius: 6,
-        padding: '8px 12px'
+        padding: '8px 12px',
+        zIndex: '999'
       }}
     >
       <p>{message}</p>

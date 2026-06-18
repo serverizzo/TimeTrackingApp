@@ -390,7 +390,9 @@ export default function Activities() {
           xPos={tooltipCalendar.xPos}
           yPos={tooltipCalendar.yPos}
           offset={12}
-          message={'new message'}
+          message={`
+            Different calendars will contatin differnt colors that will be displayed on the heat map. 
+            Different calendars will also be different filters on the line map`}
         />
       )}
 
@@ -399,7 +401,9 @@ export default function Activities() {
           xPos={tooltipLaps.xPos}
           yPos={tooltipLaps.yPos}
           offset={12}
-          message={'Laps Message'}
+          message={`
+            If checked, will show up in the autocomplete in the lap display. 
+            `}
         />
       )}
 
@@ -408,7 +412,8 @@ export default function Activities() {
           xPos={tooltipCheckin.xPos}
           yPos={tooltipCheckin.yPos}
           offset={12}
-          message={'checkin Message'}
+          message={`Right clicking on the calendar will show a menu that says, 'update checkins', 
+            checking this box and having an icon will display that icon on the calendar`}
         />
       )}
     </div>
