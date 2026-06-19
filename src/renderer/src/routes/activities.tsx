@@ -274,7 +274,17 @@ export default function Activities() {
                     </div>
                   </div>
                 </th>
-                <th style={styles.cellStyle}>Change Icon</th>
+                <th style={styles.cellStyle}>
+                  <div style={{ display: 'flex' }}>
+                    <p>Change Icon</p>
+                    <div
+                      onMouseEnter={(e) => setTooltipCheckin({ xPos: e.clientX, yPos: e.clientY })}
+                      onMouseLeave={() => setTooltipCheckin(null)}
+                    >
+                      <InfoIcon size={20} />
+                    </div>
+                  </div>
+                </th>
                 {/* purposefully empty, left for trash icon */}
                 <th style={styles.cellStyle}></th>
               </tr>

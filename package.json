@@ -1,10 +1,10 @@
 {
-  "name": "timetrackingapp",
+  "name": "TimeTracker",
   "version": "1.9.11",
-  "description": "An Electron application with React and TypeScript",
+  "description": "A desktop application for tracking daily activities, visualizing your time, and keeping notes on where you time goes",
   "main": "./out/main/index.js",
-  "author": "example.com",
-  "homepage": "https://electron-vite.org",
+  "author": "serverizzo",
+  "homepage": "https://serverizzo.github.io/TimeTrackingApp-releases/",
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint --cache .",
