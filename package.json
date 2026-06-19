@@ -1,6 +1,6 @@
 {
   "name": "TimeTracker",
-  "version": "1.9.11",
+  "version": "1.9.12",
   "description": "A desktop application for tracking daily activities, visualizing your time, and keeping notes on where you time goes",
   "main": "./out/main/index.js",
   "author": "serverizzo",
