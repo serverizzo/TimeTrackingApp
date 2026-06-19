@@ -63,6 +63,9 @@ declare global {
       // Timeline
       getTimeLineData: () => Promise<TimelineData[]>
 
+      // Updates:
+      openRelasePages: () => Promise<void>
+
       //icons
       openDialog: (id: number) => Promise<null>
     }
