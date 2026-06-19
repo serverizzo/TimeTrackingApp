@@ -1,4 +1,5 @@
 import { useStopwatch } from '@renderer/context/stopwatchcontext'
+import { ipcMain } from 'electron'
 import React, { useState } from 'react'
 
 import { useNavigate } from 'react-router-dom'
@@ -22,6 +23,7 @@ export default function Sidebar() {
       <button onClick={() => navigate('/journal')}>Journal</button>
       <button onClick={() => navigate('/activities')}>Activities</button>
       {/* <button onClick={() => navigate('/syncToCloud')}>Sync to cloud</button> */}
+      <button onClick={() => window.api.openRelasePages()}>Relase Page</button>
     </div>
   )
 }

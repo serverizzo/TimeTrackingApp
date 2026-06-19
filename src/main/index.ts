@@ -104,6 +104,10 @@ app.whenReady().then(() => {
     return app.getPath('userData')
   })
 
+  ipcMain.handle('open-release-pages', () => {
+    shell.openExternal('https://github.com/serverizzo/TimeTrackingApp-releases/releases/latest')
+  })
+
   createWindow()
 
   app.on('activate', function () {

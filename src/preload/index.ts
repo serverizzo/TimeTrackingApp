@@ -53,6 +53,9 @@ const api = {
   // Timeline
   getTimeLineData: () => ipcRenderer.invoke('get-timeline-data'),
 
+  // Updates
+  openRelasePages: () => ipcRenderer.invoke('open-release-pages'),
+
   ...notesApi
 }
 
