@@ -1,6 +1,6 @@
 {
   "name": "timetrackingapp",
-  "version": "1.9.10",
+  "version": "1.9.11",
   "description": "An Electron application with React and TypeScript",
   "main": "./out/main/index.js",
   "author": "example.com",
