@@ -7,7 +7,7 @@ test('app launches and sidebar navigation has no console errors', async () => {
   const executablePath =
     process.platform === 'win32'
       ? `${process.env.LOCALAPPDATA}\\Programs\\timetrackingapp\\timetrackingapp.exe`
-      : '/opt/timetrackingapp/timetrackingapp'
+      : '/opt/TimeTracker/timetrackingapp'
 
   const args = process.platform === 'win32' ? [] : ['--ozone-platform=x11', '--no-sandbox']
 
