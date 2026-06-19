@@ -15,6 +15,9 @@ export default function Activities() {
   )
   const [tooltipLaps, setTooltipsLaps] = useState<{ xPos: number; yPos: number } | null>(null)
   const [tooltipCheckin, setTooltipCheckin] = useState<{ xPos: number; yPos: number } | null>(null)
+  const [tooltipChangeIcon, setTooltipChangeIcon] = useState<{ xPos: number; yPos: number } | null>(
+    null
+  )
 
   const [calendars, setCalendars] = useState<CalendarRows[]>([])
   const [dirty, setDirty] = useState<Set<string>>(new Set())
@@ -274,7 +277,19 @@ export default function Activities() {
                     </div>
                   </div>
                 </th>
-                <th style={styles.cellStyle}>Change Icon</th>
+                <th style={styles.cellStyle}>
+                  <div style={{ display: 'flex' }}>
+                    <p>Change Icon</p>
+                    <div
+                      onMouseEnter={(e) =>
+                        setTooltipChangeIcon({ xPos: e.clientX, yPos: e.clientY })
+                      }
+                      onMouseLeave={() => setTooltipChangeIcon(null)}
+                    >
+                      <InfoIcon size={20} />
+                    </div>
+                  </div>
+                </th>
                 {/* purposefully empty, left for trash icon */}
                 <th style={styles.cellStyle}></th>
               </tr>
@@ -414,6 +429,15 @@ export default function Activities() {
           offset={12}
           message={`Right clicking on the calendar will show a menu that says, 'update checkins', 
             checking this box and having an icon will display that icon on the calendar`}
+        />
+      )}
+
+      {tooltipChangeIcon && (
+        <Tooltips
+          xPos={tooltipChangeIcon.xPos}
+          yPos={tooltipChangeIcon.yPos}
+          offset={12}
+          message={`Upload an .svg to display on your calendar (currently only works after right clicking and checking a box for that day)`}
         />
       )}
     </div>
