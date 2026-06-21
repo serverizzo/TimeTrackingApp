@@ -13,6 +13,7 @@ import { registerNotesHandlers } from './handlers/registerNotesHandler'
 import { registerCalendarHandlers } from './handlers/calendarHandlers'
 import { registerAuthHandlers } from './handlers/authHandler'
 import { registerTimelineHandlers } from './handlers/timelineHandlers'
+import { getLaunchOnStartup, setLaunchOnStartup } from './autostart/autostart'
 
 // Fix for Wayland/X11 compatibility on Linux
 if (process.platform === 'linux') {
@@ -75,6 +76,10 @@ app.whenReady().then(() => {
     const filePath = request.url.replace('appicon://', '/')
     return net.fetch(`file://${filePath}`)
   })
+
+  // setup autostart
+  ipcMain.handle('get-launch-on-startup', () => getLaunchOnStartup())
+  ipcMain.handle('set-launch-on-startup', (_, enabled: boolean) => setLaunchOnStartup(enabled))
 
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')

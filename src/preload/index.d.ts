@@ -66,6 +66,10 @@ declare global {
       // Updates:
       openRelasePages: () => Promise<void>
 
+      //Autostart
+      getLaunchOnStartup: () => Promise<boolean>
+      setLaunchOnStartup: (enabled: boolean) => Promise<void>
+
       //icons
       openDialog: (id: number) => Promise<null>
     }
