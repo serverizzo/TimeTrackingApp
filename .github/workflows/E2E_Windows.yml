@@ -29,3 +29,10 @@ jobs:
 
       - name: Run E2E tests
         run: npx playwright test --config=e2e/playwright.config.ts
+
+      - name: Upload built exe
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: dist/*-setup.exe
