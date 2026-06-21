@@ -56,6 +56,10 @@ const api = {
   // Updates
   openRelasePages: () => ipcRenderer.invoke('open-release-pages'),
 
+  // Autostart:
+  getLaunchOnStartup: () => ipcRenderer.invoke('get-launch-on-startup'),
+  setLaunchOnStartup: (enabled: boolean) => ipcRenderer.invoke('set-launch-on-startup', enabled),
+
   ...notesApi
 }
 

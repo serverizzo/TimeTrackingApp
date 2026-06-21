@@ -80,6 +80,15 @@ cd ..
 
 This script builds, transfers the `.deb` via `scp`, installs it, and runs E2E tests automatically.
 
+The following does not work!
+Windows .exe needs to be build on windows machines!! You could either clone the repo and build on a windows VM or...
+
+## The better option
+
+Open a PR in github, there is an option to both build and download from github for more quick testing.
+
+## Does not work option
+
 **Windows VM — Local HTTP server (from host)**
 
 VirtualBox shared folders and drag-and-drop were unreliable, so use a temporary
