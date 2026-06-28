@@ -1,29 +1,26 @@
-import { useStopwatch } from '@renderer/context/stopwatchcontext'
-import { ipcMain } from 'electron'
-import React, { useEffect, useState } from 'react'
+import { JSX, useEffect, useState } from 'react'
 
 import { useNavigate } from 'react-router-dom'
 
-export default function Sidebar() {
+export default function Sidebar(): JSX.Element {
   const navigate = useNavigate()
-  const [disableVisualizationButton, setDisableVisualizationButton] = useState(false)
   const [enabled, setEnabled] = useState(false)
 
   useEffect(() => {
     window.api.getLaunchOnStartup().then(setEnabled)
   }, [])
 
-  const handleToggle = async () => {
+  const handleToggle = async (): Promise<void> => {
     const newValue = !enabled
     await window.api.setLaunchOnStartup(newValue)
     setEnabled(newValue)
   }
 
-  const navigateVisualizations = () => {
+  const navigateVisualizations = (): void => {
     navigate('/visualizations')
   }
 
-  const navigateLapDisplay = () => {
+  const navigateLapDisplay = (): void => {
     navigate('/')
   }
 
