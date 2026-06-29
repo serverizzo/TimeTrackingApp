@@ -72,6 +72,9 @@ declare global {
 
       //icons
       openDialog: (id: number) => Promise<null>
+
+      // Notifications
+      flashWindow: () => Promise<void>
     }
   }
 }

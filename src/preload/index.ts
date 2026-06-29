@@ -60,6 +60,9 @@ const api = {
   getLaunchOnStartup: () => ipcRenderer.invoke('get-launch-on-startup'),
   setLaunchOnStartup: (enabled: boolean) => ipcRenderer.invoke('set-launch-on-startup', enabled),
 
+  // Notifications
+  flashWindow: () => ipcRenderer.invoke('flash-window'),
+
   ...notesApi
 }
 
