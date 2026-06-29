@@ -61,7 +61,8 @@ const api = {
   setLaunchOnStartup: (enabled: boolean) => ipcRenderer.invoke('set-launch-on-startup', enabled),
 
   // Notifications
-  flashWindow: () => ipcRenderer.invoke('flash-window'),
+  flashWindow: (timeInMilliseconds: number) =>
+    ipcRenderer.invoke('flash-window', timeInMilliseconds),
 
   ...notesApi
 }

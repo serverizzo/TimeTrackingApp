@@ -74,7 +74,7 @@ declare global {
       openDialog: (id: number) => Promise<null>
 
       // Notifications
-      flashWindow: () => Promise<void>
+      flashWindow: (timeInMilliseconds: number) => Promise<void>
     }
   }
 }
