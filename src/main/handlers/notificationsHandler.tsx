@@ -18,7 +18,7 @@ export function registerNotificationsHandler(): void {
 
     alarmTimeout = setTimeout(() => {
       const win = BrowserWindow.getAllWindows()[0]
-      console.log('flash triggered, window:', win?.id)
+      // console.log('flash triggered, window:', win?.id)
       win?.flashFrame(true)
       new Notification({
         title: 'TimeTracker',
@@ -53,6 +53,5 @@ export function registerNotificationsHandler(): void {
       nextAlarmTime = null
     }
     saveSettings({ alarmInterval: null })
-    console.log(loadSettings())
   })
 }
