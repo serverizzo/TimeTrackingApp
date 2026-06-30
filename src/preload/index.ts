@@ -63,6 +63,7 @@ const api = {
   // Notifications
   flashWindow: (timeInMilliseconds: number) =>
     ipcRenderer.invoke('flash-window', timeInMilliseconds),
+  getNextNotificationTime: () => ipcRenderer.invoke('get-next-notification-time'),
 
   ...notesApi
 }
