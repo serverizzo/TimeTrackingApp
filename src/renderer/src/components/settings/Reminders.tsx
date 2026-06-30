@@ -25,10 +25,24 @@ export default function Reminders(): JSX.Element {
     getNotificationTime()
   }, [])
 
+  const updateSettings = (check: boolean): void => {
+    setEnabled(check)
+    if (check == false) {
+      window.api.disableRepeatNotifications()
+    }
+    if (check == true) {
+      executeFlash()
+    }
+  }
+
   return (
     <div>
       <label>
-        <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} />
+        <input
+          type="checkbox"
+          checked={enabled}
+          onChange={(e) => updateSettings(e.target.checked)}
+        />
         Enable reminders
       </label>
       <div
