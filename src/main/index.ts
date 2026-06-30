@@ -14,6 +14,7 @@ import { registerCalendarHandlers } from './handlers/calendarHandlers'
 import { registerAuthHandlers } from './handlers/authHandler'
 import { registerTimelineHandlers } from './handlers/timelineHandlers'
 import { getLaunchOnStartup, setLaunchOnStartup } from './autostart/autostart'
+import { registerNotificationsHandler } from './handlers/notificationsHandler'
 
 // Fix for Wayland/X11 compatibility on Linux
 if (process.platform === 'linux') {
@@ -71,6 +72,7 @@ app.whenReady().then(() => {
   registerCalendarHandlers()
   registerAuthHandlers()
   registerTimelineHandlers()
+  registerNotificationsHandler()
 
   protocol.handle('appicon', (request) => {
     const filePath = request.url.replace('appicon://', '/')

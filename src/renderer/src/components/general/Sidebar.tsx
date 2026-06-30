@@ -34,6 +34,7 @@ export default function Sidebar(): JSX.Element {
       <button onClick={() => window.api.openRelasePages()}>Relase Page</button>
       {enabled && <button onClick={() => handleToggle()}>Disable launch on start</button>}
       {!enabled && <button onClick={() => handleToggle()}>Enable launch on start</button>}
+      <button onClick={() => navigate('/settings')}>Setting</button>
     </div>
   )
 }

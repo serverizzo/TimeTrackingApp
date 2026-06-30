@@ -72,6 +72,11 @@ declare global {
 
       //icons
       openDialog: (id: number) => Promise<null>
+
+      // Notifications
+      flashWindow: (timeInMilliseconds: number) => Promise<string>
+      getNextNotificationTime: () => Promise<string | null>
+      disableRepeatNotifications: () => Promise<void>
     }
   }
 }
