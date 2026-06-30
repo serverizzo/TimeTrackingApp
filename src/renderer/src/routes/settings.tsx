@@ -3,7 +3,7 @@ import { JSX } from 'react'
 
 export default function Settings(): JSX.Element {
   return (
-    <div>
+    <div style={{ paddingLeft: '10px' }}>
       <Reminders />
     </div>
   )

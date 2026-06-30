@@ -37,16 +37,18 @@ export default function Reminders(): JSX.Element {
 
   return (
     <div>
-      <label>
+      <div style={{ display: 'flex', flexDirection: 'row', gap: 10 }}>
         <input
           type="checkbox"
           checked={enabled}
           onChange={(e) => updateSettings(e.target.checked)}
         />
-        Enable reminders
-      </label>
+        <h2>Enable reminders</h2>
+      </div>
+
       <div
         style={{
+          paddingLeft: '40px',
           opacity: enabled ? 1 : 0.4
           // pointerEvents: enabled ? 'auto' : 'none',
           // cursor: enabled ? 'none' : 'not-allowed'
@@ -55,7 +57,7 @@ export default function Reminders(): JSX.Element {
         <p>
           Remind me that my app is running every
           <input
-            style={{ width: 60 }}
+            style={{ width: 60, marginLeft: 10, marginRight: 10 }}
             placeholder={'20'}
             value={inputTimeMinutes}
             onChange={(e) => {
