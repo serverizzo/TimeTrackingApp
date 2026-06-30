@@ -1,20 +1,9 @@
-import { JSX, useEffect, useState } from 'react'
+import { JSX } from 'react'
 
 import { useNavigate } from 'react-router-dom'
 
 export default function Sidebar(): JSX.Element {
   const navigate = useNavigate()
-  const [enabled, setEnabled] = useState(false)
-
-  useEffect(() => {
-    window.api.getLaunchOnStartup().then(setEnabled)
-  }, [])
-
-  const handleToggle = async (): Promise<void> => {
-    const newValue = !enabled
-    await window.api.setLaunchOnStartup(newValue)
-    setEnabled(newValue)
-  }
 
   const navigateVisualizations = (): void => {
     navigate('/visualizations')
@@ -32,8 +21,7 @@ export default function Sidebar(): JSX.Element {
       <button onClick={() => navigate('/activities')}>Activities</button>
       {/* <button onClick={() => navigate('/syncToCloud')}>Sync to cloud</button> */}
       <button onClick={() => window.api.openRelasePages()}>Relase Page</button>
-      {enabled && <button onClick={() => handleToggle()}>Disable launch on start</button>}
-      {!enabled && <button onClick={() => handleToggle()}>Enable launch on start</button>}
+
       <button onClick={() => navigate('/settings')}>Setting</button>
     </div>
   )
