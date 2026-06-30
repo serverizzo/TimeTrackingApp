@@ -22,7 +22,7 @@ export function registerNotificationsHandler(): void {
       win?.flashFrame(true)
       new Notification({
         title: 'TimeTracker',
-        body: 'Your timer has been running for x minutes'
+        body: `Your timer has been running for ${alarmInterval} minutes`
       }).show()
       scheduleAlarm(timeInMilliseconds) // reschedule the alarm
     }, timeInMilliseconds)
