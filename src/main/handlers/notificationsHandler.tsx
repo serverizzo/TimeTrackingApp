@@ -38,7 +38,7 @@ export function registerNotificationsHandler(): void {
 
     scheduleAlarm(timeInMilliseconds)
 
-    return new Date(nextAlarmTime).toLocaleTimeString()
+    return new Date(timeInMilliseconds).toLocaleTimeString()
   })
 
   ipcMain.handle('get-next-notification-time', () => {
