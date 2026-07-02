@@ -18,9 +18,9 @@ export default function Linechart(): JSX.Element {
   const [calendars, setCalendars] = useState<{ calendarName: string; calendarColor: string }[]>([])
   const [hoveredCalendar, setHoveredCalendar] = useState<string | null>(null)
   const [selectedCalendars, setSelectedCalendars] = useState<Map<string, string[]>>(new Map())
-  const [dateString, setDateString] = useState<string>('All Time')
+  const [dateString, setDateString] = useState<string>('Months')
   const [dateNumber, setDateNumber] = useState<number>(1)
-  const presentedDate = useRef<string>('All Dates Shown')
+  const presentedDate = useRef<string>('Months')
   const [dailyTimeSummationShow, setDailyTimeSummationShow] = useState<boolean>(true)
 
   // fetch linechart data -- will run once on load
