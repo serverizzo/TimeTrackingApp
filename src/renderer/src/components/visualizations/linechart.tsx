@@ -50,7 +50,7 @@ export default function Linechart() {
           startDate.setFullYear(startDate.getFullYear() - dateNumber)
           break
       }
-      const pad = (n: number) => String(n).padStart(2, '0')
+      const pad = (n: number): string => String(n).padStart(2, '0')
       startDateStr = `${startDate.getFullYear()}-${pad(startDate.getMonth() + 1)}-${pad(startDate.getDate())}`
       presentedDate.current = startDate.toLocaleDateString('en-US', {
         month: 'short',
@@ -59,7 +59,7 @@ export default function Linechart() {
       })
     }
 
-    const getData = async () => {
+    const getData = async (): Promise<void> => {
       const result: LinechartData[] = await window.api.getLineChartData(startDateStr)
       setRawLinechartData(result)
     }
@@ -113,7 +113,7 @@ export default function Linechart() {
     setTasks(listArr)
   }, [rawLinechartData])
 
-  const toggleCalendar = (calendarName: string) => {
+  const toggleCalendar = (calendarName: string): void => {
     setSelectedCalendars((prev) => {
       const next = new Map(prev)
       if (next.has(calendarName)) {
@@ -125,7 +125,7 @@ export default function Linechart() {
     })
   }
 
-  const toggleTask = (calendarName: string, taskName: string) => {
+  const toggleTask = (calendarName: string, taskName: string): void => {
     setSelectedCalendars((prev) => {
       const next = new Map(prev)
       const tasks = next.get(calendarName) ?? []
@@ -169,7 +169,7 @@ export default function Linechart() {
     console.log(activeLines)
   }, [activeLines])
 
-  const withAlpha = (color: string | undefined, alpha: number) => {
+  const withAlpha = (color: string | undefined, alpha: number): string | undefined => {
     if (!color) return undefined
     const hex = Math.round(alpha * 255)
       .toString(16)
