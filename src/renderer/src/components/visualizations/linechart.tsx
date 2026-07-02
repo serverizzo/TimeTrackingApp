@@ -1,12 +1,9 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { LapEntry } from './types'
+import React, { JSX, useEffect, useMemo, useRef, useState } from 'react'
 import { LinechartData } from 'src/shared/queryTypes/linechartData'
 // import { RechartsDevtools } from '@recharts/devtools'
 import {
   CartesianGrid,
   Legend,
-  Line,
-  LineChart,
   XAxis,
   YAxis,
   Tooltip,
@@ -16,17 +13,9 @@ import {
   LabelList
 } from 'recharts'
 
-interface LinechartEntry {
-  date: string
-  total_time: number
-}
-
-export default function Linechart() {
-  const [currLinechartData, setCurrLinechartData] = useState<LinechartEntry[]>([])
+export default function Linechart(): JSX.Element {
   const [rawLinechartData, setRawLinechartData] = useState<LinechartData[]>([])
   const [calendars, setCalendars] = useState<{ calendarName: string; calendarColor: string }[]>([])
-  const [tasks, setTasks] = useState<string[]>([])
-  const [allButton, setAllButton] = useState<boolean>(false)
   const [hoveredCalendar, setHoveredCalendar] = useState<string | null>(null)
   const [selectedCalendars, setSelectedCalendars] = useState<Map<string, string[]>>(new Map())
   const [dateString, setDateString] = useState<string>('All Time')
@@ -110,7 +99,6 @@ export default function Linechart() {
       }
     }
     setCalendars(calendarsArr)
-    setTasks(listArr)
   }, [rawLinechartData])
 
   const toggleCalendar = (calendarName: string): void => {
