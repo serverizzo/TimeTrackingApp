@@ -19,8 +19,8 @@ export default function Sidebar(): JSX.Element {
       <button onClick={navigateVisualizations}>Visualizations</button>
       <button onClick={() => navigate('/journal')}>Journal</button>
       <button onClick={() => navigate('/activities')}>Activities</button>
-      {/* <button onClick={() => navigate('/syncToCloud')}>Sync to cloud</button> */}
       <button onClick={() => window.api.openRelasePages()}>Relase Page</button>
+      <button onClick={() => navigate('/syncToCloud')}>Sync to cloud</button>
 
       <button onClick={() => navigate('/settings')}>Setting</button>
     </div>
