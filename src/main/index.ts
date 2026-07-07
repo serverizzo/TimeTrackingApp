@@ -62,6 +62,9 @@ protocol.registerSchemesAsPrivileged([
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+  // Set app user model id for windows
+  electronApp.setAppUserModelId('com.timetracker')
+
   initializeDatabase()
   IconHandlers()
   lapHandlers()
@@ -83,8 +86,7 @@ app.whenReady().then(() => {
   ipcMain.handle('get-launch-on-startup', () => getLaunchOnStartup())
   ipcMain.handle('set-launch-on-startup', (_, enabled: boolean) => setLaunchOnStartup(enabled))
 
-  // Set app user model id for windows
-  electronApp.setAppUserModelId('com.electron')
+
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
