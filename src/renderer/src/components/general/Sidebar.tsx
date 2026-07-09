@@ -33,7 +33,7 @@ export default function Sidebar(): JSX.Element {
       <button onClick={navigateVisualizations}>Visualizations</button>
       <button onClick={() => navigate('/journal')}>Journal</button>
       <button onClick={() => navigate('/activities')}>Activities</button>
-      {/* <button onClick={() => navigate('/syncToCloud')}>Sync to cloud</button> */}
+      <button onClick={() => navigate('/syncToCloud')}>Sync to cloud</button>
       {!isNewRelease && <button onClick={() => window.api.openRelasePages()}>Release Page</button>}
       {isNewRelease && (
         <button onClick={() => window.api.openRelasePages()}>New Release Available</button>
