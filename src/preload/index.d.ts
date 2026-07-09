@@ -77,6 +77,17 @@ declare global {
       flashWindow: (timeInMilliseconds: number) => Promise<string>
       getNextNotificationTime: () => Promise<string | null>
       disableRepeatNotifications: () => Promise<void>
+
+      // updates
+      // checkForUpdates: () => ipcRenderer.invoke('check-for-updates')
+      checkForUpdates: () => Promise<{
+        currentVersion: string
+        latestVersion: string | null
+        updateAvailable: boolean
+        releaseUrl: string | null
+        error?: string
+      }>
+      getAppVersion: () => Promise<string>
     }
   }
 }

@@ -1,10 +1,15 @@
 import { JSX, useEffect, useState } from 'react'
+import Tooltips from '../activities/Tooltips'
+import InfoIcon from '@renderer/assets/icons/infoIcon'
 
 export default function Reminders(): JSX.Element {
   const [inputTimeMinutes, setInputTimeMinutes] = useState<number>(20)
   const [executeFlashError, setExecuteFlashError] = useState<string | undefined>(undefined)
   const [returnedAlarmTime, setReturnedAlarmTime] = useState<string | null>()
   const [enabled, setEnabled] = useState<boolean>(false)
+  const [toolTipReminders, setTooltipReminders] = useState<{ xPos: number; yPos: number } | null>(
+    null
+  )
 
   const executeFlash = (): void => {
     if (inputTimeMinutes == 0) {
@@ -43,7 +48,30 @@ export default function Reminders(): JSX.Element {
           checked={enabled}
           onChange={(e) => updateSettings(e.target.checked)}
         />
-        <h2>Enable reminders</h2>
+        <div
+          onMouseEnter={(e) => setTooltipReminders({ xPos: e.clientX, yPos: e.clientY })}
+          onMouseLeave={() => setTooltipReminders(null)}
+          style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 10 }}
+        >
+          <h2>Enable reminders</h2>
+          <InfoIcon size={20} />
+        </div>
+        {toolTipReminders && (
+          <Tooltips
+            xPos={toolTipReminders.xPos}
+            yPos={toolTipReminders.yPos}
+            offset={12}
+            message={
+              <div>
+                <p>
+                  If you are using this on windows 11, you can enable/disable popup notifications
+                  and sounds by going to
+                </p>
+                <p>System &gt; Notifications (and ensure that it is turned on)</p>
+              </div>
+            }
+          />
+        )}
       </div>
 
       <div

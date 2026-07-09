@@ -9,7 +9,6 @@ import './styles.ts/scrollbar.css'
 import Activities from './routes/activities'
 import CloudLogin from './routes/cloudLogin'
 import Settings from './routes/settings'
-import SyncToCloudRoute from './routes/SyncToCloudRoute'
 
 function App(): React.JSX.Element {
   return (
@@ -42,7 +41,6 @@ function App(): React.JSX.Element {
           <Route path="/activities" element={<Activities />} />
           <Route path="/loginToCloud" element={<CloudLogin />} />
           <Route path="/settings" element={<Settings />} />
-          <Route path="/syncToCloud" element={<SyncToCloudRoute />} />
         </Routes>
       </div>
       <Toaster />

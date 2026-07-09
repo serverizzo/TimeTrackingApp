@@ -67,6 +67,10 @@ const api = {
   disableRepeatNotifications: (checked: boolean) =>
     ipcRenderer.invoke('disable-repeat-notification', checked),
 
+  //Updates
+  getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+  checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
+
   ...notesApi
 }
 

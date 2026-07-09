@@ -1,8 +1,6 @@
 name: E2E Tests Linux
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch: # adds manual trigger button
