@@ -5,11 +5,10 @@ import { Toaster } from 'react-hot-toast'
 import VisualizationsRoute from './routes/visualizationsRoute'
 import Sidebar from './components/general/Sidebar'
 import Journal from './components/journal/journal'
-import { DebugStyles } from './styles.ts/debugStyle'
 import './styles.ts/scrollbar.css'
 import Activities from './routes/activities'
-import SyncToCloudRoute from './routes/SyncToCloudRoute'
 import CloudLogin from './routes/cloudLogin'
+import Settings from './routes/settings'
 
 function App(): React.JSX.Element {
   return (
@@ -42,6 +41,7 @@ function App(): React.JSX.Element {
           <Route path="/activities" element={<Activities />} />
           {/* <Route path="/syncToCloud" element={<SyncToCloudRoute />} /> */}
           <Route path="/loginToCloud" element={<CloudLogin />} />
+          <Route path="/settings" element={<Settings />} />
         </Routes>
       </div>
       <Toaster />

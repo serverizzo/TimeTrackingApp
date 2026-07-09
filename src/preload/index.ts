@@ -60,6 +60,17 @@ const api = {
   getLaunchOnStartup: () => ipcRenderer.invoke('get-launch-on-startup'),
   setLaunchOnStartup: (enabled: boolean) => ipcRenderer.invoke('set-launch-on-startup', enabled),
 
+  // Notifications
+  flashWindow: (timeInMilliseconds: number) =>
+    ipcRenderer.invoke('flash-window', timeInMilliseconds),
+  getNextNotificationTime: () => ipcRenderer.invoke('get-next-notification-time'),
+  disableRepeatNotifications: (checked: boolean) =>
+    ipcRenderer.invoke('disable-repeat-notification', checked),
+
+  //Updates
+  getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+  checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
+
   ...notesApi
 }
 

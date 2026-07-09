@@ -1,12 +1,9 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { LapEntry } from './types'
+import React, { JSX, useEffect, useMemo, useRef, useState } from 'react'
 import { LinechartData } from 'src/shared/queryTypes/linechartData'
 // import { RechartsDevtools } from '@recharts/devtools'
 import {
   CartesianGrid,
   Legend,
-  Line,
-  LineChart,
   XAxis,
   YAxis,
   Tooltip,
@@ -16,22 +13,15 @@ import {
   LabelList
 } from 'recharts'
 
-interface LinechartEntry {
-  date: string
-  total_time: number
-}
-
-export default function Linechart() {
-  const [currLinechartData, setCurrLinechartData] = useState<LinechartEntry[]>([])
+export default function Linechart(): JSX.Element {
   const [rawLinechartData, setRawLinechartData] = useState<LinechartData[]>([])
   const [calendars, setCalendars] = useState<{ calendarName: string; calendarColor: string }[]>([])
-  const [tasks, setTasks] = useState<string[]>([])
-  const [allButton, setAllButton] = useState<boolean>(false)
   const [hoveredCalendar, setHoveredCalendar] = useState<string | null>(null)
   const [selectedCalendars, setSelectedCalendars] = useState<Map<string, string[]>>(new Map())
-  const [dateString, setDateString] = useState<string>('All Time')
+  const [dateString, setDateString] = useState<string>('Months')
   const [dateNumber, setDateNumber] = useState<number>(1)
-  const presentedDate = useRef<string>('All Dates Shown')
+  const presentedDate = useRef<string>('Months')
+  const [dailyTimeSummationShow, setDailyTimeSummationShow] = useState<boolean>(true)
 
   // fetch linechart data -- will run once on load
   useEffect(() => {
@@ -50,7 +40,7 @@ export default function Linechart() {
           startDate.setFullYear(startDate.getFullYear() - dateNumber)
           break
       }
-      const pad = (n: number) => String(n).padStart(2, '0')
+      const pad = (n: number): string => String(n).padStart(2, '0')
       startDateStr = `${startDate.getFullYear()}-${pad(startDate.getMonth() + 1)}-${pad(startDate.getDate())}`
       presentedDate.current = startDate.toLocaleDateString('en-US', {
         month: 'short',
@@ -59,7 +49,7 @@ export default function Linechart() {
       })
     }
 
-    const getData = async () => {
+    const getData = async (): Promise<void> => {
       const result: LinechartData[] = await window.api.getLineChartData(startDateStr)
       setRawLinechartData(result)
     }
@@ -110,10 +100,9 @@ export default function Linechart() {
       }
     }
     setCalendars(calendarsArr)
-    setTasks(listArr)
   }, [rawLinechartData])
 
-  const toggleCalendar = (calendarName: string) => {
+  const toggleCalendar = (calendarName: string): void => {
     setSelectedCalendars((prev) => {
       const next = new Map(prev)
       if (next.has(calendarName)) {
@@ -125,7 +114,7 @@ export default function Linechart() {
     })
   }
 
-  const toggleTask = (calendarName: string, taskName: string) => {
+  const toggleTask = (calendarName: string, taskName: string): void => {
     setSelectedCalendars((prev) => {
       const next = new Map(prev)
       const tasks = next.get(calendarName) ?? []
@@ -169,7 +158,7 @@ export default function Linechart() {
     console.log(activeLines)
   }, [activeLines])
 
-  const withAlpha = (color: string | undefined, alpha: number) => {
+  const withAlpha = (color: string | undefined, alpha: number): string | undefined => {
     if (!color) return undefined
     const hex = Math.round(alpha * 255)
       .toString(16)
@@ -279,7 +268,7 @@ export default function Linechart() {
             style={{ marginRight: 10 }}
           >
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((ele) => (
-              <option>{ele}</option>
+              <option key={ele}>{ele}</option>
             ))}
           </select>
           <select
@@ -288,9 +277,19 @@ export default function Linechart() {
             defaultValue={'All Time'}
           >
             {['Weeks', 'Months', 'Years', 'All Time'].map((ele) => (
-              <option>{ele}</option>
+              <option key={ele}>{ele}</option>
             ))}
           </select>
+          <div style={{ marginLeft: '10px' }}>
+            <input
+              style={{ marginRight: '2px' }}
+              type="checkbox"
+              id="show_times"
+              checked={dailyTimeSummationShow}
+              onChange={(e) => setDailyTimeSummationShow(e.target.checked)}
+            />
+            <label htmlFor="show_times">Show daily times</label>
+          </div>
         </div>
         <div
           style={{
@@ -324,42 +323,44 @@ export default function Linechart() {
                   calendars.find((c) => c.calendarName === taskCalendar?.[0])?.calendarColor)
             return (
               <Bar key={lineName} dataKey={lineName} fill={withAlpha(color, 0.7)} strokeWidth={1}>
-                <LabelList
-                  dataKey={lineName}
-                  position="inside"
-                  content={({ x, y, width, height, value }) => {
-                    if (!value || Number(value) === 0) return null
-                    const label = `${Math.floor(Number(value) / 60)}h ${Number(value) % 60}m`
-                    const cx = Number(x) + Number(width) / 2
-                    const cy = Number(y) + Number(height) / 2
-                    return (
-                      <g>
-                        <text
-                          x={cx}
-                          y={cy}
-                          textAnchor="middle"
-                          dominantBaseline="middle"
-                          fontSize={11}
-                          stroke="#000"
-                          strokeWidth={3}
-                          strokeLinejoin="round"
-                        >
-                          {label}
-                        </text>
-                        <text
-                          x={cx}
-                          y={cy}
-                          textAnchor="middle"
-                          dominantBaseline="middle"
-                          fontSize={11}
-                          fill="#fff"
-                        >
-                          {label}
-                        </text>
-                      </g>
-                    )
-                  }}
-                />
+                {dailyTimeSummationShow && (
+                  <LabelList
+                    dataKey={lineName}
+                    position="inside"
+                    content={({ x, y, width, height, value }) => {
+                      if (!value || Number(value) === 0) return null
+                      const label = `${Math.floor(Number(value) / 60)}h ${Number(value) % 60}m`
+                      const cx = Number(x) + Number(width) / 2
+                      const cy = Number(y) + Number(height) / 2
+                      return (
+                        <g>
+                          <text
+                            x={cx}
+                            y={cy}
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                            fontSize={11}
+                            stroke="#000"
+                            strokeWidth={3}
+                            strokeLinejoin="round"
+                          >
+                            {label}
+                          </text>
+                          <text
+                            x={cx}
+                            y={cy}
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                            fontSize={11}
+                            fill="#fff"
+                          >
+                            {label}
+                          </text>
+                        </g>
+                      )
+                    }}
+                  />
+                )}
               </Bar>
             )
           })}

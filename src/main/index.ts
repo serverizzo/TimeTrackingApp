@@ -14,6 +14,8 @@ import { registerCalendarHandlers } from './handlers/calendarHandlers'
 import { registerAuthHandlers } from './handlers/authHandler'
 import { registerTimelineHandlers } from './handlers/timelineHandlers'
 import { getLaunchOnStartup, setLaunchOnStartup } from './autostart/autostart'
+import { registerNotificationsHandler } from './handlers/notificationsHandler'
+import { registerUpdates } from './checkForUpdates/checkForUpdates'
 
 // Fix for Wayland/X11 compatibility on Linux
 if (process.platform === 'linux') {
@@ -61,6 +63,9 @@ protocol.registerSchemesAsPrivileged([
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+  // Set app user model id for windows
+  electronApp.setAppUserModelId('com.timetracker')
+
   initializeDatabase()
   IconHandlers()
   lapHandlers()
@@ -71,6 +76,8 @@ app.whenReady().then(() => {
   registerCalendarHandlers()
   registerAuthHandlers()
   registerTimelineHandlers()
+  registerNotificationsHandler()
+  registerUpdates()
 
   protocol.handle('appicon', (request) => {
     const filePath = request.url.replace('appicon://', '/')
@@ -80,9 +87,6 @@ app.whenReady().then(() => {
   // setup autostart
   ipcMain.handle('get-launch-on-startup', () => getLaunchOnStartup())
   ipcMain.handle('set-launch-on-startup', (_, enabled: boolean) => setLaunchOnStartup(enabled))
-
-  // Set app user model id for windows
-  electronApp.setAppUserModelId('com.electron')
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
