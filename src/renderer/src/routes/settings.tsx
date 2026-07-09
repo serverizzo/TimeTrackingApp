@@ -8,7 +8,7 @@ export default function Settings(): JSX.Element {
   const [newReleaseVersion, setNewReleaseVersion] = useState<string | null>('')
 
   useEffect(() => {
-    const getTheCurrentVersion = async (): void => {
+    const getTheCurrentVersion = async (): Promise<void> => {
       const res = await window.api.checkForUpdates()
       setVersion(res.currentVersion)
       setNewRelease(res.updateAvailable)
