@@ -4,4 +4,5 @@ export interface LinechartData {
   calendarName: string
   calendarColor: string
   lap_time: number
+  calendarId: number
 }

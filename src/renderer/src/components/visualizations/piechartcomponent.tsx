@@ -1,68 +1,115 @@
-import React, { JSX, useEffect, useMemo, useRef, useState } from 'react'
+import React, { JSX, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { LinechartData } from 'src/shared/queryTypes/linechartData'
 import { Pie, PieChart, Tooltip, ResponsiveContainer, Cell, Legend } from 'recharts'
 
+type ContextTarget = {
+  calendarId: number
+  calendarName: string
+  note: string
+}
+
+type MenuState = { x: number; y: number; target: ContextTarget } | null
+
 export default function PiechartComponent(): JSX.Element {
   const [rawLinechartData, setRawLinechartData] = useState<LinechartData[]>([])
-  const [calendars, setCalendars] = useState<{ calendarName: string; calendarColor: string }[]>([])
+  const [calendars, setCalendars] = useState<
+    { calendarName: string; calendarColor: string; calendarId: number }[]
+  >([])
   const [hoveredCalendar, setHoveredCalendar] = useState<string | null>(null)
   const [selectedCalendars, setSelectedCalendars] = useState<Map<string, string[]>>(new Map())
   const [dateString, setDateString] = useState<string>('Months')
   const [dateNumber, setDateNumber] = useState<number>(1)
   const presentedDate = useRef<string>('Months')
 
-  useEffect(() => {
-    let startDateStr: string | null = null
+  const [menu, setMenu] = useState<MenuState>(null)
+  const [pendingDelete, setPendingDelete] = useState<ContextTarget | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
-    if (dateString !== 'All Time') {
-      const startDate = new Date()
-      switch (dateString) {
-        case 'Weeks':
-          startDate.setDate(startDate.getDate() - dateNumber * 7)
-          break
-        case 'Months':
-          startDate.setMonth(startDate.getMonth() - dateNumber)
-          break
-        case 'Years':
-          startDate.setFullYear(startDate.getFullYear() - dateNumber)
-          break
-      }
-      const pad = (n: number): string => String(n).padStart(2, '0')
-      startDateStr = `${startDate.getFullYear()}-${pad(startDate.getMonth() + 1)}-${pad(startDate.getDate())}`
-      presentedDate.current = startDate.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      })
+  const buildStartDate = useCallback((): string | null => {
+    if (dateString === 'All Time') return null
+    const startDate = new Date()
+    switch (dateString) {
+      case 'Weeks':
+        startDate.setDate(startDate.getDate() - dateNumber * 7)
+        break
+      case 'Months':
+        startDate.setMonth(startDate.getMonth() - dateNumber)
+        break
+      case 'Years':
+        startDate.setFullYear(startDate.getFullYear() - dateNumber)
+        break
     }
-
-    const getData = async (): Promise<void> => {
-      const result: LinechartData[] = await window.api.getLineChartData(startDateStr)
-      setRawLinechartData(result)
-    }
-    getData()
+    const pad = (n: number): string => String(n).padStart(2, '0')
+    presentedDate.current = startDate.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    })
+    return `${startDate.getFullYear()}-${pad(startDate.getMonth() + 1)}-${pad(startDate.getDate())}`
   }, [dateString, dateNumber])
 
+  const refresh = useCallback(async (): Promise<void> => {
+    const result: LinechartData[] = await window.api.getLineChartData(buildStartDate())
+    setRawLinechartData(result)
+  }, [buildStartDate])
+
   useEffect(() => {
-    const calendarsArr: { calendarName: string; calendarColor: string }[] = []
+    refresh()
+  }, [refresh])
+
+  useEffect(() => {
+    const calendarsArr: {
+      calendarName: string
+      calendarColor: string
+      calendarId: number
+    }[] = []
     const calendarsSet = new Set<string>()
     for (const ele of rawLinechartData) {
       if (!calendarsSet.has(ele.calendarName)) {
         calendarsSet.add(ele.calendarName)
-        calendarsArr.push({ calendarName: ele.calendarName, calendarColor: ele.calendarColor })
+        calendarsArr.push({
+          calendarName: ele.calendarName,
+          calendarColor: ele.calendarColor,
+          calendarId: ele.calendarId
+        })
       }
     }
     setCalendars(calendarsArr)
   }, [rawLinechartData])
 
+  const tasksByCalendar = useMemo(() => {
+    const map = new Map<string, string[]>()
+    rawLinechartData.forEach((row) => {
+      if (!map.has(row.calendarName)) map.set(row.calendarName, [])
+      const tasks = map.get(row.calendarName)!
+      if (!tasks.includes(row.note)) tasks.push(row.note)
+    })
+    return map
+  }, [rawLinechartData])
+
+  // dismiss context menu on any outside click, scroll, or Escape
+  useEffect(() => {
+    if (!menu) return
+    const close = (): void => setMenu(null)
+    const onKey = (e: KeyboardEvent): void => {
+      if (e.key === 'Escape') setMenu(null)
+    }
+    window.addEventListener('click', close)
+    window.addEventListener('scroll', close, true)
+    window.addEventListener('keydown', onKey)
+    return () => {
+      window.removeEventListener('click', close)
+      window.removeEventListener('scroll', close, true)
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [menu])
+
   const toggleCalendar = (calendarName: string): void => {
     setSelectedCalendars((prev) => {
       const next = new Map(prev)
-      if (next.has(calendarName)) {
-        next.delete(calendarName)
-      } else {
-        next.set(calendarName, [])
-      }
+      if (next.has(calendarName)) next.delete(calendarName)
+      else next.set(calendarName, [])
       return next
     })
   }
@@ -83,20 +130,8 @@ export default function PiechartComponent(): JSX.Element {
     })
   }
 
-  const tasksByCalendar = useMemo(() => {
-    const map = new Map<string, string[]>()
-    rawLinechartData.forEach((row) => {
-      if (!map.has(row.calendarName)) map.set(row.calendarName, [])
-      const tasks = map.get(row.calendarName)!
-      if (!tasks.includes(row.note)) tasks.push(row.note)
-    })
-    return map
-  }, [rawLinechartData])
-
-  // which calendars are in play, and which notes within each
   const visibleSelection = useMemo(() => {
     if (selectedCalendars.size === 0) {
-      // nothing selected -> everything
       return new Map(Array.from(tasksByCalendar, ([cal, notes]) => [cal, [...notes]]))
     }
     const map = new Map<string, string[]>()
@@ -107,10 +142,8 @@ export default function PiechartComponent(): JSX.Element {
     return map
   }, [selectedCalendars, tasksByCalendar])
 
-  // inner ring: one slice per calendar. outer ring: one slice per note.
   const { innerData, outerData } = useMemo(() => {
     const calTotals = new Map<string, number>()
-    // keyed by calendar::note so identical note text in different calendars stays separate
     const noteTotals = new Map<string, { calendar: string; note: string; value: number }>()
 
     rawLinechartData.forEach((row) => {
@@ -122,18 +155,14 @@ export default function PiechartComponent(): JSX.Element {
 
       const key = `${row.calendarName}::${row.note}`
       const existing = noteTotals.get(key)
-      if (existing) {
-        existing.value += mins
-      } else {
-        noteTotals.set(key, { calendar: row.calendarName, note: row.note, value: mins })
-      }
+      if (existing) existing.value += mins
+      else noteTotals.set(key, { calendar: row.calendarName, note: row.note, value: mins })
     })
 
     const inner = Array.from(calTotals.entries())
       .filter(([, value]) => value > 0)
       .map(([name, value]) => ({ name, value }))
 
-    // sort notes by parent calendar so outer slices sit above their inner slice
     const calOrder = new Map(inner.map((d, i) => [d.name, i]))
     const outer = Array.from(noteTotals.values())
       .filter((d) => d.value > 0)
@@ -157,7 +186,6 @@ export default function PiechartComponent(): JSX.Element {
   const calendarColorOf = (name: string): string =>
     calendars.find((c) => c.calendarName === name)?.calendarColor ?? '#c4c4c4'
 
-  // notes fade progressively within their calendar group so siblings stay distinguishable
   const noteShades = useMemo(() => {
     const counters = new Map<string, number>()
     return outerData.map((d) => {
@@ -172,6 +200,61 @@ export default function PiechartComponent(): JSX.Element {
   const grandTotal = useMemo(() => innerData.reduce((sum, d) => sum + d.value, 0), [innerData])
 
   const fmt = (mins: number): string => `${Math.floor(mins / 60)}h ${mins % 60}m`
+
+  // what the user is about to destroy — computed from currently loaded rows
+  const deletePreview = useMemo(() => {
+    if (!pendingDelete) return null
+    const matches = rawLinechartData.filter(
+      (row) => row.calendarId === pendingDelete.calendarId && row.note === pendingDelete.note
+    )
+    const totalMins = matches.reduce((s, r) => s + Math.round(r.lap_time / 60000), 0)
+    const dates = matches.map((r) => r.date).sort()
+    return {
+      lapCount: matches.length,
+      totalMins,
+      earliest: dates[0],
+      latest: dates[dates.length - 1]
+    }
+  }, [pendingDelete, rawLinechartData])
+
+  useEffect(() => {
+    console.log(pendingDelete)
+  }, [pendingDelete])
+
+  const confirmDelete = async (): Promise<void> => {
+    if (!pendingDelete) return
+    setIsDeleting(true)
+    setDeleteError(null)
+    console.log(pendingDelete.calendarId, pendingDelete.note)
+    try {
+      await window.api.deleteByNote(pendingDelete.calendarId, pendingDelete.note)
+
+      setSelectedCalendars((prev) => {
+        const next = new Map(prev)
+        const tasks = next.get(pendingDelete.calendarName)
+        if (tasks) {
+          next.set(
+            pendingDelete.calendarName,
+            tasks.filter((t) => t !== pendingDelete.note)
+          )
+        }
+        return next
+      })
+
+      await refresh()
+      setPendingDelete(null)
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'Delete failed')
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  const openMenu = (e: React.MouseEvent, target: ContextTarget): void => {
+    e.preventDefault()
+    e.stopPropagation()
+    setMenu({ x: e.clientX, y: e.clientY, target })
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
@@ -201,7 +284,7 @@ export default function PiechartComponent(): JSX.Element {
             const isHovered = hoveredCalendar === calendar.calendarName
             return (
               <div
-                key={calendar.calendarName}
+                key={calendar.calendarId}
                 style={{
                   ...styles.chip,
                   backgroundColor: isActive ? '#a3a3a3' : isHovered ? '#2e2e2e' : 'unset'
@@ -225,7 +308,8 @@ export default function PiechartComponent(): JSX.Element {
         </div>
 
         {Array.from(selectedCalendars.entries()).map(([calendarName, selectedTasks]) => {
-          const calendarColor = calendarColorOf(calendarName)
+          const calendar = calendars.find((c) => c.calendarName === calendarName)
+          const calendarColor = calendar?.calendarColor ?? '#c4c4c4'
           const tasks = tasksByCalendar.get(calendarName) ?? []
           return (
             <div
@@ -245,6 +329,14 @@ export default function PiechartComponent(): JSX.Element {
                     borderColor: calendarColor
                   }}
                   onClick={() => toggleTask(calendarName, task)}
+                  onContextMenu={(e) => {
+                    if (!calendar) return // no ID, no delete
+                    openMenu(e, {
+                      calendarId: calendar.calendarId,
+                      calendarName,
+                      note: task
+                    })
+                  }}
                 >
                   <p>{task}</p>
                 </div>
@@ -297,7 +389,6 @@ export default function PiechartComponent(): JSX.Element {
       {/* chart */}
       <ResponsiveContainer width="90%" aspect={1}>
         <PieChart>
-          {/* inner ring - calendars */}
           <Pie
             data={innerData}
             dataKey="value"
@@ -317,7 +408,6 @@ export default function PiechartComponent(): JSX.Element {
             ))}
           </Pie>
 
-          {/* outer ring - notes */}
           <Pie
             data={outerData}
             dataKey="value"
@@ -361,6 +451,84 @@ export default function PiechartComponent(): JSX.Element {
           />
         </PieChart>
       </ResponsiveContainer>
+
+      {/* context menu */}
+      {menu && (
+        <div
+          style={{ ...styles.menu, top: menu.y, left: menu.x }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div style={styles.menuHeader}>
+            {menu.target.calendarName} › {menu.target.note}
+          </div>
+          <div
+            style={styles.menuItemDanger}
+            onClick={() => {
+              setPendingDelete(menu.target)
+              setMenu(null)
+            }}
+          >
+            Delete all occurrences…
+          </div>
+        </div>
+      )}
+
+      {/* confirmation modal */}
+      {pendingDelete && deletePreview && (
+        <div style={styles.modalBackdrop} onClick={() => !isDeleting && setPendingDelete(null)}>
+          <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ margin: '0 0 12px' }}>Delete permanently?</h3>
+
+            <p style={{ margin: '0 0 8px', lineHeight: 1.5 }}>
+              This deletes every lap tagged <strong>{pendingDelete.note}</strong> in{' '}
+              <strong>{pendingDelete.calendarName}</strong>.
+            </p>
+
+            <div style={styles.previewBox}>
+              <div>
+                <strong>{deletePreview.lapCount}</strong> laps
+              </div>
+              <div>
+                <strong>{fmt(deletePreview.totalMins)}</strong> of tracked time
+              </div>
+              {deletePreview.earliest && (
+                <div style={{ color: '#888', fontSize: 12, marginTop: 4 }}>
+                  {new Date(deletePreview.earliest + 'T00:00:00').toLocaleDateString()} —{' '}
+                  {new Date(deletePreview.latest + 'T00:00:00').toLocaleDateString()}
+                </div>
+              )}
+            </div>
+
+            {dateString !== 'All Time' && (
+              <p style={{ fontSize: 12, color: '#e0a030', margin: '0 0 12px' }}>
+                Counts above reflect the current date filter. The delete applies to all history, so
+                the true total may be higher.
+              </p>
+            )}
+
+            <p style={{ fontSize: 12, color: '#888', margin: '0 0 16px' }}>
+              This cannot be undone.
+            </p>
+
+            {deleteError && (
+              <p style={{ color: '#ff6b6b', fontSize: 13, margin: '0 0 12px' }}>{deleteError}</p>
+            )}
+
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button
+                style={styles.buttonSecondary}
+                onClick={() => setPendingDelete(null)}
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button style={styles.buttonDanger} onClick={confirmDelete} disabled={isDeleting}>
+                {isDeleting ? 'Deleting…' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -375,6 +543,74 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: 5,
     paddingLeft: 10,
     paddingRight: 10,
+    cursor: 'pointer'
+  },
+  menu: {
+    position: 'fixed',
+    zIndex: 1000,
+    background: '#1a1a1a',
+    border: '1px solid #333',
+    borderRadius: 6,
+    padding: 4,
+    minWidth: 200,
+    boxShadow: '0 4px 16px rgba(0,0,0,0.5)'
+  },
+  menuHeader: {
+    padding: '6px 10px',
+    fontSize: 11,
+    color: '#777',
+    borderBottom: '1px solid #2a2a2a',
+    marginBottom: 4,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap'
+  },
+  menuItemDanger: {
+    padding: '8px 10px',
+    fontSize: 13,
+    color: '#ff6b6b',
+    cursor: 'pointer',
+    borderRadius: 4
+  },
+  modalBackdrop: {
+    position: 'fixed',
+    inset: 0,
+    background: 'rgba(0,0,0,0.6)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1001
+  },
+  modal: {
+    background: '#1a1a1a',
+    border: '1px solid #333',
+    borderRadius: 10,
+    padding: 20,
+    width: 420,
+    maxWidth: '90vw',
+    color: '#ddd'
+  },
+  previewBox: {
+    background: '#111',
+    border: '1px solid #2a2a2a',
+    borderRadius: 6,
+    padding: 12,
+    margin: '0 0 12px'
+  },
+  buttonSecondary: {
+    padding: '8px 14px',
+    background: 'transparent',
+    border: '1px solid #444',
+    borderRadius: 6,
+    color: '#ddd',
+    cursor: 'pointer'
+  },
+  buttonDanger: {
+    padding: '8px 14px',
+    background: '#c0392b',
+    border: 'none',
+    borderRadius: 6,
+    color: '#fff',
     cursor: 'pointer'
   }
 }

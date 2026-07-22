@@ -10,11 +10,15 @@ import { authApi } from './apis/authApi'
 const api = {
   saveCsv: (csvContent: string, dateStr: string) =>
     ipcRenderer.invoke('save-csv', csvContent, dateStr),
+
+  // Laps
   insertLaps: (laps: LapRow[]) => ipcRenderer.invoke('insert-laps', laps),
   updateLapNote: (timeStarted: string, date: string, note: string) =>
     ipcRenderer.invoke('update-lap', timeStarted, date, note),
   updateLapComments: (timeStarted: string, date: string, note: string) =>
     ipcRenderer.invoke('update-lap-comments', timeStarted, date, note),
+  deleteByNote: (calendarId: number, note: string) =>
+    ipcRenderer.invoke('delete-by-note', calendarId, note),
 
   // visualizations
   getHeatmapData: () => ipcRenderer.invoke('get-heatmap-data'),

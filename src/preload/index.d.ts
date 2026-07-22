@@ -12,9 +12,12 @@ declare global {
     electron: ElectronAPI
     api: {
       saveCsv: (csvContent: string, dateStr: string) => Promise<void>
+
+      // Laps
       insertLaps: (laps: LapRow[]) => Promise<{ success: boolean }>
       updateLapNote: (timeStarted: string, date: string, note: string) => Promise<void>
       updateLapComments: (timeStarted: string, date: string, comments: string) => Promise<void>
+      deleteByNote: (calendarId: number, note: string) => Promise<{ deleted: number }>
 
       // Visualizations
       getHeatmapData: () => Promise<HeatmapData>

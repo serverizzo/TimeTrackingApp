@@ -50,4 +50,15 @@ export function lapHandlers() {
       AND date = ?`
     ).run(comments, timeStarted, date)
   })
+
+  ipcMain.handle('delete-by-note', (_e, calendarId: number, note: string) => {
+    const db = getDb()
+    if (!Number.isInteger(calendarId) || typeof note !== 'string') {
+      throw new Error('Invalid arguments')
+    }
+    const result = db
+      .prepare('DELETE FROM laps WHERE calendar = ? AND note = ?')
+      .run(calendarId, note)
+    return { deleted: result.changes }
+  })
 }
