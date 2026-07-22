@@ -217,15 +217,10 @@ export default function PiechartComponent(): JSX.Element {
     }
   }, [pendingDelete, rawLinechartData])
 
-  useEffect(() => {
-    console.log(pendingDelete)
-  }, [pendingDelete])
-
   const confirmDelete = async (): Promise<void> => {
     if (!pendingDelete) return
     setIsDeleting(true)
     setDeleteError(null)
-    console.log(pendingDelete.calendarId, pendingDelete.note)
     try {
       await window.api.deleteByNote(pendingDelete.calendarId, pendingDelete.note)
 
@@ -387,7 +382,7 @@ export default function PiechartComponent(): JSX.Element {
       </div>
 
       {/* chart */}
-      <ResponsiveContainer width="90%" aspect={1}>
+      <ResponsiveContainer height="50%" width="50%" aspect={1}>
         <PieChart>
           <Pie
             data={innerData}
@@ -442,13 +437,13 @@ export default function PiechartComponent(): JSX.Element {
               return [`${fmt(mins)} (${mins} mins, ${pct}%)`, label]
             }}
           />
-          <Legend
+          {/* <Legend
             payload={innerData.map((d) => ({
               value: d.name,
               type: 'square',
               color: calendarColorOf(d.name)
             }))}
-          />
+          /> */}
         </PieChart>
       </ResponsiveContainer>
 

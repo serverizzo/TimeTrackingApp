@@ -96,8 +96,6 @@ export default function VisualizationsRoute(): JSX.Element {
         paddingRight: 10
       }}
     >
-      <p>VisualizationsRoute</p>
-
       <div
         ref={containerRef}
         onMouseMove={handleMouseMove}
@@ -162,7 +160,7 @@ export default function VisualizationsRoute(): JSX.Element {
         }
       />
       {/* <SummaryPanel laps={laps} /> */}
-      <Linechart />
+      {/* <Linechart /> */}
 
       <PiechartComponent />
     </div>
