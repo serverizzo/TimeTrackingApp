@@ -3,14 +3,14 @@ import GanttChart from '@renderer/components/visualizations/GanttChart'
 import Heatmap from '@renderer/components/visualizations/Heatmap'
 import Linechart from '@renderer/components/visualizations/linechart'
 import NotesPannel from '@renderer/components/visualizations/NotesPannel'
+import PiechartComponent from '@renderer/components/visualizations/piechartcomponent'
 import SummaryPanel from '@renderer/components/visualizations/summaryPannel'
 import { LapEntry } from '@renderer/components/visualizations/types'
-import { useEffect, useRef, useState } from 'react'
+import { JSX, useEffect, useRef, useState } from 'react'
 import { CheckinItemByDay } from 'src/shared/queryTypes/checkinItemByDay'
 import { HeatmapDataByDayAndCalendar } from 'src/shared/queryTypes/heatmapByDayAndCalendar'
-import { HeatmapData } from 'src/shared/queryTypes/heatMapData'
 
-export default function VisualizationsRoute() {
+export default function VisualizationsRoute(): JSX.Element {
   const [heatmapData, setHeatmapData] = useState<HeatmapDataByDayAndCalendar[]>([])
   const [checkinItems, setCheckinItems] = useState<CheckinItemByDay[]>([])
   const [laps, setLaps] = useState<LapEntry[]>([])
@@ -27,11 +27,11 @@ export default function VisualizationsRoute() {
 
   const [ganttRefresh, setGanttRefresh] = useState<boolean>(false)
 
-  const handleMouseDown = () => {
+  const handleMouseDown = (): void => {
     isDragging.current = true
   }
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  const handleMouseMove = (e: React.MouseEvent): void => {
     if (!isDragging.current || !containerRef.current) return
     const containerLeft = containerRef.current.getBoundingClientRect().left
     const newWidth = e.clientX - containerLeft
@@ -40,7 +40,7 @@ export default function VisualizationsRoute() {
     }
   }
 
-  const handleMouseUp = () => {
+  const handleMouseUp = (): void => {
     isDragging.current = false
   }
 
@@ -57,13 +57,13 @@ export default function VisualizationsRoute() {
     return () => observer.disconnect()
   }, []) // no dependency needed — ResizeObserver handles all size changes
 
-  const formatDate = (d: Date) => d.toISOString().split('T')[0]
+  const formatDate = (d: Date) => d.toISOString().split('T')[0] // TODO: fix this!!
 
   const windowEnd = new Date(windowStart)
   windowEnd.setDate(windowStart.getDate() + 6)
 
   useEffect(() => {
-    const getData = async () => {
+    const getData = async (): Promise<void> => {
       const heatMapData = await window.api.getHeatmapData()
       setHeatmapData(heatMapData.heatmapDataByDayAndCalendarArr)
       setCheckinItems(heatMapData.checkinItemByDayArr)
@@ -163,6 +163,8 @@ export default function VisualizationsRoute() {
       />
       {/* <SummaryPanel laps={laps} /> */}
       <Linechart />
+
+      <PiechartComponent />
     </div>
   )
 }
