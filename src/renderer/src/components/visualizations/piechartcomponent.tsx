@@ -382,7 +382,7 @@ export default function PiechartComponent(): JSX.Element {
       </div>
 
       {/* chart */}
-      <ResponsiveContainer height="50%" width="50%" aspect={1}>
+      <ResponsiveContainer height={500} width="100%">
         <PieChart>
           <Pie
             data={innerData}
