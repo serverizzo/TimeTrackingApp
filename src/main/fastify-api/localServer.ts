@@ -19,14 +19,33 @@ export const startLocalFastifyServer = (): void => {
 
     try {
       const db = getDb()
-      const insert = db.prepare(`
-        INSERT OR IGNORE INTO laps (timestarted, date, lap_time, note, source, calendar)
-        VALUES (@timestarted, @date, @lapTime, @note, @source, @calendar)
+
+      const normalize = (name: string): string => name.trim().toLowerCase()
+
+      const getActivityByName = db.prepare(`
+      SELECT id FROM activities WHERE LOWER(TRIM(name)) = ?
+    `)
+
+      const insertActivity = db.prepare(`
+        INSERT INTO activities (name, calendar, isTrackedInLaps, isTrackedInCheckin)
+        VALUES (?, ?, 1, 0)
       `)
 
-      const insertMany = db.transaction((laps) => {
-        for (const lap of laps)
-          insert.run({
+      const insertLap = db.prepare(`
+      INSERT OR IGNORE INTO laps (timestarted, date, lap_time, note, source, calendar)
+      VALUES (@timestarted, @date, @lapTime, @note, @source, @calendar)
+    `)
+
+      const processLaps = db.transaction((laps) => {
+        for (const lap of laps) {
+          if (lap.note) {
+            const existing = getActivityByName.get(normalize(lap.note))
+            if (!existing) {
+              insertActivity.run(lap.note.trim(), lap.calendar)
+            }
+          }
+
+          insertLap.run({
             timestarted: lap.timestarted,
             date: lap.date,
             lapTime: lap.lap_time,
@@ -34,9 +53,10 @@ export const startLocalFastifyServer = (): void => {
             source: lap.source,
             calendar: lap.calendar
           })
+        }
       })
 
-      insertMany(laps)
+      processLaps(laps)
       return reply.send({ success: true })
     } catch (err) {
       server.log.error(err)
@@ -102,66 +122,6 @@ export const startLocalFastifyServer = (): void => {
       console.error('Local server error:', err)
     } else {
       console.log('Local Fastify server running on port 4321')
-    }
-  })
-
-  server.post('/sync/laps', async (request, reply) => {
-    const { laps } = request.body as {
-      laps: {
-        timestarted: string
-        date: string
-        lap_time: number
-        note: string | null
-        comments: string | null
-        source: string
-        calendar: number | null
-      }[]
-    }
-
-    try {
-      const db = getDb()
-
-      const normalize = (name: string) => name.trim().toLowerCase()
-
-      const getActivityByName = db.prepare(`
-      SELECT id FROM activities WHERE LOWER(TRIM(name)) = ?
-    `)
-
-      const insertActivity = db.prepare(`
-      INSERT INTO activities (name, isTrackedInLaps, isTrackedInCheckin)
-      VALUES (?, 1, 0)
-    `)
-
-      const insertLap = db.prepare(`
-      INSERT OR IGNORE INTO laps (timestarted, date, lap_time, note, source, calendar)
-      VALUES (@timestarted, @date, @lapTime, @note, @source, @calendar)
-    `)
-
-      const processLaps = db.transaction((laps) => {
-        for (const lap of laps) {
-          if (lap.note) {
-            const existing = getActivityByName.get(normalize(lap.note))
-            if (!existing) {
-              insertActivity.run(lap.note.trim())
-            }
-          }
-
-          insertLap.run({
-            timestarted: lap.timestarted,
-            date: lap.date,
-            lapTime: lap.lap_time,
-            note: lap.note,
-            source: lap.source,
-            calendar: lap.calendar
-          })
-        }
-      })
-
-      processLaps(laps)
-      return reply.send({ success: true })
-    } catch (err) {
-      server.log.error(err)
-      return reply.status(500).send({ error: 'Internal server error' })
     }
   })
 }
