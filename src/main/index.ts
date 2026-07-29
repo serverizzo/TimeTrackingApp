@@ -16,6 +16,7 @@ import { registerTimelineHandlers } from './handlers/timelineHandlers'
 import { getLaunchOnStartup, setLaunchOnStartup } from './autostart/autostart'
 import { registerNotificationsHandler } from './handlers/notificationsHandler'
 import { registerUpdates } from './checkForUpdates/checkForUpdates'
+import { startLocalFastifyServer } from './fastify-api/localServer'
 
 // Fix for Wayland/X11 compatibility on Linux
 if (process.platform === 'linux') {
@@ -66,7 +67,13 @@ app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.timetracker')
 
+  // start db first
   initializeDatabase()
+
+  // start fastify after db
+  startLocalFastifyServer()
+
+  // in terms of order, everything else doesn't matter.
   IconHandlers()
   lapHandlers()
   visualizationhandlers()
