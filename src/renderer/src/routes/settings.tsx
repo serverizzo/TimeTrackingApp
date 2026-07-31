@@ -1,4 +1,5 @@
 import AutoStart from '@renderer/components/settings/AutoStart'
+import QRCodeSync from '@renderer/components/settings/QRcodeSync'
 import Reminders from '@renderer/components/settings/Reminders'
 import { JSX, useEffect, useState } from 'react'
 
@@ -8,7 +9,7 @@ export default function Settings(): JSX.Element {
   const [newReleaseVersion, setNewReleaseVersion] = useState<string | null>('')
 
   useEffect(() => {
-    const getTheCurrentVersion = async (): void => {
+    const getTheCurrentVersion = async (): Promise<void> => {
       const res = await window.api.checkForUpdates()
       setVersion(res.currentVersion)
       setNewRelease(res.updateAvailable)
@@ -34,6 +35,7 @@ export default function Settings(): JSX.Element {
           </button>
         )}
       </div>
+      <QRCodeSync />
     </div>
   )
 }

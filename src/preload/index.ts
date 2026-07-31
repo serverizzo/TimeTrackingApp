@@ -75,6 +75,9 @@ const api = {
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),
   checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
 
+  //QR code
+  getLocalIP: () => ipcRenderer.invoke('get-local-ip'),
+
   ...notesApi
 }
 

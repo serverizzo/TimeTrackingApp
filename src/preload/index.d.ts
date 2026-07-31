@@ -91,6 +91,9 @@ declare global {
         error?: string
       }>
       getAppVersion: () => Promise<string>
+
+      // QR Code
+      getLocalIP: () => Promise<string>
     }
   }
 }
