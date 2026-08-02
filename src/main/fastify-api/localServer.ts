@@ -117,6 +117,24 @@ export const startLocalFastifyServer = (): void => {
     }
   })
 
+  server.get('/calendars', async (request, reply) => {
+    try {
+      const db = getDb()
+      const calendars = db
+        .prepare(
+          `
+          SELECT id as calendar_id, name, color FROM calendars ORDER BY name
+        `
+        )
+        .all()
+
+      return reply.send({ calendars })
+    } catch (err) {
+      server.log.error(err)
+      return reply.status(500).send({ error: 'Internal server error' })
+    }
+  })
+
   server.listen({ port: 4321, host: '0.0.0.0' }, (err) => {
     if (err) {
       console.error('Local server error:', err)
